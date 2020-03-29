@@ -1,0 +1,11 @@
+﻿System.Reactive
+System.Interactive
+
+Npgsql
+Dapper
+Polly
+
+Microsoft.Extensions.DependencyInjection
+Microsoft.Extensions.DependencyInjection.Abstractions
+Microsoft.Extensions.Logging
+Microsoft.Extensions.Logging.Abstractions

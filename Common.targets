@@ -1,0 +1,26 @@
+<Project>
+  <PropertyGroup>
+    <Version>0.0.1</Version>
+    <AssemblyVersion>0.0.1</AssemblyVersion>
+    <FileVersion>0.0.1</FileVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Product>K4os.Xpovoc</Product>
+    <Authors>...</Authors>
+    <Copyright>...</Copyright>
+    <Description>...</Description>
+    <RepositoryUrl>https://.../K4os.Xpovoc</RepositoryUrl>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!--
+    <PackageId>K4os.Xpovoc</PackageId>
+    <PackageTags>...</PackageTags>
+    <PackageLicenseUrl>https://.../LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://.../K4os.Xpovoc</PackageProjectUrl>
+    <PackageIconUrl>https://.../K4os.Xpovoc/icon.png</PackageIconUrl>
+    -->
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="*.?sproj.DotSettings" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.AnySql\K4os.Xpovoc.AnySql.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Migration.xml" />
+    <EmbeddedResource Include="Migrations.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\K4os.Shared\Extensions.cs">
+      <Link>Extensions.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

@@ -1,0 +1,6 @@
+﻿Microsoft.Extensions.Logging.Abstractions
+
+System.Reactive
+System.Interactive
+
+K4os.Async.Batch

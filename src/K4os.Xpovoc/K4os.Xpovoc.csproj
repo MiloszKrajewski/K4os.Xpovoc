@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <AllowUnsafeCode>true</AllowUnsafeCode>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\K4os.Shared\Extensions.cs">
+      <Link>Extensions.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <Import Project="..\..\Common.targets" />
+  <Import Project="..\..\Signing.targets" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>
