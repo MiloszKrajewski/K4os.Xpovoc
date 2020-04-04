@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

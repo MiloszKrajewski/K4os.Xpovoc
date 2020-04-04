@@ -10,7 +10,10 @@ namespace K4os.Xpovoc
 			KeepAliveInterval = TimeSpan.FromSeconds(5),
 			KeepAlivePeriod = TimeSpan.FromMinutes(1),
 			KeepAliveRetryInterval = TimeSpan.FromSeconds(1),
+			RetryLimit = 10,
 			RetryInterval = TimeSpan.FromSeconds(30),
+			MaximumRetryInterval = TimeSpan.FromHours(6),
+			RetryFactor = 1.5,
 		};
 
 		public TimeSpan PollInterval { get; set; }
@@ -20,6 +23,12 @@ namespace K4os.Xpovoc
 		public TimeSpan KeepAlivePeriod { get; set; }
 
 		public TimeSpan RetryInterval { get; set; }
+
+		public double RetryFactor { get; set; }
+
+		public int RetryLimit { get; set; }
+
+		public TimeSpan MaximumRetryInterval { get; set; }
 
 		public TimeSpan KeepAliveRetryInterval { get; set; }
 

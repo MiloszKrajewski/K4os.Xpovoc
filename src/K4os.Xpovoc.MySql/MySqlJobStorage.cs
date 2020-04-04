@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using K4os.Xpovoc.Abstractions;
 using K4os.Xpovoc.AnySql;
+using K4os.Xpovoc.MySql.Resources;
 using MySql.Data.MySqlClient;
 using Polly;
 
@@ -14,9 +15,31 @@ namespace K4os.Xpovoc.MySql
 {
 	public class MySqlJobStorage: AnySqlStorage<MySqlConnection>, IJobStorage
 	{
+		private static readonly Random Rng = new Random();
+
+		private static double ExpRng(double limit)
+		{
+			const double em1 = Math.E - 1;
+			double random;
+			lock (Rng) random = Rng.NextDouble();
+			return (Math.Exp(random) - 1) * limit / em1;
+		}
+
+		private static TimeSpan RetryInterval(int attempt) =>
+			attempt <= 4
+				? TimeSpan.Zero
+				: ExpRng((attempt - 4) * 15)
+					.NotMoreThan(1000)
+					.PipeTo(TimeSpan.FromMilliseconds);
+
+		private static readonly AsyncPolicy DeadlockPolicy = Policy
+			.Handle<MySqlException>(e => e.Number == 1213)
+			.WaitAndRetryForeverAsync(RetryInterval);
+
 		private readonly Func<Task<MySqlConnection>> _connectionFactory;
 		private readonly string _tablePrefix;
 		private readonly Dictionary<string, string> _queryMap;
+		private readonly MySqlResourceLoader _resourceLoader;
 
 		public MySqlJobStorage(
 			IJobSerializer serializer,
@@ -28,15 +51,16 @@ namespace K4os.Xpovoc.MySql
 
 			_connectionFactory = ConnectionFactory(config.ConnectionString);
 			_tablePrefix = config.TablePrefix ?? string.Empty;
-			_queryMap = LoadQueries();
+			_resourceLoader = MySqlResourceLoader.Default;
+			_queryMap = LoadQueryMap();
 		}
-		
-		private static TimeSpan RetryInterval(int attempt) =>
-			TimeSpan.FromMilliseconds(Math.Min((attempt - 1) * 33, 1000));
 
-		private static readonly AsyncPolicy DeadlockPolicy = Policy
-			.Handle<MySqlException>(e => e.Number == 1213)
-			.WaitAndRetryForeverAsync(RetryInterval);
+		private Dictionary<string, string> LoadQueryMap()
+		{
+			var map = MySqlResourceLoader.Default.LoadQueries(_tablePrefix);
+			// process loaded strings?
+			return map;
+		}
 
 		private static Task Undeadlock(
 			MySqlConnection connection, Func<MySqlConnection, Task> action) =>
@@ -71,24 +95,15 @@ namespace K4os.Xpovoc.MySql
 
 		protected override Task CreateDatabase(MySqlConnection connection)
 		{
-			var xml = GetEmbeddedXml<MySqlJobStorage>("Migrations.xml");
-			var migrator = new MySqlMigrationManager(connection, _tablePrefix, xml);
+			var migrations = _resourceLoader.LoadMigrations(_tablePrefix);
+			var migrator = new MySqlMigrator(connection, _tablePrefix, migrations);
 			migrator.Install();
 			return Task.CompletedTask;
 		}
 
-		private Dictionary<string, string> LoadQueries() =>
-			GetEmbeddedXml<MySqlJobStorage>("Queries.xml")
-				.Elements("query")
-				.Select(e => new { Id = e.Attribute("id").Required("id").Value, Text = e.Value })
-				.ToDictionary(
-					kv => kv.Id,
-					kv => kv.Text.Replace("{prefix}", _tablePrefix));
-
-		public async Task<Guid> Schedule(object payload, DateTimeOffset when)
+		public async Task<Guid> Schedule(object payload, DateTime when)
 		{
 			var guid = Guid.NewGuid();
-			var whenUtc = when.UtcDateTime;
 			var serialized = Serialize(payload);
 
 			Task Action(IDbConnection connection) =>
@@ -96,7 +111,7 @@ namespace K4os.Xpovoc.MySql
 					_queryMap["schedule"],
 					new {
 						job_id = guid,
-						scheduled_for = whenUtc,
+						scheduled_for = when,
 						payload = serialized
 					});
 
@@ -106,39 +121,17 @@ namespace K4os.Xpovoc.MySql
 			return guid;
 		}
 
-		public Task Reschedule(Guid job, DateTimeOffset when)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task Cancel(Guid job) { throw new NotImplementedException(); }
-
-		// ReSharper disable once ClassNeverInstantiated.Local
-		private class JobRec
-		{
-#pragma warning disable 649
-			// ReSharper disable InconsistentNaming
-			public Guid job_id;
-			public string payload;
-			public int attempt;
-			// ReSharper restore InconsistentNaming
-#pragma warning restore 649
-		}
-
 		public async Task<IJob> Claim(
 			CancellationToken token,
-			Guid worker, DateTimeOffset now, DateTimeOffset until)
+			Guid worker, DateTime now, DateTime until)
 		{
-			var nowUtc = now.UtcDateTime;
-			var untilUtc = until.UtcDateTime;
-
 			Task<JobRec> Action(IDbConnection connection) =>
 				connection.QueryFirstOrDefaultAsync<JobRec>(
 					_queryMap["claim"],
 					new {
 						claimed_by = worker,
-						invisible_until = untilUtc,
-						now = nowUtc,
+						invisible_until = until,
+						now,
 					});
 
 			Job ToJob(JobRec job) =>
@@ -150,24 +143,22 @@ namespace K4os.Xpovoc.MySql
 
 		public async Task<bool> KeepClaim(
 			CancellationToken token,
-			Guid worker, Guid job, DateTimeOffset until)
+			Guid worker, Guid job, DateTime until)
 		{
-			var untilUtc = until.UtcDateTime;
-
 			Task<int> Action(IDbConnection connection) =>
 				connection.ExecuteAsync(
 					_queryMap["keep"],
 					new {
 						job_id = job,
 						claimed_by = worker,
-						invisible_until = untilUtc,
+						invisible_until = until,
 					});
 
 			using (var connection = await Connect())
 				return await Undeadlock(token, connection, Action) > 0;
 		}
 
-		public async Task Complete(Guid worker, Guid job, DateTimeOffset now)
+		public async Task Complete(Guid worker, Guid job, DateTime now)
 		{
 			Task<int> Action(IDbConnection connection) =>
 				connection.ExecuteAsync(
@@ -181,9 +172,49 @@ namespace K4os.Xpovoc.MySql
 				await Undeadlock(connection, Action);
 		}
 
-		public Task Retry(Guid worker, Guid job, DateTimeOffset when)
+		public async Task Retry(Guid worker, Guid job, DateTime when)
 		{
-			throw new NotImplementedException();
+			Task<int> Action(IDbConnection connection) =>
+				connection.ExecuteAsync(
+					_queryMap["retry"],
+					new {
+						job_id = job,
+						claimed_by = worker,
+						invisible_until = when,
+					});
+
+			using (var connection = await Connect())
+				await Undeadlock(connection, Action);
 		}
+
+		public async Task Forget(Guid worker, Guid job, DateTime now)
+		{
+			Task<int> Action(IDbConnection connection) =>
+				connection.ExecuteAsync(
+					_queryMap["forget"],
+					new {
+						job_id = job,
+						claimed_by = worker,
+					});
+
+			using (var connection = await Connect())
+				await Undeadlock(connection, Action);
+		}
+
+		#region JobRec
+
+		// ReSharper disable once ClassNeverInstantiated.Local
+		private class JobRec
+		{
+#pragma warning disable 649
+			// ReSharper disable InconsistentNaming
+			public Guid job_id;
+			public string payload;
+			public int attempt;
+			// ReSharper restore InconsistentNaming
+#pragma warning restore 649
+		}
+
+		#endregion
 	}
 }

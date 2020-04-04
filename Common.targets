@@ -5,6 +5,7 @@
     <FileVersion>0.0.1</FileVersion>
   </PropertyGroup>
   <PropertyGroup>
+    <!-- Χρόνος -->
     <Product>K4os.Xpovoc</Product>
     <Authors>...</Authors>
     <Copyright>...</Copyright>

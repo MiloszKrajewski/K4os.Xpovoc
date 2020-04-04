@@ -68,25 +68,6 @@ namespace K4os.Xpovoc.AnySql
 			await _databaseReady.Task;
 		}
 
-		protected static XElement GetEmbeddedXml(Type type, string resourceName)
-		{
-			var assembly = type.Assembly;
-			using (var stream = assembly.GetManifestResourceStream(type, resourceName))
-			{
-				if (stream is null)
-					throw new ArgumentException(
-						$"Embedded stream {resourceName} for {type.Name} could not be found");
-
-				using (var reader = new StreamReader(stream))
-				{
-					return XElement.Parse(reader.ReadToEnd());
-				}
-			}
-		}
-
-		protected static XElement GetEmbeddedXml<THook>(string resourceName) =>
-			GetEmbeddedXml(typeof(THook), resourceName);
-
 		protected string Serialize(object payload) => _serializer.Serialize(payload);
 		protected object Deserialize(string payload) => _serializer.Deserialize(payload);
 	}

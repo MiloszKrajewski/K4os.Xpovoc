@@ -1,3 +1,5 @@
+using System;
+
 namespace K4os.Xpovoc.MySql
 {
 	public class MySqlJobStorageConfig: IMySqlJobStorageConfig

@@ -11,7 +11,7 @@
         created_on datetime(6) not null,
         scheduled_for datetime(6) not null,
         claimed_by char(36) collate ascii_bin,
-        invisible_until datetime(6),
+        invisible_until datetime(6) not null,
         attempt int not null default (0),
         payload longtext
     );

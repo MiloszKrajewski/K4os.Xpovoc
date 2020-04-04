@@ -17,25 +17,43 @@
   <query id="schedule"><![CDATA[
     -- insert new job
     insert into {prefix}Jobs (
-      job_id, created_on, scheduled_for, payload
+      job_id, created_on, scheduled_for, invisible_until, payload
     ) values (
-      @job_id, now(), @scheduled_for, @payload
+      @job_id, now(), @scheduled_for, @scheduled_for, @payload
     )
   ]]></query>
   <query id="claim"><![CDATA[
     -- claim jobs 
 		update {prefix}Jobs 
-      set 
+      set
+        row_id = (@row_id := row_id), 
         claimed_by = @claimed_by, 
         invisible_until = @invisible_until,
         attempt = attempt + 1 
       where 
-        (@row_id := row_id) is not null 
-        and scheduled_for <= @now 
-        and (invisible_until is null or invisible_until < @now)
+        scheduled_for <= @now and invisible_until <= @now
       order by scheduled_for
       limit 1;
 		select job_id, payload, attempt from {prefix}Jobs where row_id = @row_id;
+  ]]></query>
+  <query id="claim_jitter"><![CDATA[
+    -- claim jobs with jitter
+    update
+      {prefix}Jobs j join (
+        select row_id as winner_id from (
+          select row_id, rand()*timestampdiff(second, scheduled_for, @now) as score
+          from {prefix}Jobs
+          where scheduled_for <= @now and invisible_until <= @now
+          order by scheduled_for
+          limit {jitter}
+        ) _ order by score desc limit 1
+      ) _ on row_id = winner_id
+    set
+      row_id = (@row_id := row_id), 
+      claimed_by = @claimed_by, 
+      invisible_until = @invisible_until,
+      attempt = attempt + 1; 
+    select job_id, payload, attempt from {prefix}Jobs where row_id = @row_id;
   ]]></query>
   <query id="keep"><![CDATA[
     -- keep job claim 
@@ -47,12 +65,14 @@
     -- complete job 
 		delete from {prefix}Jobs where job_id = @job_id and claimed_by = @claimed_by
   ]]></query>
+  <query id="forget"><![CDATA[
+    -- forget job 
+		delete from {prefix}Jobs where job_id = @job_id and claimed_by = @claimed_by
+  ]]></query>
   <query id="retry"><![CDATA[
     -- retry job 
 		update {prefix}Jobs 
       set claimed_by = null, invisible_until = @invisible_until
       where job_id = @job_id and claimed_by = @claimed_by
   ]]></query>
-
-
 </queries>

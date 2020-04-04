@@ -19,17 +19,16 @@ namespace K4os.Xpovoc.Abstractions
 		/// <returns>Claimed job definition, or <c>null</c> if no job claimed.</returns>
 		Task<IJob> Claim(
 			CancellationToken token,
-			Guid worker, DateTimeOffset now, DateTimeOffset until);
+			Guid worker, DateTime now, DateTime until);
 
 		Task<bool> KeepClaim(
 			CancellationToken token, 
-			Guid worker, Guid job, DateTimeOffset until);
+			Guid worker, Guid job, DateTime until);
 
-		Task Complete(Guid worker, Guid job, DateTimeOffset now);
-		Task Retry(Guid worker, Guid job, DateTimeOffset when);
+		Task Complete(Guid worker, Guid job, DateTime now);
+		Task Forget(Guid worker, Guid job, DateTime now);
+		Task Retry(Guid worker, Guid job, DateTime when);
 		
-		Task<Guid> Schedule(object payload, DateTimeOffset when);
-		Task Reschedule(Guid job, DateTimeOffset when);
-		Task Cancel(Guid job);
+		Task<Guid> Schedule(object payload, DateTime when);
 	}
 }
