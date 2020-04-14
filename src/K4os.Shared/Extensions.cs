@@ -27,7 +27,7 @@ namespace System
 		public static R PipeTo<T, R>(this T subject, Func<T, R> func) =>
 			func(subject);
 
-		public static void PipeTo<T, R>(this T subject, Action<T> func) =>
+		public static void PipeTo<T>(this T subject, Action<T> func) =>
 			func(subject);
 
 		public static T TapWith<T>(this T subject, Action<T> func)

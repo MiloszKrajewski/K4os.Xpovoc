@@ -1,0 +1,8 @@
+namespace K4os.Xpovoc.PgSql
+{
+	public interface IPgSqlJobStorageConfig
+	{
+		string ConnectionString { get; }
+		string TablePrefix { get; }
+	}
+}

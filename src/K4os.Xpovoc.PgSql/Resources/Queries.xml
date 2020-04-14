@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<queries>
+  <!--
+  <query id="..."><![CDATA[
+  ]]></query>
+  -->
+  <!--
+      row_id int auto_increment primary key,
+      job_id char(36) collate ascii_bin not null,
+      created_on datetime(6) not null,
+      scheduled_for datetime(6) not null,
+      claimed_by char(36) collate ascii_bin,
+      invisible_until datetime(6),
+      attempt int not null default (0),
+      payload longtext
+  -->
+  <query id="schedule"><![CDATA[
+    -- insert new job
+    insert into {prefix}Jobs (
+      job_id, created_on, scheduled_for, invisible_until, payload
+    ) values (
+      @job_id, now(), @scheduled_for, @scheduled_for, @payload
+    )
+  ]]></query>
+  <query id="claim"><![CDATA[
+    -- claim jobs 
+		update {prefix}Jobs 
+      set
+        row_id = (@row_id := row_id), 
+        claimed_by = @claimed_by, 
+        invisible_until = @invisible_until,
+        attempt = attempt + 1 
+      where 
+        scheduled_for <= @now and invisible_until <= @now
+      order by scheduled_for
+      limit 1;
+		select job_id, payload, attempt from {prefix}Jobs where row_id = @row_id;
+  ]]></query>
+  <query id="claim_jitter"><![CDATA[
+    -- claim jobs with jitter
+    update
+      {prefix}Jobs j join (
+        select row_id as winner_id from (
+          select row_id, rand()*timestampdiff(second, scheduled_for, @now) as score
+          from {prefix}Jobs
+          where scheduled_for <= @now and invisible_until <= @now
+          order by scheduled_for
+          limit {jitter}
+        ) _ order by score desc limit 1
+      ) _ on row_id = winner_id
+    set
+      row_id = (@row_id := row_id), 
+      claimed_by = @claimed_by, 
+      invisible_until = @invisible_until,
+      attempt = attempt + 1; 
+    select job_id, payload, attempt from {prefix}Jobs where row_id = @row_id;
+  ]]></query>
+  <query id="keep"><![CDATA[
+    -- keep job claim 
+		update {prefix}Jobs 
+      set invisible_until = @invisible_until
+      where job_id = @job_id and claimed_by = @claimed_by
+  ]]></query>
+  <query id="complete"><![CDATA[
+    -- complete job 
+		delete from {prefix}Jobs where job_id = @job_id and claimed_by = @claimed_by
+  ]]></query>
+  <query id="forget"><![CDATA[
+    -- forget job 
+		delete from {prefix}Jobs where job_id = @job_id and claimed_by = @claimed_by
+  ]]></query>
+  <query id="retry"><![CDATA[
+    -- retry job 
+		update {prefix}Jobs 
+      set claimed_by = null, invisible_until = @invisible_until
+      where job_id = @job_id and claimed_by = @claimed_by
+  ]]></query>
+</queries>

@@ -14,9 +14,13 @@ nuget K4os.Async.Batch
 
 nuget MySqlConnector
 nuget Npgsql
+nuget Microsoft.Data.Sqlite
+nuget System.Data.SqlClient
+
 nuget Dapper
 nuget Polly
 nuget Newtonsoft.Json
+nuget MediatR
 
 nuget Microsoft.NET.Test.Sdk
 nuget xunit

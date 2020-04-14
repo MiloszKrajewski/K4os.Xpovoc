@@ -6,5 +6,10 @@
   <ItemGroup>
     <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\K4os.Shared\Extensions.cs">
+      <Link>Extensions.cs</Link>
+    </Compile>
+  </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
