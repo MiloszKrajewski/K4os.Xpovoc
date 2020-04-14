@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using K4os.Xpovoc.AnySql;
+using K4os.Xpovoc.Toolbox;
+using K4os.Xpovoc.Toolbox.Sql;
 
 namespace K4os.Xpovoc.MySql.Resources
 {

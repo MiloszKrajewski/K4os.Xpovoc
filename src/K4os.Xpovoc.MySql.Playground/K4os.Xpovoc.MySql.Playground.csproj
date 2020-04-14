@@ -7,7 +7,6 @@
   <ItemGroup>
     <ProjectReference Include="..\K4os.Xpovoc.Memory\K4os.Xpovoc.Memory.csproj" />
     <ProjectReference Include="..\K4os.Xpovoc.MySql\K4os.Xpovoc.MySql.csproj" />
-    <ProjectReference Include="..\K4os.Xpovoc\K4os.Xpovoc.csproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

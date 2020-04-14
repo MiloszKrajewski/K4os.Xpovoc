@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Data;
 using Dapper;
-using K4os.Xpovoc.AnySql;
+using K4os.Xpovoc.Toolbox.Sql;
 
 namespace K4os.Xpovoc.MySql
 {
@@ -16,6 +16,12 @@ namespace K4os.Xpovoc.MySql
 			base(connection, migrations)
 		{
 			_tablePrefix = tablePrefix ?? string.Empty;
+		}
+
+		protected override void ExecuteScript(
+			IDbConnection connection, IDbTransaction transaction, string script)
+		{
+			connection.Execute(script, null, transaction);
 		}
 
 		protected override bool MigrationTableExists(IDbConnection connection) =>
