@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace K4os.Xpovoc.Toolbox.Db
 {
-	public class Scheduler: IJobScheduler
+	public class JobScheduler: IJobScheduler
 	{
 		private const double KeepAliveFactor = 3;
 		private const int MaximumRetryFactor = 10;
@@ -31,7 +31,7 @@ namespace K4os.Xpovoc.Toolbox.Db
 
 		protected ILogger Log { get; }
 
-		public Scheduler(
+		public JobScheduler(
 			ILoggerFactory loggerFactory,
 			IJobStorage jobStorage,
 			IJobHandler jobHandler,
@@ -39,7 +39,7 @@ namespace K4os.Xpovoc.Toolbox.Db
 			IDateTimeSource dateTimeSource = null)
 		{
 			_loggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
-			Log = _loggerFactory.CreateLogger(typeof(Scheduler));
+			Log = _loggerFactory.CreateLogger(typeof(JobScheduler));
 			
 			_jobStorage = jobStorage.Required(nameof(jobStorage));
 			_jobHandler = jobHandler.Required(nameof(jobHandler));

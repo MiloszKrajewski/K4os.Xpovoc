@@ -1,38 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Dapper;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using K4os.Xpovoc.Abstractions;
-using K4os.Xpovoc.AnySql;
 using K4os.Xpovoc.PgSql.Resources;
+using K4os.Xpovoc.Toolbox.Sql;
 using Npgsql;
 
 namespace K4os.Xpovoc.PgSql
 {
 	public class PgSqlJobStorage: AnySqlStorage<NpgsqlConnection>, IJobStorage
 	{
-		private static readonly Random Rng = new Random();
-
-		private static double ExpRng(double limit)
-		{
-			const double em1 = Math.E - 1;
-			double random;
-			lock (Rng) random = Rng.NextDouble();
-			return (Math.Exp(random) - 1) * limit / em1;
-		}
-
-		private static TimeSpan RetryInterval(int attempt) =>
-			attempt <= 4
-				? TimeSpan.Zero
-				: ExpRng((attempt - 4) * 15)
-					.NotMoreThan(1000)
-					.PipeTo(TimeSpan.FromMilliseconds);
-
 		private readonly Func<Task<NpgsqlConnection>> _connectionFactory;
-		private readonly string _tablePrefix;
+		private readonly string _schema;
 		private readonly Dictionary<string, string> _queryMap;
 		private readonly PgSqlResourceLoader _resourceLoader;
 
@@ -45,53 +28,27 @@ namespace K4os.Xpovoc.PgSql
 				throw new ArgumentNullException(nameof(config));
 
 			_connectionFactory = ConnectionFactory(config.ConnectionString);
-			_tablePrefix = config.TablePrefix ?? string.Empty;
-			_resourceLoader = MySqlResourceLoader.Default;
+			_schema = config.Schema ?? string.Empty;
+			_resourceLoader = PgSqlResourceLoader.Default;
 			_queryMap = LoadQueryMap();
 		}
 
 		private Dictionary<string, string> LoadQueryMap()
 		{
-			var map = MySqlResourceLoader.Default.LoadQueries(_tablePrefix);
+			var map = PgSqlResourceLoader.Default.LoadQueries(_schema);
 			// process loaded strings?
 			return map;
 		}
 
-		private static Task Undeadlock(
-			MySqlConnection connection, Func<MySqlConnection, Task> action) =>
-			Undeadlock(CancellationToken.None, connection, action);
+		private static Func<Task<NpgsqlConnection>> ConnectionFactory(string connectionString) =>
+			() => Task.FromResult(new NpgsqlConnection(connectionString));
 
-		private static Task<T> Undeadlock<T>(
-			MySqlConnection connection, Func<MySqlConnection, Task<T>> action) =>
-			Undeadlock(CancellationToken.None, connection, action);
+		protected override Task<NpgsqlConnection> CreateConnection() => _connectionFactory();
 
-		private static Task Undeadlock(
-			CancellationToken token, MySqlConnection connection,
-			Func<MySqlConnection, Task> action) =>
-			DeadlockPolicy.ExecuteAsync(
-				() => {
-					token.ThrowIfCancellationRequested();
-					return action(connection);
-				});
-
-		private static Task<T> Undeadlock<T>(
-			CancellationToken token, MySqlConnection connection,
-			Func<MySqlConnection, Task<T>> action) =>
-			DeadlockPolicy.ExecuteAsync(
-				() => {
-					token.ThrowIfCancellationRequested();
-					return action(connection);
-				});
-
-		private static Func<Task<MySqlConnection>> ConnectionFactory(string connectionString) =>
-			() => Task.FromResult(new MySqlConnection(connectionString));
-
-		protected override Task<MySqlConnection> CreateConnection() => _connectionFactory();
-
-		protected override Task CreateDatabase(MySqlConnection connection)
+		protected override Task CreateDatabase(NpgsqlConnection connection)
 		{
-			var migrations = _resourceLoader.LoadMigrations(_tablePrefix);
-			var migrator = new PgSqlMigrator(connection, _tablePrefix, migrations);
+			var migrations = _resourceLoader.LoadMigrations(_schema);
+			var migrator = new PgSqlMigrator(connection, _schema, migrations);
 			migrator.Install();
 			return Task.CompletedTask;
 		}
@@ -111,7 +68,7 @@ namespace K4os.Xpovoc.PgSql
 					});
 
 			using (var connection = await Connect())
-				await Undeadlock(connection, Action);
+				await Action(connection);
 
 			return guid;
 		}
@@ -133,7 +90,7 @@ namespace K4os.Xpovoc.PgSql
 				new Job(job.job_id, Deserialize(job.payload), job.attempt);
 
 			using (var connection = await Connect())
-				return (await Undeadlock(token, connection, Action))?.PipeTo(ToJob);
+				return (await Action(connection))?.PipeTo(ToJob);
 		}
 
 		public async Task<bool> KeepClaim(
@@ -150,7 +107,7 @@ namespace K4os.Xpovoc.PgSql
 					});
 
 			using (var connection = await Connect())
-				return await Undeadlock(token, connection, Action) > 0;
+				return await Action(connection) > 0;
 		}
 
 		public async Task Complete(Guid worker, Guid job, DateTime now)
@@ -164,7 +121,7 @@ namespace K4os.Xpovoc.PgSql
 					});
 
 			using (var connection = await Connect())
-				await Undeadlock(connection, Action);
+				await Action(connection);
 		}
 
 		public async Task Retry(Guid worker, Guid job, DateTime when)
@@ -179,7 +136,7 @@ namespace K4os.Xpovoc.PgSql
 					});
 
 			using (var connection = await Connect())
-				await Undeadlock(connection, Action);
+				await Action(connection);
 		}
 
 		public async Task Forget(Guid worker, Guid job, DateTime now)
@@ -193,7 +150,7 @@ namespace K4os.Xpovoc.PgSql
 					});
 
 			using (var connection = await Connect())
-				await Undeadlock(connection, Action);
+				await Action(connection);
 		}
 
 		#region JobRec

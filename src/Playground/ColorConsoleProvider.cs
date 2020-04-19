@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace K4os.Xpovoc.MySql.Playground
+namespace Playground
 {
 	internal class ColorConsoleProvider: ILoggerProvider, ILogger
 	{

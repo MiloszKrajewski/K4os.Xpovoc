@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using K4os.Xpovoc.Abstractions;
 
-namespace K4os.Xpovoc.MySql.Playground
+namespace Playground
 {
 	internal class NullJobHandler: IJobHandler
 	{

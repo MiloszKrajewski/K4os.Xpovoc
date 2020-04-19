@@ -10,7 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj" />
-    <ProjectReference Include="..\K4os.Xpovoc.AnySql\K4os.Xpovoc.AnySql.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.Toolbox\K4os.Xpovoc.Toolbox.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Migrations.xml" />

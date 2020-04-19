@@ -7,15 +7,15 @@ namespace K4os.Xpovoc.MySql
 {
 	public class MySqlMigrator: AnySqlMigrator
 	{
-		private readonly string _tablePrefix;
+		private readonly string _table;
 
 		public MySqlMigrator(
 			IDbConnection connection,
-			string tablePrefix,
+			string prefix,
 			IEnumerable<IMigration> migrations):
 			base(connection, migrations)
 		{
-			_tablePrefix = tablePrefix ?? string.Empty;
+			_table = $"{prefix ?? string.Empty}Migrations";
 		}
 
 		protected override void ExecuteScript(
@@ -26,20 +26,20 @@ namespace K4os.Xpovoc.MySql
 
 		protected override bool MigrationTableExists(IDbConnection connection) =>
 			connection.ExecuteScalar<string>(
-				$"show tables like '{_tablePrefix}Migration'") != null;
+				$"show tables like '{_table}'") != null;
 
 		protected override void CreateMigrationTable(IDbConnection connection) =>
 			connection.Execute(
 				$@"/* Create migrations table */
-                create table {_tablePrefix}Migration (
-					Id nvarchar(128) not null collate utf8_general_ci, primary key (`Id`)
+                create table `{_table}` (
+					`Id` nvarchar(128) not null collate utf8_general_ci, primary key (`Id`)
 				)");
 
 		protected override bool IsMigrationApplied(
 			IDbConnection connection, string id)
 		{
 			return connection.QueryFirst<int>(
-				$"select count(*) from `{_tablePrefix}Migration` where Id = @id",
+				$"select count(*) from `{_table}` where `Id` = @id",
 				new { id }) > 0;
 		}
 
@@ -48,7 +48,7 @@ namespace K4os.Xpovoc.MySql
 		{
 			connection.Execute(
 				$@"/* Mark migration as done */
-				insert into `{_tablePrefix}Migration` (Id) values (@id)",
+				insert into `{_table}` (`Id`) values (@id)",
 				new { id },
 				transaction);
 		}

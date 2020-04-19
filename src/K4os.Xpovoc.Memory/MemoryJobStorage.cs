@@ -19,14 +19,9 @@ namespace K4os.Xpovoc.Memory
 		{
 			lock (_lock)
 			{
-				var job = _queue
-					.Select(kv => new { Time = kv.Item1, Id = kv.Item2 })
-					.TakeWhile(e => e.Time <= now)
-					.Select(e => _jobs[e.Id])
-					.FirstOrDefault(j => j.InvisibleUntil <= now);
+				var job = FirstVisibleJob(now);
 
-				if (job is null)
-					return null;
+				if (job is null) return null;
 
 				var key = (job.ScheduledFor, job.Id);
 				_queue.Remove(key);
@@ -34,6 +29,22 @@ namespace K4os.Xpovoc.Memory
 				job.Attempt++;
 				return Task.FromResult<IJob>(job);
 			}
+		}
+
+		private Job FirstVisibleJob(DateTime now)
+		{
+			// it only works if in 'lock'
+			foreach (var (time, guid) in _queue)
+			{
+				if (time > now) break; // no more candidates
+
+				var job = _jobs[guid];
+				if (job.InvisibleUntil > now) continue; // hidden, try next
+
+				return job; // that's the one
+			}
+
+			return null;
 		}
 
 		public Task<bool> KeepClaim(

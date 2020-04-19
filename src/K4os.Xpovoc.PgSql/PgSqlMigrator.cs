@@ -1,39 +1,59 @@
 using System.Collections.Generic;
 using System.Data;
 using Dapper;
-using K4os.Xpovoc.AnySql;
+using K4os.Xpovoc.Toolbox.Sql;
 
 namespace K4os.Xpovoc.PgSql
 {
 	public class PgSqlMigrator: AnySqlMigrator
 	{
-		private readonly string _tablePrefix;
+		private readonly string _schema;
+		private readonly string _table;
 
 		public PgSqlMigrator(
 			IDbConnection connection,
-			string tablePrefix,
+			string schema,
 			IEnumerable<IMigration> migrations):
 			base(connection, migrations)
 		{
-			_tablePrefix = tablePrefix ?? string.Empty;
+			var hasSchema = !string.IsNullOrWhiteSpace(schema);
+			_schema = hasSchema ? Quoted(schema) : string.Empty;
+			_table = (hasSchema ? $"{_schema}." : string.Empty) + $"{Quoted("Migrations")}";
 		}
 
-		protected override bool MigrationTableExists(IDbConnection connection) =>
-			connection.ExecuteScalar<string>(
-				$"show tables like '{_tablePrefix}Migration'") != null;
+		protected override void ExecuteScript(
+			IDbConnection connection, IDbTransaction transaction, string script) =>
+			connection.Execute(script, null, transaction);
 
-		protected override void CreateMigrationTable(IDbConnection connection) =>
+		private static string Quoted(string name) => $@"""{name}""";
+
+		protected override bool MigrationTableExists(IDbConnection connection) =>
+			// it's easier to just do "if not exists"
+			false;
+		
+		private void CreateXpovocSchema(IDbConnection connection)
+		{
+			if (string.IsNullOrWhiteSpace(_schema)) return;
+
+			connection.Execute(
+				$@"/* Create Xpovoc schema */
+				create schema if not exists {_schema}");
+		}
+
+		protected override void CreateMigrationTable(IDbConnection connection)
+		{
+			CreateXpovocSchema(connection);
+
 			connection.Execute(
 				$@"/* Create migrations table */
-                create table {_tablePrefix}Migration (
-					Id nvarchar(128) not null collate utf8_general_ci, primary key (`Id`)
-				)");
+                create table if not exists {_table} (Id varchar(128) not null primary key)");
+		}
 
 		protected override bool IsMigrationApplied(
 			IDbConnection connection, string id)
 		{
 			return connection.QueryFirst<int>(
-				$"select count(*) from `{_tablePrefix}Migration` where Id = @id",
+				$"select count(*) from {_table} where Id = @id",
 				new { id }) > 0;
 		}
 
@@ -42,7 +62,7 @@ namespace K4os.Xpovoc.PgSql
 		{
 			connection.Execute(
 				$@"/* Mark migration as done */
-				insert into `{_tablePrefix}Migration` (Id) values (@id)",
+				insert into {_table} (Id) values (@id)",
 				new { id },
 				transaction);
 		}

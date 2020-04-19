@@ -24,8 +24,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.App", "K4os.Xpo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.MySql", "K4os.Xpovoc.MySql\K4os.Xpovoc.MySql.csproj", "{7E5CB5CC-D8CC-4C92-963D-BBA5B684D880}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.MySql.Playground", "K4os.Xpovoc.MySql.Playground\K4os.Xpovoc.MySql.Playground.csproj", "{065E48D6-9569-4201-94E6-EFF445E39FD1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Abstractions", "K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj", "{BFB24A8E-2236-4D54-B489-7D07910E7543}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Shared", "K4os.Shared\K4os.Shared.csproj", "{8D991F96-B936-4BEF-ABCA-2202692E9943}"
@@ -46,6 +44,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Rx", "K4os.Xpov
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Toolbox", "K4os.Xpovoc.Toolbox\K4os.Xpovoc.Toolbox.csproj", "{1891E1C1-E10B-4317-83B0-2F3583238F8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "Playground\Playground.csproj", "{544F0B5A-B3BB-490B-92D7-9C5587E11B47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,10 +64,6 @@ Global
 		{7E5CB5CC-D8CC-4C92-963D-BBA5B684D880}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E5CB5CC-D8CC-4C92-963D-BBA5B684D880}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E5CB5CC-D8CC-4C92-963D-BBA5B684D880}.Release|Any CPU.Build.0 = Release|Any CPU
-		{065E48D6-9569-4201-94E6-EFF445E39FD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{065E48D6-9569-4201-94E6-EFF445E39FD1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{065E48D6-9569-4201-94E6-EFF445E39FD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{065E48D6-9569-4201-94E6-EFF445E39FD1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BFB24A8E-2236-4D54-B489-7D07910E7543}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BFB24A8E-2236-4D54-B489-7D07910E7543}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFB24A8E-2236-4D54-B489-7D07910E7543}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -108,6 +104,10 @@ Global
 		{1891E1C1-E10B-4317-83B0-2F3583238F8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1891E1C1-E10B-4317-83B0-2F3583238F8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1891E1C1-E10B-4317-83B0-2F3583238F8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{544F0B5A-B3BB-490B-92D7-9C5587E11B47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{544F0B5A-B3BB-490B-92D7-9C5587E11B47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{544F0B5A-B3BB-490B-92D7-9C5587E11B47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{544F0B5A-B3BB-490B-92D7-9C5587E11B47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -93,6 +93,8 @@ namespace K4os.Xpovoc.Toolbox.Db
 		[SuppressMessage("ReSharper", "AccessToDisposedClosure")]
 		private async Task Process(CancellationToken token, IJob job)
 		{
+			// this seems like performance drag for not reason
+			// if job is hijacked do we need to try to interrupt it?
 			using (var hijacked = new CancellationTokenSource())
 			using (var combined = CancellationTokenSource
 				.CreateLinkedTokenSource(token, hijacked.Token))

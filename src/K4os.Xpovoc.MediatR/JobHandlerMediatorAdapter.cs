@@ -17,23 +17,20 @@ namespace K4os.Xpovoc.MediatR
 
 		public Task Handle(CancellationToken token, object payload)
 		{
-			if (payload is INotification)
+			switch (payload)
 			{
-				return _mediator.Publish(payload, token);
-			}
-			else if (payload is IRequest)
-			{
-				return _mediator.Send(payload, token);
-			}
-			else
-			{
-				throw new ArgumentException(
-					string.Format(
-						"{0} is neither {1} nor {2} so it cannot by handled by MediatR",
-						payload.GetType().Name,
-						nameof(IRequest),
-						nameof(INotification)));
+				case INotification _: return _mediator.Publish(payload, token);
+				case IRequest _: return _mediator.Send(payload, token);
+				default: throw InvalidMessageType(payload);
 			}
 		}
+
+		private static ArgumentException InvalidMessageType(object payload) =>
+			new ArgumentException(
+				string.Format(
+					"{0} is neither {1} nor {2} so it cannot by handled by MediatR",
+					payload.GetType().Name,
+					nameof(IRequest),
+					nameof(INotification)));
 	}
 }

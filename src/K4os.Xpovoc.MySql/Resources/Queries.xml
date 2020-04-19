@@ -4,16 +4,6 @@
   <query id="..."><![CDATA[
   ]]></query>
   -->
-  <!--
-      row_id int auto_increment primary key,
-      job_id char(36) collate ascii_bin not null,
-      created_on datetime(6) not null,
-      scheduled_for datetime(6) not null,
-      claimed_by char(36) collate ascii_bin,
-      invisible_until datetime(6),
-      attempt int not null default (0),
-      payload longtext
-  -->
   <query id="schedule"><![CDATA[
     -- insert new job
     insert into {prefix}Jobs (
