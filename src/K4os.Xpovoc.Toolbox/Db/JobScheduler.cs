@@ -56,7 +56,7 @@ namespace K4os.Xpovoc.Toolbox.Db
 		private static SchedulerConfig FixExternalConfig(ISchedulerConfig configuration)
 		{
 			var workerCount = configuration.WorkerCount
-				.NotLessThan(1);
+				.NotLessThan(0);
 			var keepAliveInterval = configuration.KeepAliveInterval
 				.NotLessThan(MinimumKeepAliveInterval);
 			var keepAlivePeriod = configuration.KeepAlivePeriod
@@ -99,6 +99,8 @@ namespace K4os.Xpovoc.Toolbox.Db
 			_ready.TrySetCanceled(_cancel.Token);
 
 			await Task.WhenAll(_pollers);
+			
+			_jobStorage.TryDispose();
 		}
 
 		private Task[] CreateWorkers() =>

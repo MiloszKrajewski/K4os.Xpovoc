@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedType.Global
 // ReSharper disable MemberCanBePrivate.Global
@@ -11,6 +12,11 @@ namespace System
 	{
 		public static T Required<T>(this T subject, string name = null) where T: class =>
 			subject ?? throw new ArgumentNullException(name ?? "<unknown>");
+
+		public static void TryDispose(this object subject)
+		{
+			if (subject is IDisposable disposable) disposable.Dispose();
+		}
 
 		public static int Compare<T>(T subject, T limit) =>
 			Comparer<T>.Default.Compare(subject, limit);

@@ -1,47 +1,84 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using Dapper;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using K4os.Xpovoc.Abstractions;
-using K4os.Xpovoc.PgSql.Resources;
+using K4os.Xpovoc.SqLite.Resources;
 using K4os.Xpovoc.Toolbox.Sql;
-using Npgsql;
+using Microsoft.Data.Sqlite;
 
-namespace K4os.Xpovoc.PgSql
+namespace K4os.Xpovoc.SqLite
 {
-	public class PgSqlJobStorage: AnySqlStorage<NpgsqlConnection>, IJobStorage
+	public class SqLiteJobStorage: AnySqlStorage<SqliteConnection>, IJobStorage, IDisposable
 	{
-		private readonly Func<Task<NpgsqlConnection>> _connectionFactory;
-		private readonly string _schema;
+		private readonly ConcurrentQueue<SqliteConnection> _pool = 
+			new ConcurrentQueue<SqliteConnection>();
+		private readonly SemaphoreSlim _semaphore = 
+			new SemaphoreSlim(0);
+		
+		private readonly string _prefix;
 		private readonly Dictionary<string, string> _queryMap;
-		private readonly PgSqlResourceLoader _resourceLoader;
+		private readonly SqLiteResourceLoader _resourceLoader;
+		
+		private readonly Random _tokenGenerator = new Random(Guid.NewGuid().GetHashCode());
 
-		public PgSqlJobStorage(
+		public SqLiteJobStorage(
 			IJobSerializer serializer,
-			IPgSqlJobStorageConfig config):
+			ISqLiteJobStorageConfig config):
 			base(serializer)
 		{
 			if (config is null)
 				throw new ArgumentNullException(nameof(config));
 
-			_connectionFactory = ConnectionFactory(config.ConnectionString);
-			_schema = config.Schema ?? string.Empty;
-			_resourceLoader = PgSqlResourceLoader.Default;
-			_queryMap = _resourceLoader.LoadQueries(_schema);
+			_prefix = config.Prefix ?? string.Empty;
+			_resourceLoader = SqLiteResourceLoader.Default;
+			_queryMap = _resourceLoader.LoadQueries(_prefix);
+
+			var poolSize = config.PoolSize.NotLessThan(1).NotMoreThan(32);
+			BuildConnectionPool(poolSize, config.ConnectionString);
 		}
 
-		private static Func<Task<NpgsqlConnection>> ConnectionFactory(string connectionString) =>
-			() => Task.FromResult(new NpgsqlConnection(connectionString));
-
-		protected override Task<NpgsqlConnection> CreateConnection() => _connectionFactory();
-
-		protected override Task CreateDatabase(NpgsqlConnection connection)
+		private void BuildConnectionPool(int count, string connectionString)
 		{
-			var migrations = _resourceLoader.LoadMigrations(_schema);
-			var migrator = new PgSqlMigrator(connection, _schema, migrations);
+			while (count-- > 0)
+			{
+				_pool.Enqueue(new SqliteConnection(connectionString));
+				_semaphore.Release();
+			}
+		}
+
+		private int ClaimToken()
+		{
+			lock (_tokenGenerator) return _tokenGenerator.Next();
+		}
+
+		protected override async Task<SqliteConnection> CreateConnection()
+		{
+			await _semaphore.WaitAsync();
+			_pool.TryDequeue(out var connection);
+			return connection;
+		}
+
+		protected override async Task OpenConnection(SqliteConnection connection)
+		{
+			await connection.OpenAsync();
+			await connection.ExecuteAsync("pragma journal_mode = 'wal'");
+		}
+
+		protected override void DisposeConnection(SqliteConnection connection)
+		{
+			_pool.Enqueue(connection);
+			_semaphore.Release();
+		}
+
+		protected override Task CreateDatabase(SqliteConnection connection)
+		{
+			var migrations = _resourceLoader.LoadMigrations(_prefix);
+			var migrator = new SqLiteMigrator(connection, _prefix, migrations);
 			migrator.Install();
 			return Task.CompletedTask;
 		}
@@ -75,12 +112,13 @@ namespace K4os.Xpovoc.PgSql
 					_queryMap["claim"],
 					new {
 						claimed_by = worker,
+						claim_token = ClaimToken(),
 						invisible_until = until,
 						now,
 					});
 
 			Job ToJob(JobRec job) =>
-				new Job(job.job_id, Deserialize(job.payload), job.attempt);
+				new Job(Guid.Parse(job.job_id), Deserialize(job.payload), job.attempt);
 
 			using (var lease = await Connect())
 				return (await Action(lease.Connection))?.PipeTo(ToJob);
@@ -153,7 +191,7 @@ namespace K4os.Xpovoc.PgSql
 		{
 #pragma warning disable 649
 			// ReSharper disable InconsistentNaming
-			public Guid job_id;
+			public string job_id;
 			public string payload;
 			public int attempt;
 			// ReSharper restore InconsistentNaming
@@ -161,5 +199,16 @@ namespace K4os.Xpovoc.PgSql
 		}
 
 		#endregion
+
+		public void Dispose()
+		{
+			_semaphore.Dispose();
+			
+			while (!_pool.IsEmpty)
+			{
+				_pool.TryDequeue(out var connection);
+				connection.Dispose();
+			}
+		}
 	}
 }

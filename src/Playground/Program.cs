@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO;
 using System.Xml.XPath;
 using System.Linq;
 using System.Threading;
@@ -9,10 +8,13 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using K4os.Xpovoc.Abstractions;
 using K4os.Xpovoc.Memory;
+using K4os.Xpovoc.MsSql;
 using K4os.Xpovoc.MySql;
 using K4os.Xpovoc.PgSql;
+using K4os.Xpovoc.SqLite;
 using K4os.Xpovoc.Toolbox.Db;
 using K4os.Xpovoc.Toolbox.Sql;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -37,13 +39,16 @@ namespace Playground
 
 		private static void Configure(ServiceCollection serviceCollection)
 		{
-			var secrets = XDocument.Load("Secrets.xml");
+			var secrets = Secrets.Load(".secrets.xml");
+			
 			ConfigureMySql(serviceCollection, secrets);
 			ConfigurePgSql(serviceCollection, secrets);
+			ConfigureSqLite(serviceCollection, secrets);
+			ConfigureMsSql(serviceCollection, secrets);
 
 			serviceCollection.AddSingleton<ISchedulerConfig>(
 				new SchedulerConfig {
-					WorkerCount = 8,
+					WorkerCount = 4,
 				});
 		}
 
@@ -58,10 +63,32 @@ namespace Playground
 
 		private static void ConfigurePgSql(ServiceCollection serviceCollection, XDocument secrets)
 		{
-			var connectionString = secrets.XPathSelectElement("/secrets/mysql")?.Value;
+			var connectionString = secrets.XPathSelectElement("/secrets/pgsql")?.Value;
 			serviceCollection.AddSingleton<IPgSqlJobStorageConfig>(
 				new PgSqlJobStorageConfig {
 					ConnectionString = connectionString,
+				});
+		}
+		
+		private static void ConfigureMsSql(ServiceCollection serviceCollection, XDocument secrets)
+		{
+			var connectionString = secrets.XPathSelectElement("/secrets/mssql")?.Value;
+			serviceCollection.AddSingleton<IMsSqlJobStorageConfig>(
+				new MsSqlJobStorageConfig {
+					ConnectionString = connectionString,
+					Schema = "xpovoc"
+				});
+		}
+
+		
+		private static void ConfigureSqLite(ServiceCollection serviceCollection, XDocument secrets)
+		{
+			var connectionString = secrets.XPathSelectElement("/secrets/sqlite")?.Value;
+			serviceCollection.AddSingleton<ISqLiteJobStorageConfig>(
+				new SqLiteJobStorageConfig {
+					ConnectionString = connectionString,
+					Prefix = "xpovoc_",
+					PoolSize = 3,
 				});
 		}
 
@@ -77,10 +104,14 @@ namespace Playground
 				serializer, serviceProvider.GetRequiredService<IMySqlJobStorageConfig>());
 			var postgresStorage = new PgSqlJobStorage(
 				serializer, serviceProvider.GetRequiredService<IPgSqlJobStorageConfig>());
+			var sqliteStorage = new SqLiteJobStorage(
+				serializer, serviceProvider.GetRequiredService<ISqLiteJobStorageConfig>());
+			var mssqlStorage = new MsSqlJobStorage(
+				serializer, serviceProvider.GetRequiredService<IMsSqlJobStorageConfig>()); 
 
 			var handler = new AdHocJobHandler(ConsumeOne);
 			var schedulerConfig = serviceProvider.GetRequiredService<ISchedulerConfig>();
-			var scheduler = new JobScheduler(null, postgresStorage, handler, schedulerConfig);
+			var scheduler = new JobScheduler(null, sqliteStorage, handler, schedulerConfig);
 			// var scheduler = new RxJobScheduler(loggerFactory, handler, Scheduler.Default);
 
 			// var producer = Task.CompletedTask;

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<queries>
+  <!--
+  <query id="..."><![CDATA[
+  ]]></query>
+  -->
+  <query id="schedule"><![CDATA[
+    -- insert new job
+    insert into {schema}[Jobs] (
+      job_id, created_on, scheduled_for, invisible_until, payload
+    ) values (
+      @job_id, getdate(), @scheduled_for, @scheduled_for, @payload
+    )
+  ]]></query>
+  <query id="claim"><![CDATA[
+    -- claim jobs 
+    with j as (
+      select top 1 *
+      from {schema}[Jobs]
+      where scheduled_for <= @now and invisible_until <= @now
+      order by scheduled_for
+    )
+    update j
+    set
+      j.claimed_by = @claimed_by,
+      j.invisible_until = @invisible_until,
+      j.attempt = j.attempt + 1
+    output 
+      inserted.job_id, inserted.payload, inserted.attempt
+  ]]></query>
+  <query id="keep"><![CDATA[
+    -- keep job claim 
+		update {schema}[Jobs] 
+      set invisible_until = @invisible_until
+      where job_id = @job_id and claimed_by = @claimed_by
+  ]]></query>
+  <query id="complete"><![CDATA[
+    -- complete job 
+		delete from {schema}[Jobs] where job_id = @job_id and claimed_by = @claimed_by
+  ]]></query>
+  <query id="forget"><![CDATA[
+    -- forget job 
+		delete from {schema}[Jobs] where job_id = @job_id and claimed_by = @claimed_by
+  ]]></query>
+  <query id="retry"><![CDATA[
+    -- retry job 
+		update {schema}[Jobs] 
+      set claimed_by = null, invisible_until = @invisible_until
+      where job_id = @job_id and claimed_by = @claimed_by
+  ]]></query>
+</queries>

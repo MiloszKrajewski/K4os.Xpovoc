@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,21 +22,28 @@ namespace K4os.Xpovoc.Toolbox.Sql
 		}
 
 		protected abstract Task<TConnection> CreateConnection();
+		
+		protected virtual Task OpenConnection(TConnection connection) => connection.OpenAsync();
 
-		protected virtual async Task<TConnection> Connect()
+		protected virtual void DisposeConnection(TConnection connection) => connection.Dispose();
+
+		protected virtual async Task<ILease<TConnection>> Connect()
 		{
-			var connection = await CreateConnection();
+			var lease = new Lease<TConnection>(await CreateConnection(), DisposeConnection);
 			try
 			{
-				await connection.OpenAsync();
+				var connection = lease.Connection;
+				if (connection.State == ConnectionState.Closed)
+					await OpenConnection(connection);
+
 				await TryCreateDatabase(connection);
-				return connection;
+				return lease;
 			}
 			catch
 			{
 				try
 				{
-					connection.Dispose();
+					lease.Dispose();
 				}
 				catch
 				{

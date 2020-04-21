@@ -1,27 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Dapper;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dapper;
 using K4os.Xpovoc.Abstractions;
-using K4os.Xpovoc.PgSql.Resources;
+using K4os.Xpovoc.MsSql.Resources;
 using K4os.Xpovoc.Toolbox.Sql;
-using Npgsql;
 
-namespace K4os.Xpovoc.PgSql
+namespace K4os.Xpovoc.MsSql
 {
-	public class PgSqlJobStorage: AnySqlStorage<NpgsqlConnection>, IJobStorage
+	public class MsSqlJobStorage: AnySqlStorage<SqlConnection>, IJobStorage
 	{
-		private readonly Func<Task<NpgsqlConnection>> _connectionFactory;
+		private readonly Func<Task<SqlConnection>> _connectionFactory;
 		private readonly string _schema;
 		private readonly Dictionary<string, string> _queryMap;
-		private readonly PgSqlResourceLoader _resourceLoader;
+		private readonly MsSqlResourceLoader _resourceLoader;
 
-		public PgSqlJobStorage(
+		public MsSqlJobStorage(
 			IJobSerializer serializer,
-			IPgSqlJobStorageConfig config):
+			IMsSqlJobStorageConfig config):
 			base(serializer)
 		{
 			if (config is null)
@@ -29,19 +29,19 @@ namespace K4os.Xpovoc.PgSql
 
 			_connectionFactory = ConnectionFactory(config.ConnectionString);
 			_schema = config.Schema ?? string.Empty;
-			_resourceLoader = PgSqlResourceLoader.Default;
+			_resourceLoader = MsSqlResourceLoader.Default;
 			_queryMap = _resourceLoader.LoadQueries(_schema);
 		}
 
-		private static Func<Task<NpgsqlConnection>> ConnectionFactory(string connectionString) =>
-			() => Task.FromResult(new NpgsqlConnection(connectionString));
+		private static Func<Task<SqlConnection>> ConnectionFactory(string connectionString) =>
+			() => Task.FromResult(new SqlConnection(connectionString));
 
-		protected override Task<NpgsqlConnection> CreateConnection() => _connectionFactory();
+		protected override Task<SqlConnection> CreateConnection() => _connectionFactory();
 
-		protected override Task CreateDatabase(NpgsqlConnection connection)
+		protected override Task CreateDatabase(SqlConnection connection)
 		{
 			var migrations = _resourceLoader.LoadMigrations(_schema);
-			var migrator = new PgSqlMigrator(connection, _schema, migrations);
+			var migrator = new MsSqlMigrator(connection, _schema, migrations);
 			migrator.Install();
 			return Task.CompletedTask;
 		}

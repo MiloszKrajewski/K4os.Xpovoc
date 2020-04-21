@@ -11,9 +11,9 @@ packages/
 **/bin/
 **/obj/
 
-.secrets.cfg
+.secrets.*
+!.secrets.example.*
+!.secrets.*.example
+
 *.snk
-
 *.bak
-
-src/Playground/Secrets.xml

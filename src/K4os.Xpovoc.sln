@@ -18,6 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{835ECD
 		..\settings.cfg = ..\settings.cfg
 		..\.gitignore = ..\.gitignore
 		..\Signing.targets = ..\Signing.targets
+		..\.secrets.xml = ..\.secrets.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.App", "K4os.Xpovoc.App\K4os.Xpovoc.App.csproj", "{A9BC039E-7248-4D7B-A225-DB357B8D261F}"

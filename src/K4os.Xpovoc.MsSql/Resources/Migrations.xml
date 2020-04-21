@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<migrations>
+  <!--
+  <migration id="xyz"><![CDATA[
+  ]]></migration>
+  -->
+  <migration id="initial"><![CDATA[
+    create table {schema}[Jobs] (
+      row_id int not null identity primary key,
+      job_id uniqueidentifier not null,
+      created_on datetime not null,
+      scheduled_for datetime not null,
+      claimed_by uniqueidentifier,
+      invisible_until datetime not null,
+      attempt int not null default (0),
+      payload nvarchar(max)
+    );
+  ]]></migration>
+  <migration id="indices"><![CDATA[
+    create index ix_scan on {schema}[Jobs] (scheduled_for, invisible_until);
+    create unique index ix_update on {schema}[Jobs] (job_id);  
+  ]]></migration>
+</migrations>

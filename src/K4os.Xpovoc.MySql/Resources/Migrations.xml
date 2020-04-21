@@ -18,6 +18,6 @@
   ]]></migration>
   <migration id="indices"><![CDATA[
     create index ix_scan on {prefix}Jobs (scheduled_for, invisible_until);
-    create index ix_update on {prefix}Jobs (job_id);  
+    create unique index ix_update on {prefix}Jobs (job_id);  
   ]]></migration>
 </migrations>

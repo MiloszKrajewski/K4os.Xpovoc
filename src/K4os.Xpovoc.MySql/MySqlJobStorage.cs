@@ -52,14 +52,7 @@ namespace K4os.Xpovoc.MySql
 			_connectionFactory = ConnectionFactory(config.ConnectionString);
 			_tablePrefix = config.TablePrefix ?? string.Empty;
 			_resourceLoader = MySqlResourceLoader.Default;
-			_queryMap = LoadQueryMap();
-		}
-
-		private Dictionary<string, string> LoadQueryMap()
-		{
-			var map = MySqlResourceLoader.Default.LoadQueries(_tablePrefix);
-			// process loaded strings?
-			return map;
+			_queryMap = _resourceLoader.LoadQueries(_tablePrefix);
 		}
 
 		private static Task Undeadlock(
@@ -115,8 +108,8 @@ namespace K4os.Xpovoc.MySql
 						payload = serialized
 					});
 
-			using (var connection = await Connect())
-				await Undeadlock(connection, Action);
+			using (var lease = await Connect())
+				await Undeadlock(lease.Connection, Action);
 
 			return guid;
 		}
@@ -137,8 +130,8 @@ namespace K4os.Xpovoc.MySql
 			Job ToJob(JobRec job) =>
 				new Job(job.job_id, Deserialize(job.payload), job.attempt);
 
-			using (var connection = await Connect())
-				return (await Undeadlock(token, connection, Action))?.PipeTo(ToJob);
+			using (var lease = await Connect())
+				return (await Undeadlock(token, lease.Connection, Action))?.PipeTo(ToJob);
 		}
 
 		public async Task<bool> KeepClaim(
@@ -154,8 +147,8 @@ namespace K4os.Xpovoc.MySql
 						invisible_until = until,
 					});
 
-			using (var connection = await Connect())
-				return await Undeadlock(token, connection, Action) > 0;
+			using (var lease = await Connect())
+				return await Undeadlock(token, lease.Connection, Action) > 0;
 		}
 
 		public async Task Complete(Guid worker, Guid job, DateTime now)
@@ -168,8 +161,8 @@ namespace K4os.Xpovoc.MySql
 						claimed_by = worker,
 					});
 
-			using (var connection = await Connect())
-				await Undeadlock(connection, Action);
+			using (var lease = await Connect())
+				await Undeadlock(lease.Connection, Action);
 		}
 
 		public async Task Retry(Guid worker, Guid job, DateTime when)
@@ -183,8 +176,8 @@ namespace K4os.Xpovoc.MySql
 						invisible_until = when,
 					});
 
-			using (var connection = await Connect())
-				await Undeadlock(connection, Action);
+			using (var lease = await Connect())
+				await Undeadlock(lease.Connection, Action);
 		}
 
 		public async Task Forget(Guid worker, Guid job, DateTime now)
@@ -197,8 +190,8 @@ namespace K4os.Xpovoc.MySql
 						claimed_by = worker,
 					});
 
-			using (var connection = await Connect())
-				await Undeadlock(connection, Action);
+			using (var lease = await Connect())
+				await Undeadlock(lease.Connection, Action);
 		}
 
 		#region JobRec
