@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using Dapper;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using K4os.Xpovoc.Abstractions;
+using K4os.Xpovoc.Core.Sql;
 using K4os.Xpovoc.MsSql.Resources;
-using K4os.Xpovoc.Toolbox.Sql;
 
 namespace K4os.Xpovoc.MsSql
 {

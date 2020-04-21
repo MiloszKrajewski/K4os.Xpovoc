@@ -7,13 +7,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using K4os.Xpovoc.Abstractions;
+using K4os.Xpovoc.Core.Db;
+using K4os.Xpovoc.Core.Sql;
 using K4os.Xpovoc.Memory;
 using K4os.Xpovoc.MsSql;
 using K4os.Xpovoc.MySql;
 using K4os.Xpovoc.PgSql;
 using K4os.Xpovoc.SqLite;
-using K4os.Xpovoc.Toolbox.Db;
-using K4os.Xpovoc.Toolbox.Sql;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -175,7 +175,8 @@ namespace Playground
 			while (!token.IsCancellationRequested)
 			{
 				var delay = TimeSpan.FromSeconds(random.NextDouble() * 5);
-				await scheduler.Schedule(Guid.NewGuid(), DateTimeOffset.UtcNow.Add(delay));
+				var message = Guid.NewGuid();
+				await scheduler.Schedule(DateTimeOffset.UtcNow.Add(delay), message);
 				Interlocked.Increment(ref _producedCount);
 			}
 		}

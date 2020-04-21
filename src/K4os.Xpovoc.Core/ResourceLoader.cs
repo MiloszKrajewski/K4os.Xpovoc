@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using K4os.Xpovoc.Toolbox.Sql;
+using K4os.Xpovoc.Core.Sql;
 
-namespace K4os.Xpovoc.Toolbox
+namespace K4os.Xpovoc.Core
 {
 	public class ResourceLoader
 	{

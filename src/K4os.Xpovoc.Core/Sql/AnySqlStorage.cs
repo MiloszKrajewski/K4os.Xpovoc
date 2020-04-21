@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using K4os.Xpovoc.Abstractions;
 
-namespace K4os.Xpovoc.Toolbox.Sql
+namespace K4os.Xpovoc.Core.Sql
 {
 	public abstract class AnySqlStorage<TConnection> where TConnection: DbConnection
 	{

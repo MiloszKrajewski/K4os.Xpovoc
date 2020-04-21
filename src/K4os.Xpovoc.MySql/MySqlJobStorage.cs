@@ -6,8 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using K4os.Xpovoc.Abstractions;
+using K4os.Xpovoc.Core.Sql;
 using K4os.Xpovoc.MySql.Resources;
-using K4os.Xpovoc.Toolbox.Sql;
 using MySql.Data.MySqlClient;
 using Polly;
 

@@ -2,13 +2,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using Dapper;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 using K4os.Xpovoc.Abstractions;
+using K4os.Xpovoc.Core.Sql;
 using K4os.Xpovoc.SqLite.Resources;
-using K4os.Xpovoc.Toolbox.Sql;
 using Microsoft.Data.Sqlite;
 
 namespace K4os.Xpovoc.SqLite

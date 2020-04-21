@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace K4os.Xpovoc.Toolbox.Sql
+namespace K4os.Xpovoc.Core.Sql
 {
 	public abstract class AnySqlMigrator
 	{

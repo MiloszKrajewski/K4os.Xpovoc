@@ -7,7 +7,7 @@ using K4os.Xpovoc.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace K4os.Xpovoc.Toolbox.Db
+namespace K4os.Xpovoc.Core.Db
 {
 	internal class Poller
 	{

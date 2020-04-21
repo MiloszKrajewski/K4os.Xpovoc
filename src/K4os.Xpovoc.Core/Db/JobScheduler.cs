@@ -6,7 +6,7 @@ using K4os.Xpovoc.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace K4os.Xpovoc.Toolbox.Db
+namespace K4os.Xpovoc.Core.Db
 {
 	public class JobScheduler: IJobScheduler
 	{
@@ -121,7 +121,7 @@ namespace K4os.Xpovoc.Toolbox.Db
 
 		public DateTimeOffset Now => _dateTimeSource.Now;
 
-		public async Task<Guid> Schedule(object payload, DateTimeOffset time)
+		public async Task<Guid> Schedule(DateTimeOffset time, object payload)
 		{
 			try
 			{

@@ -1,6 +1,6 @@
 using System;
 
-namespace K4os.Xpovoc.Toolbox.Db
+namespace K4os.Xpovoc.Core.Db
 {
 	public interface ISchedulerConfig
 	{

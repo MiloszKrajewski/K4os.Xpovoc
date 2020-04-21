@@ -61,7 +61,7 @@ namespace K4os.Xpovoc.Rx
 
 		public DateTimeOffset Now => _scheduler.Now;
 
-		public Task<Guid> Schedule(object payload, DateTimeOffset time) =>
+		public Task<Guid> Schedule(DateTimeOffset time, object payload) =>
 			Task.FromResult(CreateAndScheduleEntry(Guid.NewGuid(), payload, time).Value.Id);
 
 		private LinkedListNode<Job> CreateAndScheduleEntry(

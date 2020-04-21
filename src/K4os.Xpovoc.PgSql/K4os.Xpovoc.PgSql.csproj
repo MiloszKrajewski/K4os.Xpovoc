@@ -9,8 +9,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj" />
-    <ProjectReference Include="..\K4os.Xpovoc.Toolbox\K4os.Xpovoc.Toolbox.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Migrations.xml" />

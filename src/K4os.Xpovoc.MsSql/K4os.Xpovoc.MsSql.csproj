@@ -8,7 +8,7 @@
     <EmbeddedResource Include="Resources\Queries.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\K4os.Xpovoc.Toolbox\K4os.Xpovoc.Toolbox.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\K4os.Shared\Extensions.cs">

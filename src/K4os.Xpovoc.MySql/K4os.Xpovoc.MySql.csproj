@@ -4,11 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj" />
-    <ProjectReference Include="..\K4os.Xpovoc.Toolbox\K4os.Xpovoc.Toolbox.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Migration.xml" />
+    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\K4os.Shared\Extensions.cs">

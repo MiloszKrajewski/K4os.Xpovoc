@@ -1,4 +1,4 @@
-namespace K4os.Xpovoc.Toolbox.Sql
+namespace K4os.Xpovoc.Core.Sql
 {
 	public class Migration: IMigration
 	{

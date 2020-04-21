@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using K4os.Xpovoc.Toolbox;
-using K4os.Xpovoc.Toolbox.Sql;
+using K4os.Xpovoc.Core;
+using K4os.Xpovoc.Core.Sql;
 
 namespace K4os.Xpovoc.PgSql.Resources
 {

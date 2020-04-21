@@ -1,6 +1,6 @@
 using System;
 
-namespace K4os.Xpovoc.Toolbox.Sql
+namespace K4os.Xpovoc.Core.Sql
 {
 	public interface ILease<out T>: IDisposable
 	{

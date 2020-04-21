@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Data;
 using Dapper;
-using K4os.Xpovoc.Toolbox.Sql;
+using K4os.Xpovoc.Core.Sql;
 
 namespace K4os.Xpovoc.PgSql
 {
