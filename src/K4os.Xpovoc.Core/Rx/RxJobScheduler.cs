@@ -17,7 +17,7 @@ namespace K4os.Xpovoc.Rx
 		private readonly IJobHandler _jobHandler;
 		private readonly IScheduler _scheduler;
 
-		private readonly LinkedList<Job> _jobs = new LinkedList<Job>();
+		private readonly LinkedList<RxJob> _jobs = new LinkedList<RxJob>();
 		private readonly CancellationTokenSource _cancel;
 
 		protected ILogger Log { get; }
@@ -64,20 +64,20 @@ namespace K4os.Xpovoc.Rx
 		public Task<Guid> Schedule(DateTimeOffset time, object payload) =>
 			Task.FromResult(CreateAndScheduleEntry(Guid.NewGuid(), payload, time).Value.Id);
 
-		private LinkedListNode<Job> CreateAndScheduleEntry(
+		private LinkedListNode<RxJob> CreateAndScheduleEntry(
 			Guid guid, object payload, DateTimeOffset time, int attempt = 0)
 		{
-			var entry = new Job { Id = guid, Payload = payload, Attempt = attempt };
-			var node = new LinkedListNode<Job>(entry);
+			var entry = new RxJob { Id = guid, Payload = payload, Attempt = attempt };
+			var node = new LinkedListNode<RxJob>(entry);
 			lock (_jobs) _jobs.AddLast(node);
 			node.Value.Schedule = _scheduler.Schedule(time, CreateProxyHandler(node));
 			return node;
 		}
 
-		private Action CreateProxyHandler(LinkedListNode<Job> node) =>
+		private Action CreateProxyHandler(LinkedListNode<RxJob> node) =>
 			() => Task.Run(() => Handle(node));
 
-		private async Task Handle(LinkedListNode<Job> node)
+		private async Task Handle(LinkedListNode<RxJob> node)
 		{
 			if (_cancel.IsCancellationRequested || !TryRemoveNode(node))
 				return;
@@ -103,7 +103,7 @@ namespace K4os.Xpovoc.Rx
 			}
 		}
 
-		private bool TryRemoveNode(LinkedListNode<Job> node)
+		private bool TryRemoveNode(LinkedListNode<RxJob> node)
 		{
 			lock (_jobs)
 			{

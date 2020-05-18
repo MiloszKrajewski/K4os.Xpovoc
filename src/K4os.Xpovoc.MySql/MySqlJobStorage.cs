@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Dapper;
 using System.Linq;
 using System.Threading;
@@ -9,37 +8,16 @@ using K4os.Xpovoc.Abstractions;
 using K4os.Xpovoc.Core.Sql;
 using K4os.Xpovoc.MySql.Resources;
 using MySql.Data.MySqlClient;
-using Polly;
 
 namespace K4os.Xpovoc.MySql
 {
-	public class MySqlJobStorage: AnySqlStorage<MySqlConnection>, IJobStorage
+	public class MySqlJobStorage: AnySqlStorage<MySqlConnection>
 	{
-		private static readonly Random Rng = new Random();
-
-		private static double ExpRng(double limit)
-		{
-			const double em1 = Math.E - 1;
-			double random;
-			lock (Rng) random = Rng.NextDouble();
-			return (Math.Exp(random) - 1) * limit / em1;
-		}
-
-		private static TimeSpan RetryInterval(int attempt) =>
-			attempt <= 4
-				? TimeSpan.Zero
-				: ExpRng((attempt - 4) * 15)
-					.NotMoreThan(1000)
-					.PipeTo(TimeSpan.FromMilliseconds);
-
-		private static readonly AsyncPolicy DeadlockPolicy = Policy
-			.Handle<MySqlException>(e => e.Number == 1213)
-			.WaitAndRetryForeverAsync(RetryInterval);
-
 		private readonly Func<Task<MySqlConnection>> _connectionFactory;
 		private readonly string _tablePrefix;
 		private readonly Dictionary<string, string> _queryMap;
 		private readonly MySqlResourceLoader _resourceLoader;
+		private readonly MySqlExecutionPolicy _executionPolicy;
 
 		public MySqlJobStorage(
 			IJobSerializer serializer,
@@ -50,36 +28,11 @@ namespace K4os.Xpovoc.MySql
 				throw new ArgumentNullException(nameof(config));
 
 			_connectionFactory = ConnectionFactory(config.ConnectionString);
-			_tablePrefix = config.TablePrefix ?? string.Empty;
+			_tablePrefix = config.Prefix ?? string.Empty;
 			_resourceLoader = MySqlResourceLoader.Default;
+			_executionPolicy = new MySqlExecutionPolicy();
 			_queryMap = _resourceLoader.LoadQueries(_tablePrefix);
 		}
-
-		private static Task Undeadlock(
-			MySqlConnection connection, Func<MySqlConnection, Task> action) =>
-			Undeadlock(CancellationToken.None, connection, action);
-
-		private static Task<T> Undeadlock<T>(
-			MySqlConnection connection, Func<MySqlConnection, Task<T>> action) =>
-			Undeadlock(CancellationToken.None, connection, action);
-
-		private static Task Undeadlock(
-			CancellationToken token, MySqlConnection connection,
-			Func<MySqlConnection, Task> action) =>
-			DeadlockPolicy.ExecuteAsync(
-				() => {
-					token.ThrowIfCancellationRequested();
-					return action(connection);
-				});
-
-		private static Task<T> Undeadlock<T>(
-			CancellationToken token, MySqlConnection connection,
-			Func<MySqlConnection, Task<T>> action) =>
-			DeadlockPolicy.ExecuteAsync(
-				() => {
-					token.ThrowIfCancellationRequested();
-					return action(connection);
-				});
 
 		private static Func<Task<MySqlConnection>> ConnectionFactory(string connectionString) =>
 			() => Task.FromResult(new MySqlConnection(connectionString));
@@ -94,104 +47,105 @@ namespace K4os.Xpovoc.MySql
 			return Task.CompletedTask;
 		}
 
-		public async Task<Guid> Schedule(object payload, DateTime when)
+		protected override Task<T> Exec<T>(
+			MySqlConnection connection, Func<MySqlConnection, Task<T>> action,
+			CancellationToken token = default) =>
+			_executionPolicy.Undeadlock(token, connection, action);
+
+		private string GetQuery(string queryName) =>
+			_queryMap.TryGetValue(queryName, out var queryText) ? queryText : queryName;
+
+		private Task<int> Exec(
+			string queryName, object args, CancellationToken token = default)
+		{
+			var query = GetQuery(queryName);
+			return Exec(c => c.ExecuteAsync(query, args), token);
+		}
+
+		private Task<T> Eval<T>(
+			string queryName, object args, CancellationToken token = default)
+		{
+			var query = GetQuery(queryName);
+			return Exec(c => c.QueryFirstOrDefaultAsync<T>(query, args), token);
+		}
+
+		public override async Task<Guid> Schedule(object payload, DateTime when)
 		{
 			var guid = Guid.NewGuid();
 			var serialized = Serialize(payload);
+			var args = new {
+				job_id = guid,
+				scheduled_for = when,
+				payload = serialized
+			};
 
-			Task Action(IDbConnection connection) =>
-				connection.ExecuteAsync(
-					_queryMap["schedule"],
-					new {
-						job_id = guid,
-						scheduled_for = when,
-						payload = serialized
-					});
-
-			using (var lease = await Connect())
-				await Undeadlock(lease.Connection, Action);
+			await Exec("schedule", args);
 
 			return guid;
 		}
 
-		public async Task<IJob> Claim(
+		protected override async Task<SqlJob> Claim(
 			CancellationToken token,
 			Guid worker, DateTime now, DateTime until)
 		{
-			Task<JobRec> Action(IDbConnection connection) =>
-				connection.QueryFirstOrDefaultAsync<JobRec>(
-					_queryMap["claim"],
-					new {
-						claimed_by = worker,
-						invisible_until = until,
-						now,
-					});
+			var args = new {
+				claimed_by = worker,
+				invisible_until = until,
+				now,
+			};
 
-			Job ToJob(JobRec job) =>
-				new Job(job.job_id, Deserialize(job.payload), job.attempt);
+			SqlJob ToJob(JobRec job) => new SqlJob(
+				job.row_id, job.job_id,
+				job.scheduled_for.ToUtc(),
+				Deserialize(job.payload),
+				job.attempt
+			);
 
-			using (var lease = await Connect())
-				return (await Undeadlock(token, lease.Connection, Action))?.PipeTo(ToJob);
+			return (await Eval<JobRec>("claim", args, token))?.PipeTo(ToJob);
 		}
 
-		public async Task<bool> KeepClaim(
+		protected override async Task<bool> KeepClaim(
 			CancellationToken token,
-			Guid worker, Guid job, DateTime until)
+			Guid worker, SqlJob job, DateTime until)
 		{
-			Task<int> Action(IDbConnection connection) =>
-				connection.ExecuteAsync(
-					_queryMap["keep"],
-					new {
-						job_id = job,
-						claimed_by = worker,
-						invisible_until = until,
-					});
+			var args = new {
+				row_id = job.RowId,
+				claimed_by = worker,
+				invisible_until = until,
+			};
 
-			using (var lease = await Connect())
-				return await Undeadlock(token, lease.Connection, Action) > 0;
+			return await Exec("keep", args, token) > 0;
 		}
 
-		public async Task Complete(Guid worker, Guid job, DateTime now)
+		protected override async Task Complete(Guid worker, SqlJob job, DateTime now)
 		{
-			Task<int> Action(IDbConnection connection) =>
-				connection.ExecuteAsync(
-					_queryMap["complete"],
-					new {
-						job_id = job,
-						claimed_by = worker,
-					});
+			var args = new {
+				row_id = job.RowId,
+				claimed_by = worker,
+			};
 
-			using (var lease = await Connect())
-				await Undeadlock(lease.Connection, Action);
+			await Exec("complete", args);
 		}
 
-		public async Task Retry(Guid worker, Guid job, DateTime when)
+		protected override async Task Retry(Guid worker, SqlJob job, DateTime when)
 		{
-			Task<int> Action(IDbConnection connection) =>
-				connection.ExecuteAsync(
-					_queryMap["retry"],
-					new {
-						job_id = job,
-						claimed_by = worker,
-						invisible_until = when,
-					});
+			var args = new {
+				row_id = job.RowId,
+				claimed_by = worker,
+				invisible_until = when,
+			};
 
-			using (var lease = await Connect())
-				await Undeadlock(lease.Connection, Action);
+			await Exec("retry", args);
 		}
 
-		public async Task Forget(Guid worker, Guid job, DateTime now)
+		protected override async Task Forget(Guid worker, SqlJob job, DateTime now)
 		{
-			Task<int> Action(IDbConnection connection) =>
-				connection.ExecuteAsync(
-					_queryMap["forget"],
-					new {
-						job_id = job,
-						claimed_by = worker,
-					});
+			var args = new {
+				row_id = job.RowId,
+				claimed_by = worker,
+			};
 
-			using (var lease = await Connect())
-				await Undeadlock(lease.Connection, Action);
+			await Exec("forget", args);
 		}
 
 		#region JobRec
@@ -201,7 +155,9 @@ namespace K4os.Xpovoc.MySql
 		{
 #pragma warning disable 649
 			// ReSharper disable InconsistentNaming
+			public long row_id;
 			public Guid job_id;
+			public DateTime scheduled_for;
 			public string payload;
 			public int attempt;
 			// ReSharper restore InconsistentNaming

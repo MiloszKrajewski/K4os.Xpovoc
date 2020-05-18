@@ -39,8 +39,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.SqLite", "K4os.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Json", "K4os.Xpovoc.Json\K4os.Xpovoc.Json.csproj", "{ED203036-751C-45F1-91FA-CE8CF7629DBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Rx", "K4os.Xpovoc.Rx\K4os.Xpovoc.Rx.csproj", "{C8DD833E-BD47-4EB4-90CE-1C5A37E1D271}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "Playground\Playground.csproj", "{544F0B5A-B3BB-490B-92D7-9C5587E11B47}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Core", "K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj", "{BFDC8177-A334-4DAD-AA4D-61787B9DA55B}"
@@ -91,10 +89,6 @@ Global
 		{ED203036-751C-45F1-91FA-CE8CF7629DBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED203036-751C-45F1-91FA-CE8CF7629DBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED203036-751C-45F1-91FA-CE8CF7629DBC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C8DD833E-BD47-4EB4-90CE-1C5A37E1D271}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8DD833E-BD47-4EB4-90CE-1C5A37E1D271}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8DD833E-BD47-4EB4-90CE-1C5A37E1D271}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8DD833E-BD47-4EB4-90CE-1C5A37E1D271}.Release|Any CPU.Build.0 = Release|Any CPU
 		{544F0B5A-B3BB-490B-92D7-9C5587E11B47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{544F0B5A-B3BB-490B-92D7-9C5587E11B47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{544F0B5A-B3BB-490B-92D7-9C5587E11B47}.Release|Any CPU.ActiveCfg = Release|Any CPU

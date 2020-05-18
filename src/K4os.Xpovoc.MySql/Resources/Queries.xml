@@ -24,7 +24,7 @@
         scheduled_for <= @now and invisible_until <= @now
       order by scheduled_for
       limit 1;
-		select job_id, payload, attempt from {prefix}Jobs where row_id = @row_id;
+		select row_id, job_id, payload, attempt from {prefix}Jobs where row_id = @row_id;
   ]]></query>
   <query id="claim_jitter"><![CDATA[
     -- claim jobs with jitter
@@ -43,26 +43,26 @@
       claimed_by = @claimed_by, 
       invisible_until = @invisible_until,
       attempt = attempt + 1; 
-    select job_id, payload, attempt from {prefix}Jobs where row_id = @row_id;
+    select row_id, job_id, payload, attempt from {prefix}Jobs where row_id = @row_id;
   ]]></query>
   <query id="keep"><![CDATA[
     -- keep job claim 
 		update {prefix}Jobs 
       set invisible_until = @invisible_until
-      where job_id = @job_id and claimed_by = @claimed_by
+      where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="complete"><![CDATA[
     -- complete job 
-		delete from {prefix}Jobs where job_id = @job_id and claimed_by = @claimed_by
+		delete from {prefix}Jobs where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="forget"><![CDATA[
     -- forget job 
-		delete from {prefix}Jobs where job_id = @job_id and claimed_by = @claimed_by
+		delete from {prefix}Jobs where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="retry"><![CDATA[
     -- retry job 
 		update {prefix}Jobs 
       set claimed_by = null, invisible_until = @invisible_until
-      where job_id = @job_id and claimed_by = @claimed_by
+      where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
 </queries>

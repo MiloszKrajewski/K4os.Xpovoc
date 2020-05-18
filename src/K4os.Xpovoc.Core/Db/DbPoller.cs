@@ -9,24 +9,24 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace K4os.Xpovoc.Core.Db
 {
-	internal class Poller
+	internal class DbPoller 
 	{
 		protected ILogger Log { get; }
 
 		private string ObjectId => $"{GetType().Name}@{RuntimeHelpers.GetHashCode(this)}";
 
 		private readonly Guid _workerId;
-		private readonly IJobStorage _jobStorage;
+		private readonly IDbJobStorage _jobStorage;
 		private readonly IJobHandler _jobHandler;
 		private readonly ISchedulerConfig _configuration;
 		private readonly IDateTimeSource _dateTimeSource;
 
 		private int _started;
 
-		public Poller(
+		public DbPoller(
 			ILoggerFactory loggerFactory,
 			IDateTimeSource dateTimeSource,
-			IJobStorage storage,
+			IDbJobStorage storage,
 			IJobHandler handler,
 			ISchedulerConfig config)
 		{
@@ -69,7 +69,7 @@ namespace K4os.Xpovoc.Core.Db
 			}
 		}
 
-		private async Task<IJob> Claim(CancellationToken token)
+		private async Task<IDbJob> Claim(CancellationToken token)
 		{
 			var now = Now;
 			var until = now.Add(_configuration.KeepAlivePeriod);
@@ -80,7 +80,7 @@ namespace K4os.Xpovoc.Core.Db
 				if (job is null) return null;
 				Log.LogDebug(
 					"Job {0} has been claimed by {1} until {2}", 
-					job.Id, _workerId, until);
+					job.JobId, _workerId, until);
 				return job;
 			}
 			catch (Exception e)
@@ -91,7 +91,7 @@ namespace K4os.Xpovoc.Core.Db
 		}
 
 		[SuppressMessage("ReSharper", "AccessToDisposedClosure")]
-		private async Task Process(CancellationToken token, IJob job)
+		private async Task Process(CancellationToken token, IDbJob job)
 		{
 			// this seems like performance drag for not reason
 			// if job is hijacked do we need to try to interrupt it?
@@ -123,38 +123,38 @@ namespace K4os.Xpovoc.Core.Db
 				}
 				else
 				{
-					Log.LogError("Execution of job {0} has been hijacked", job.Id);
+					Log.LogError("Execution of job {0} has been hijacked", job.JobId);
 				}
 			}
 		}
 
-		private async Task<bool> Handle(CancellationToken token, IJob job)
+		private async Task<bool> Handle(CancellationToken token, IDbJob job)
 		{
 			try
 			{
 				Log.LogInformation(
 					"Job {0} attempt {1} has been started", 
-					job.Id, job.Attempt);
+					job.JobId, job.Attempt);
 				await _jobHandler.Handle(token, job.Payload);
 				return true;
 			}
 			catch (Exception e)
 			{
-				Log.LogError(e, "Job {0} execution failed", job.Id);
+				Log.LogError(e, "Job {0} execution failed", job.JobId);
 				return false;
 			}
 		}
 
-		private async Task Complete(IJob job)
+		private async Task Complete(IDbJob job)
 		{
 			try
 			{
-				Log.LogInformation("Job {0} has been completed", job.Id);
-				await _jobStorage.Complete(_workerId, job.Id, Now);
+				Log.LogInformation("Job {0} has been completed", job.JobId);
+				await _jobStorage.Complete(_workerId, job, Now);
 			}
 			catch (Exception e)
 			{
-				Log.LogError(e, "Failed to complete job {0}", job.Id);
+				Log.LogError(e, "Failed to complete job {0}", job.JobId);
 			}
 		}
 
@@ -178,7 +178,7 @@ namespace K4os.Xpovoc.Core.Db
 			return TimeSpan.FromSeconds((r * Math.Pow(f, n)).NotMoreThan(l));
 		}
 
-		private async Task Retry(IJob job)
+		private async Task Retry(IDbJob job)
 		{
 			try
 			{
@@ -186,32 +186,32 @@ namespace K4os.Xpovoc.Core.Db
 				var when = Now.Add(delay);
 				Log.LogInformation(
 					"Job {0} attempt {1} failed, job will retried after {2} at {3}",
-					job.Id, job.Attempt, delay, when);
-				await _jobStorage.Retry(_workerId, job.Id, when);
+					job.JobId, job.Attempt, delay, when);
+				await _jobStorage.Retry(_workerId, job, when);
 			}
 			catch (Exception e)
 			{
-				Log.LogError(e, "Failed to postpone job {0}", job.Id);
+				Log.LogError(e, "Failed to postpone job {0}", job.JobId);
 			}
 		}
 
-		private async Task Forget(IJob job)
+		private async Task Forget(IDbJob job)
 		{
 			try
 			{
 				Log.LogWarning(
 					"Job {0} attempt {1} failed, giving up...", 
-					job.Id, job.Attempt);
-				await _jobStorage.Forget(_workerId, job.Id, Now);
+					job.JobId, job.Attempt);
+				await _jobStorage.Forget(_workerId, job, Now);
 			}
 			catch (Exception e)
 			{
-				Log.LogError(e, "Failed to forget job {0}", job.Id);
+				Log.LogError(e, "Failed to forget job {0}", job.JobId);
 			}
 		}
 
 		private async Task MaintainClaim(
-			CancellationToken token, IJob job, CancellationTokenSource hijacked)
+			CancellationToken token, IDbJob job, CancellationTokenSource hijacked)
 		{
 			var healthyInterval = _configuration.KeepAliveInterval;
 			var failedInterval = _configuration.KeepAliveRetryInterval;
@@ -246,21 +246,21 @@ namespace K4os.Xpovoc.Core.Db
 
 		private enum ClaimStatus { Kept, Failed, Lost }
 
-		private async Task<ClaimStatus> KeepClaim(CancellationToken token, IJob job)
+		private async Task<ClaimStatus> KeepClaim(CancellationToken token, IDbJob job)
 		{
 			var until = Now.Add(_configuration.KeepAlivePeriod);
 
 			try
 			{
-				var kept = await _jobStorage.KeepClaim(token, _workerId, job.Id, until);
+				var kept = await _jobStorage.KeepClaim(token, _workerId, job, until);
 
 				if (!kept)
 				{
-					Log.LogError("Claim for {0} has been lost", job.Id);
+					Log.LogError("Claim for {0} has been lost", job.JobId);
 					return ClaimStatus.Lost;
 				}
 
-				Log.LogDebug("Claim for {0} has been renewed until {1}", job.Id, until);
+				Log.LogDebug("Claim for {0} has been renewed until {1}", job.JobId, until);
 				return ClaimStatus.Kept;
 			}
 			catch (OperationCanceledException) when (token.IsCancellationRequested)
@@ -270,7 +270,7 @@ namespace K4os.Xpovoc.Core.Db
 			}
 			catch (Exception e)
 			{
-				Log.LogError(e, "Failed to keep claim for {0}", job.Id);
+				Log.LogError(e, "Failed to keep claim for {0}", job.JobId);
 				// even though we failed to keep claim, we optimistically
 				// assume no one intercepted it (yet?)
 				return ClaimStatus.Failed;

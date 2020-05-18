@@ -29,26 +29,26 @@
       ) f
     where
       j.row_id = f.row_id and j.invisible_until <= @now
-    returning job_id, payload, attempt;  
+    returning j.row_id, job_id, scheduled_for, payload, attempt;  
   ]]></query>
   <query id="keep"><![CDATA[
     -- keep job claim 
 		update {schema}Jobs 
       set invisible_until = @invisible_until
-      where job_id = @job_id and claimed_by = @claimed_by
+      where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="complete"><![CDATA[
     -- complete job 
-		delete from {schema}Jobs where job_id = @job_id and claimed_by = @claimed_by
+		delete from {schema}Jobs where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="forget"><![CDATA[
     -- forget job 
-		delete from {schema}Jobs where job_id = @job_id and claimed_by = @claimed_by
+		delete from {schema}Jobs where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="retry"><![CDATA[
     -- retry job 
 		update {schema}Jobs 
       set claimed_by = null, invisible_until = @invisible_until
-      where job_id = @job_id and claimed_by = @claimed_by
+      where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
 </queries>

@@ -6,6 +6,6 @@ namespace K4os.Xpovoc.MySql
 	{
 		public string ConnectionString { get; set; }
 
-		public string TablePrefix { get; set; }
+		public string Prefix { get; set; }
 	}
 }

@@ -55,16 +55,16 @@ So why Χρόνος exists then? Χρόνος is providing: persistence, distrib
 
 | Name | Nuget | Description |
 |:-|:-:|:-|
-| **K4os.Xpovoc.Abstractions** | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Abstractions.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Abstractions) | Interfaces. Everything you need to use Χρόνος |
-| **K4os.Xpovoc.Core** | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Core.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Core) | Implementation of core components, like `JobScheduler` |
-| **K4os.Xpovoc.MySql** | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MySql.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MySql) | `JobStorage` implementation for MySql |
-| **K4os.Xpovoc.PgSql** | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.PgSql.svg)](https://www.nuget.org/packages/K4os.Xpovoc.PgSql) | `JobStorage` implementation for Postgres |
-| **K4os.Xpovoc.MsSql** | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MsSql.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MsSql) | `JobStorage` implementation for SQL Server |
-| **K4os.Xpovoc.SqLite** | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.SqLite.svg)](https://www.nuget.org/packages/K4os.Xpovoc.SqLite) | `JobStorage` implementation for Sqlite |
-| **K4os.Xpovoc.Memory** | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Memory.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Memory) | `JobStorage` in-memory implementation. Consider this only as temporary replacement for "real database" storage. Inferior to `K4os.Xpovoc.Rx` |
-| **K4os.Xpovoc.Rx** | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Rx.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Rx) | Independent implementation (using Reactive Extensions) for in-memory `JobScheduler` |
-| **K4os.Xpovoc.Json** | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Json.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Json) | Json serialization for database storage using [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) |
-| **K4os.Xpovoc.MediatR** | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MediatR.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MediatR) | [MediatR](https://github.com/jbogard/MediatR) integration |
+| `K4os.Xpovoc.Abstractions` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Abstractions.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Abstractions) | Interfaces. Everything you need to use Χρόνος |
+| `K4os.Xpovoc.Core` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Core.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Core) | Implementation of core components, like `JobScheduler` |
+| `K4os.Xpovoc.MySql` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MySql.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MySql) | `JobStorage` implementation for MySql |
+| `K4os.Xpovoc.PgSql` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.PgSql.svg)](https://www.nuget.org/packages/K4os.Xpovoc.PgSql) | `JobStorage` implementation for Postgres |
+| `K4os.Xpovoc.MsSql` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MsSql.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MsSql) | `JobStorage` implementation for SQL Server |
+| `K4os.Xpovoc.SqLite` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.SqLite.svg)](https://www.nuget.org/packages/K4os.Xpovoc.SqLite) | `JobStorage` implementation for Sqlite |
+| `K4os.Xpovoc.Memory` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Memory.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Memory) | `JobStorage` in-memory implementation. Consider this only as temporary replacement for "real database" storage. Inferior to `K4os.Xpovoc.Rx` |
+| `K4os.Xpovoc.Rx` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Rx.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Rx) | Independent implementation (using Reactive Extensions) for in-memory `JobScheduler` |
+| `K4os.Xpovoc.Json` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Json.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Json) | Json serialization for database storage using [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) |
+| `K4os.Xpovoc.MediatR` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MediatR.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MediatR) | [MediatR](https://github.com/jbogard/MediatR) integration |
 
 # Usage
 

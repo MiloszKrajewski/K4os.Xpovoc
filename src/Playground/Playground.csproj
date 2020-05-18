@@ -18,7 +18,6 @@
     <ProjectReference Include="..\K4os.Xpovoc.MsSql\K4os.Xpovoc.MsSql.csproj" />
     <ProjectReference Include="..\K4os.Xpovoc.MySql\K4os.Xpovoc.MySql.csproj" />
     <ProjectReference Include="..\K4os.Xpovoc.PgSql\K4os.Xpovoc.PgSql.csproj" />
-    <ProjectReference Include="..\K4os.Xpovoc.Rx\K4os.Xpovoc.Rx.csproj" />
     <ProjectReference Include="..\K4os.Xpovoc.SqLite\K4os.Xpovoc.SqLite.csproj" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

@@ -4,8 +4,10 @@ namespace K4os.Xpovoc.Abstractions
 {
 	public interface IJob
 	{
-		Guid Id { get; }
+		Guid JobId { get; }
+		DateTime UtcTime { get; }
 		object Payload { get; }
-		int Attempt { get; }
+		object Context { get; }
+	
 	}
 }

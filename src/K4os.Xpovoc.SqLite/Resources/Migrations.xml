@@ -6,6 +6,7 @@
   -->
   <migration id="initial"><![CDATA[
     create table `{prefix}Jobs` (
+      row_id integer primary key autoincrement,
       job_id uuid not null,
       created_on datetime not null,
       scheduled_for datetime not null,

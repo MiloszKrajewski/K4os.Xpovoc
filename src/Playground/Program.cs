@@ -14,7 +14,6 @@ using K4os.Xpovoc.MsSql;
 using K4os.Xpovoc.MySql;
 using K4os.Xpovoc.PgSql;
 using K4os.Xpovoc.SqLite;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -58,6 +57,7 @@ namespace Playground
 			serviceCollection.AddSingleton<IMySqlJobStorageConfig>(
 				new MySqlJobStorageConfig {
 					ConnectionString = connectionString,
+					Prefix = "xpovoc_"
 				});
 		}
 
@@ -88,7 +88,7 @@ namespace Playground
 				new SqLiteJobStorageConfig {
 					ConnectionString = connectionString,
 					Prefix = "xpovoc_",
-					PoolSize = 3,
+					PoolSize = 1,
 				});
 		}
 
@@ -111,7 +111,7 @@ namespace Playground
 
 			var handler = new AdHocJobHandler(ConsumeOne);
 			var schedulerConfig = serviceProvider.GetRequiredService<ISchedulerConfig>();
-			var scheduler = new JobScheduler(null, sqliteStorage, handler, schedulerConfig);
+			var scheduler = new DbJobScheduler(null, mysqlStorage, handler, schedulerConfig);
 			// var scheduler = new RxJobScheduler(loggerFactory, handler, Scheduler.Default);
 
 			// var producer = Task.CompletedTask;

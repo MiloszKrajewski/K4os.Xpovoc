@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
 using Dapper;
 using System.Linq;
@@ -12,7 +11,7 @@ using K4os.Xpovoc.MsSql.Resources;
 
 namespace K4os.Xpovoc.MsSql
 {
-	public class MsSqlJobStorage: AnySqlStorage<SqlConnection>, IJobStorage
+	public class MsSqlJobStorage: AnySqlStorage<SqlConnection>
 	{
 		private readonly Func<Task<SqlConnection>> _connectionFactory;
 		private readonly string _schema;
@@ -45,105 +44,98 @@ namespace K4os.Xpovoc.MsSql
 			migrator.Install();
 			return Task.CompletedTask;
 		}
+		
+		private string GetQuery(string queryName) =>
+			_queryMap.TryGetValue(queryName, out var queryText) ? queryText : queryName;
 
-		public async Task<Guid> Schedule(object payload, DateTime when)
+		private Task<int> Exec(string queryName, object args)
+		{
+			var query = GetQuery(queryName);
+			return Exec(c => c.ExecuteAsync(query, args));
+		}
+
+		private Task<T> Eval<T>(string queryName, object args)
+		{
+			var query = GetQuery(queryName);
+			return Exec(c => c.QueryFirstOrDefaultAsync<T>(query, args));
+		}
+		
+		public override async Task<Guid> Schedule(object payload, DateTime when)
 		{
 			var guid = Guid.NewGuid();
 			var serialized = Serialize(payload);
+			var args = new {
+				job_id = guid,
+				scheduled_for = when,
+				payload = serialized
+			};
 
-			Task Action(IDbConnection connection) =>
-				connection.ExecuteAsync(
-					_queryMap["schedule"],
-					new {
-						job_id = guid,
-						scheduled_for = when,
-						payload = serialized
-					});
-
-			using (var lease = await Connect())
-				await Action(lease.Connection);
+			await Exec("schedule", args);
 
 			return guid;
 		}
-
-		public async Task<IJob> Claim(
+		
+		protected override async Task<SqlJob> Claim(
 			CancellationToken token,
 			Guid worker, DateTime now, DateTime until)
 		{
-			Task<JobRec> Action(IDbConnection connection) =>
-				connection.QueryFirstOrDefaultAsync<JobRec>(
-					_queryMap["claim"],
-					new {
-						claimed_by = worker,
-						invisible_until = until,
-						now,
-					});
+			var args = new {
+				claimed_by = worker,
+				invisible_until = until,
+				now,
+			};
 
-			Job ToJob(JobRec job) =>
-				new Job(job.job_id, Deserialize(job.payload), job.attempt);
+			SqlJob ToJob(JobRec job) =>
+				new SqlJob(
+					job.row_id, job.job_id,
+					job.scheduled_for.ToUtc(),
+					Deserialize(job.payload), 
+					job.attempt);
 
-			using (var lease = await Connect())
-				return (await Action(lease.Connection))?.PipeTo(ToJob);
+			return (await Eval<JobRec>("claim", args))?.PipeTo(ToJob);
 		}
 
-		public async Task<bool> KeepClaim(
-			CancellationToken token,
-			Guid worker, Guid job, DateTime until)
+		protected override async Task<bool> KeepClaim(
+			CancellationToken token, Guid worker, SqlJob job, DateTime until)
 		{
-			Task<int> Action(IDbConnection connection) =>
-				connection.ExecuteAsync(
-					_queryMap["keep"],
-					new {
-						job_id = job,
-						claimed_by = worker,
-						invisible_until = until,
-					});
+			var args = new {
+				job_id = job,
+				claimed_by = worker,
+				invisible_until = until,
+			};
 
-			using (var lease = await Connect())
-				return await Action(lease.Connection) > 0;
+			return await Exec("keep", args) > 0;
 		}
 
-		public async Task Complete(Guid worker, Guid job, DateTime now)
+		protected override async Task Complete(Guid worker, SqlJob job, DateTime now)
 		{
-			Task<int> Action(IDbConnection connection) =>
-				connection.ExecuteAsync(
-					_queryMap["complete"],
-					new {
-						job_id = job,
-						claimed_by = worker,
-					});
+			var args = new {
+				job_id = job,
+				claimed_by = worker,
+			};
 
-			using (var lease = await Connect())
-				await Action(lease.Connection);
+			await Exec("complete", args);
 		}
 
-		public async Task Retry(Guid worker, Guid job, DateTime when)
+		protected override async Task Forget(Guid worker, SqlJob job, DateTime now)
 		{
-			Task<int> Action(IDbConnection connection) =>
-				connection.ExecuteAsync(
-					_queryMap["retry"],
-					new {
-						job_id = job,
-						claimed_by = worker,
-						invisible_until = when,
-					});
+			var args = new {
+				job_id = job,
+				claimed_by = worker,
+			};
 
-			using (var lease = await Connect())
-				await Action(lease.Connection);
+			await Exec("forget", args);
 		}
 
-		public async Task Forget(Guid worker, Guid job, DateTime now)
+		protected override async Task Retry(Guid worker, SqlJob job, DateTime when)
 		{
-			Task<int> Action(IDbConnection connection) =>
-				connection.ExecuteAsync(
-					_queryMap["forget"],
-					new {
-						job_id = job,
-						claimed_by = worker,
-					});
+			var args = new {
+				job_id = job,
+				claimed_by = worker,
+				invisible_until = when,
+			};
 
-			using (var lease = await Connect())
-				await Action(lease.Connection);
+			await Exec("retry", args);
 		}
 
 		#region JobRec
@@ -153,7 +145,9 @@ namespace K4os.Xpovoc.MsSql
 		{
 #pragma warning disable 649
 			// ReSharper disable InconsistentNaming
+			public long row_id;
 			public Guid job_id;
+			public DateTime scheduled_for;
 			public string payload;
 			public int attempt;
 			// ReSharper restore InconsistentNaming

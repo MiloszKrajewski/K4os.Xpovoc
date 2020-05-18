@@ -41,5 +41,18 @@ namespace System
 			func(subject);
 			return subject;
 		}
+
+		public static DateTime ToUtc(this DateTime timestamp)
+		{
+			switch (timestamp.Kind)
+			{
+				case DateTimeKind.Utc: 
+					return timestamp;
+				case DateTimeKind.Unspecified:
+					return DateTime.SpecifyKind(timestamp, DateTimeKind.Utc);
+				default: 
+					return timestamp.ToUniversalTime();
+			}
+		}
 	}
 }

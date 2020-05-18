@@ -2,7 +2,7 @@ using System;
 
 namespace K4os.Xpovoc.Rx
 {
-	internal class Job
+	internal class RxJob
 	{
 		public IDisposable Schedule { get; set; }
 		public Guid Id { get; set; }
