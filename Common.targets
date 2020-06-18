@@ -15,7 +15,7 @@
     <PackageLicenseUrl>https://raw.githubusercontent.com/MiloszKrajewski/K4os.Xpovoc/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc</RepositoryUrl>
-    <!--<PackageIconUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc/blob/master/doc/icon.png?raw=true</PackageIconUrl>-->
+    <PackageIconUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc/blob/master/doc/icon.png?raw=true</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="*.?sproj.DotSettings" />
