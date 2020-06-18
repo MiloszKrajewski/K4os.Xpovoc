@@ -7,19 +7,16 @@
   <PropertyGroup>
     <!-- Χρόνος -->
     <Product>K4os.Xpovoc</Product>
-    <Authors>...</Authors>
-    <Copyright>...</Copyright>
-    <Description>...</Description>
+    <Authors>Milosz Krajewski</Authors>
+    <Copyright>Milosz Krajewski</Copyright>
+    <Description>Simple job scheduler for .NET/.NET Core</Description>
+    <PackageId>$(AssemblyName)</PackageId>
+    <PackageTags>scheduler cqrs</PackageTags>
     <RepositoryUrl>https://.../K4os.Xpovoc</RepositoryUrl>
-  </PropertyGroup>
-  <PropertyGroup>
-    <!--
-    <PackageId>K4os.Xpovoc</PackageId>
-    <PackageTags>...</PackageTags>
-    <PackageLicenseUrl>https://.../LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://.../K4os.Xpovoc</PackageProjectUrl>
-    <PackageIconUrl>https://.../K4os.Xpovoc/icon.png</PackageIconUrl>
-    -->
+    <PackageLicenseUrl>https://raw.githubusercontent.com/MiloszKrajewski/K4os.Xpovoc/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc</RepositoryUrl>
+    <!--<PackageIconUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc/blob/master/doc/icon.png?raw=true</PackageIconUrl>-->
   </PropertyGroup>
   <ItemGroup>
     <None Remove="*.?sproj.DotSettings" />

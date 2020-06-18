@@ -2,6 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageTags>scheduler cqrs sqlite</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
@@ -16,4 +17,5 @@
     <EmbeddedResource Include="Resources\Queries.xml" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <Import Project="..\..\Common.targets" />
 </Project>

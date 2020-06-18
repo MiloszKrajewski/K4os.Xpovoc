@@ -65,11 +65,11 @@ Target.create "Release:GitHub" (fun _ ->
 
 open Fake.Core.TargetOperators
 
-"Refresh" ==> "Restore" ==> "Build" ==> "Rebuild" ==> "Test" ==> "Release"
+"Refresh" ==> "Restore" ==> "Build" ==> "Rebuild" ==> "Release"
 "Release" ==> "Release:GitHub" ==> "Release:Nuget"
 "Clean" ==> "Rebuild"
 
 "Clean" ?=> "Restore"
-"Build" ?=> "Test"
+"Build" ?=> "Test" ?=> "Release"
 
 Target.runOrDefaultWithArguments "Build"
