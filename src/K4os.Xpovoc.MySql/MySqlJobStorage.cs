@@ -15,7 +15,7 @@ namespace K4os.Xpovoc.MySql
 	{
 		private readonly Func<Task<MySqlConnection>> _connectionFactory;
 		private readonly string _tablePrefix;
-		private readonly Dictionary<string, string> _queryMap;
+		private readonly IDictionary<string, string> _queryMap;
 		private readonly MySqlResourceLoader _resourceLoader;
 		private readonly MySqlExecutionPolicy _executionPolicy;
 

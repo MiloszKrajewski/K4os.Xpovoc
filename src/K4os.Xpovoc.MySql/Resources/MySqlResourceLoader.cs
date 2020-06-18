@@ -10,15 +10,15 @@ namespace K4os.Xpovoc.MySql.Resources
 	{
 		public static readonly MySqlResourceLoader Default = new MySqlResourceLoader();
 
-		public IEnumerable<IMigration> LoadMigrations(string tablePrefix) => 
-			LoadMigrations(
+		public IEnumerable<IMigration> LoadMigrations(string prefix) => 
+			AnySqlResourceLoader.LoadMigrations(
 				GetEmbeddedXml("Migrations.xml"), 
-				s => FixPrefix(tablePrefix, s));
+				s => FixPrefix(prefix, s));
 
-		public Dictionary<string, string> LoadQueries(string tablePrefix) =>
-			LoadQueries(
+		public IDictionary<string, string> LoadQueries(string prefix) =>
+			AnySqlResourceLoader.LoadQueries(
 				GetEmbeddedXml("Queries.xml"), 
-				s => FixPrefix(tablePrefix, s));
+				s => FixPrefix(prefix, s));
 		
 		private static string FixPrefix(string prefix, string text) => 
 			text.Replace("{prefix}", prefix);

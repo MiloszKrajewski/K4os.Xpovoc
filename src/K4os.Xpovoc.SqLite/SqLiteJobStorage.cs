@@ -21,7 +21,7 @@ namespace K4os.Xpovoc.SqLite
 			new SemaphoreSlim(0);
 
 		private readonly string _prefix;
-		private readonly Dictionary<string, string> _queryMap;
+		private readonly IDictionary<string, string> _queryMap;
 		private readonly SqLiteResourceLoader _resourceLoader;
 
 		private readonly Random _tokenGenerator = new Random(Guid.NewGuid().GetHashCode());

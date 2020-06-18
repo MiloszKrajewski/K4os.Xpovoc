@@ -11,12 +11,12 @@ namespace K4os.Xpovoc.MsSql.Resources
 		public static readonly MsSqlResourceLoader Default = new MsSqlResourceLoader();
 
 		public IEnumerable<IMigration> LoadMigrations(string schema) =>
-			LoadMigrations(
+			AnySqlResourceLoader.LoadMigrations(
 				GetEmbeddedXml("Migrations.xml"),
 				s => Update(schema, s));
 
-		public Dictionary<string, string> LoadQueries(string schema) =>
-			LoadQueries(
+		public IDictionary<string, string> LoadQueries(string schema) =>
+			AnySqlResourceLoader.LoadQueries(
 				GetEmbeddedXml("Queries.xml"),
 				s => Update(schema, s));
 

@@ -43,6 +43,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "Playground\Pl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Core", "K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj", "{BFDC8177-A334-4DAD-AA4D-61787B9DA55B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Db.Test", "K4os.Xpovoc.Db.Test\K4os.Xpovoc.Db.Test.csproj", "{DA732BE1-C721-4F63-9907-4A50C5E2B297}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{05CC704E-DDB0-4335-82E4-460AD6E89D20}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,11 +101,20 @@ Global
 		{BFDC8177-A334-4DAD-AA4D-61787B9DA55B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BFDC8177-A334-4DAD-AA4D-61787B9DA55B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFDC8177-A334-4DAD-AA4D-61787B9DA55B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA732BE1-C721-4F63-9907-4A50C5E2B297}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA732BE1-C721-4F63-9907-4A50C5E2B297}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA732BE1-C721-4F63-9907-4A50C5E2B297}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA732BE1-C721-4F63-9907-4A50C5E2B297}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {455890D3-A42A-420D-8AB1-8DAB82DD00AD}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DA732BE1-C721-4F63-9907-4A50C5E2B297} = {05CC704E-DDB0-4335-82E4-460AD6E89D20}
+		{79E08BEA-FB8C-4ECA-AB12-09826D68988E} = {05CC704E-DDB0-4335-82E4-460AD6E89D20}
+		{544F0B5A-B3BB-490B-92D7-9C5587E11B47} = {05CC704E-DDB0-4335-82E4-460AD6E89D20}
 	EndGlobalSection
 EndGlobal

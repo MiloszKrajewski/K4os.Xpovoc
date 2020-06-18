@@ -6,7 +6,7 @@
   -->
   <query id="schedule"><![CDATA[
     -- insert new job
-    insert into {schema}Jobs (
+    insert into {schema}"Jobs" (
       job_id, created_on, scheduled_for, invisible_until, payload
     ) values (
       @job_id, now(), @scheduled_for, @scheduled_for, @payload
@@ -14,7 +14,7 @@
   ]]></query>
   <query id="claim"><![CDATA[
     -- claim jobs 
-    update {schema}Jobs j
+    update {schema}"Jobs" j
     set
       claimed_by = @claimed_by,
       invisible_until = @invisible_until,
@@ -22,7 +22,7 @@
     from
       (
         select row_id
-        from {schema}Jobs
+        from {schema}"Jobs"
         where scheduled_for <= @now and invisible_until <= @now
         order by scheduled_for
         limit 1
@@ -33,21 +33,21 @@
   ]]></query>
   <query id="keep"><![CDATA[
     -- keep job claim 
-		update {schema}Jobs 
+		update {schema}"Jobs" 
       set invisible_until = @invisible_until
       where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="complete"><![CDATA[
     -- complete job 
-		delete from {schema}Jobs where row_id = @row_id and claimed_by = @claimed_by
+		delete from {schema}"Jobs" where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="forget"><![CDATA[
     -- forget job 
-		delete from {schema}Jobs where row_id = @row_id and claimed_by = @claimed_by
+		delete from {schema}"Jobs" where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="retry"><![CDATA[
     -- retry job 
-		update {schema}Jobs 
+		update {schema}"Jobs" 
       set claimed_by = null, invisible_until = @invisible_until
       where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>

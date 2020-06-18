@@ -11,12 +11,12 @@ namespace K4os.Xpovoc.SqLite.Resources
 		public static readonly SqLiteResourceLoader Default = new SqLiteResourceLoader();
 
 		public IEnumerable<IMigration> LoadMigrations(string prefix) =>
-			LoadMigrations(
+			AnySqlResourceLoader.LoadMigrations(
 				GetEmbeddedXml("Migrations.xml"),
 				s => Update(prefix, s));
 
-		public Dictionary<string, string> LoadQueries(string prefix) =>
-			LoadQueries(
+		public IDictionary<string, string> LoadQueries(string prefix) =>
+			AnySqlResourceLoader.LoadQueries(
 				GetEmbeddedXml("Queries.xml"),
 				s => Update(prefix, s));
 

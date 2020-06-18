@@ -15,7 +15,7 @@ namespace K4os.Xpovoc.MsSql
 	{
 		private readonly Func<Task<SqlConnection>> _connectionFactory;
 		private readonly string _schema;
-		private readonly Dictionary<string, string> _queryMap;
+		private readonly IDictionary<string, string> _queryMap;
 		private readonly MsSqlResourceLoader _resourceLoader;
 
 		public MsSqlJobStorage(
@@ -66,7 +66,7 @@ namespace K4os.Xpovoc.MsSql
 			var serialized = Serialize(payload);
 			var args = new {
 				job_id = guid,
-				scheduled_for = when,
+				scheduled_for = when.ToUtc(),
 				payload = serialized
 			};
 
@@ -81,7 +81,7 @@ namespace K4os.Xpovoc.MsSql
 		{
 			var args = new {
 				claimed_by = worker,
-				invisible_until = until,
+				invisible_until = until.ToUtc(),
 				now,
 			};
 
@@ -99,9 +99,9 @@ namespace K4os.Xpovoc.MsSql
 			CancellationToken token, Guid worker, SqlJob job, DateTime until)
 		{
 			var args = new {
-				job_id = job,
+				row_id = job.RowId,
 				claimed_by = worker,
-				invisible_until = until,
+				invisible_until = until.ToUtc(),
 			};
 
 			return await Exec("keep", args) > 0;
@@ -110,7 +110,7 @@ namespace K4os.Xpovoc.MsSql
 		protected override async Task Complete(Guid worker, SqlJob job, DateTime now)
 		{
 			var args = new {
-				job_id = job,
+				row_id = job.RowId,
 				claimed_by = worker,
 			};
 
@@ -120,7 +120,7 @@ namespace K4os.Xpovoc.MsSql
 		protected override async Task Forget(Guid worker, SqlJob job, DateTime now)
 		{
 			var args = new {
-				job_id = job,
+				row_id = job.RowId,
 				claimed_by = worker,
 			};
 
@@ -130,9 +130,9 @@ namespace K4os.Xpovoc.MsSql
 		protected override async Task Retry(Guid worker, SqlJob job, DateTime when)
 		{
 			var args = new {
-				job_id = job,
+				row_id = job.RowId,
 				claimed_by = worker,
-				invisible_until = when,
+				invisible_until = when.ToUtc(),
 			};
 
 			await Exec("retry", args);

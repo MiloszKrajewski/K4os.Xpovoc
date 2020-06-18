@@ -16,7 +16,7 @@ namespace K4os.Xpovoc.PgSql
 		private readonly Func<Task<NpgsqlConnection>> _connectionFactory;
 		private readonly string _schema;
 		private readonly PgSqlResourceLoader _resourceLoader;
-		private readonly Dictionary<string, string> _queryMap;
+		private readonly IDictionary<string, string> _queryMap;
 
 		public PgSqlJobStorage(
 			IJobSerializer serializer,
