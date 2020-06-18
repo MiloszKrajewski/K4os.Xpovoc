@@ -1,4 +1,4 @@
-# Χρόνος
+# Χρόνος ![icon](doc/icon-32.png)
 
 It is actually Χρόνος (eng. Chronos) - personification of time in Greek mythology.
 
