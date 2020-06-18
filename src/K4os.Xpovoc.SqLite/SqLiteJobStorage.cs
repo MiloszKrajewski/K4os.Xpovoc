@@ -103,7 +103,7 @@ namespace K4os.Xpovoc.SqLite
 			var guid = Guid.NewGuid();
 			var args = new {
 				job_id = guid,
-				scheduled_for = when,
+				scheduled_for = when.ToUtc(),
 				payload = Serialize(payload)
 			};
 
@@ -126,7 +126,7 @@ namespace K4os.Xpovoc.SqLite
 			var args = new {
 				claimed_by = worker,
 				claim_token = ClaimToken(),
-				invisible_until = until,
+				invisible_until = until.ToUtc(),
 				now,
 			};
 
@@ -139,7 +139,7 @@ namespace K4os.Xpovoc.SqLite
 			var args = new {
 				row_id = job.RowId,
 				claimed_by = worker,
-				invisible_until = until,
+				invisible_until = until.ToUtc(),
 			};
 
 			return await Exec("keep", args, token) > 0;
@@ -170,7 +170,7 @@ namespace K4os.Xpovoc.SqLite
 			var args = new {
 				row_id = job.RowId,
 				claimed_by = worker,
-				invisible_until = when,
+				invisible_until = when.ToUtc(),
 			};
 
 			await Exec("retry", args);

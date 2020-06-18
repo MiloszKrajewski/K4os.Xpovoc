@@ -8,7 +8,7 @@ using K4os.Xpovoc.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace K4os.Xpovoc.Rx
+namespace K4os.Xpovoc.Core.Rx
 {
 	public class RxJobScheduler: IJobScheduler
 	{

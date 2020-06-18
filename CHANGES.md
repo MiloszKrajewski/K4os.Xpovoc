@@ -1,2 +1,3 @@
-## 0.0.1 (2000/01/01)
+## 0.0.1 (2020/06/18)
+* MySQL, Sqlite, Postgres, SQL Server
 * initial release

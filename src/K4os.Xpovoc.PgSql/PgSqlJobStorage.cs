@@ -66,7 +66,7 @@ namespace K4os.Xpovoc.PgSql
 			var serialized = Serialize(payload);
 			var args = new {
 				job_id = guid,
-				scheduled_for = when,
+				scheduled_for = when.ToUtc(),
 				payload = serialized
 			};
 
@@ -81,7 +81,7 @@ namespace K4os.Xpovoc.PgSql
 		{
 			var args = new {
 				claimed_by = worker,
-				invisible_until = until,
+				invisible_until = until.ToUtc(),
 				now,
 			};
 
@@ -101,7 +101,7 @@ namespace K4os.Xpovoc.PgSql
 			var args = new {
 				row_id = job.RowId,
 				claimed_by = worker,
-				invisible_until = until,
+				invisible_until = until.ToUtc(),
 			};
 
 			return await Exec("keep", args, token) > 0;
@@ -112,7 +112,7 @@ namespace K4os.Xpovoc.PgSql
 			var args = new {
 				row_id = job.RowId,
 				claimed_by = worker,
-				invisible_until = when,
+				invisible_until = when.ToUtc(),
 			};
 
 			await Exec("retry", args);

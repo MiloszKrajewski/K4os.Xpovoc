@@ -1,6 +1,6 @@
 using System;
 
-namespace K4os.Xpovoc.Rx
+namespace K4os.Xpovoc.Core.Rx
 {
 	internal class RxJob
 	{

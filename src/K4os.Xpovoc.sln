@@ -27,8 +27,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Abstractions", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Shared", "K4os.Shared\K4os.Shared.csproj", "{8D991F96-B936-4BEF-ABCA-2202692E9943}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Memory", "K4os.Xpovoc.Memory\K4os.Xpovoc.Memory.csproj", "{1C02EDAE-DA43-48D5-8AA3-C393BD4FAC0F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.MediatR", "K4os.Xpovoc.MediatR\K4os.Xpovoc.MediatR.csproj", "{A579F0EE-702D-48BE-98BC-0A155D255156}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.PgSql", "K4os.Xpovoc.PgSql\K4os.Xpovoc.PgSql.csproj", "{1A9463EF-E0AC-4ED8-88A0-48CCFC85313D}"
@@ -69,10 +67,6 @@ Global
 		{8D991F96-B936-4BEF-ABCA-2202692E9943}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D991F96-B936-4BEF-ABCA-2202692E9943}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D991F96-B936-4BEF-ABCA-2202692E9943}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1C02EDAE-DA43-48D5-8AA3-C393BD4FAC0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1C02EDAE-DA43-48D5-8AA3-C393BD4FAC0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1C02EDAE-DA43-48D5-8AA3-C393BD4FAC0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1C02EDAE-DA43-48D5-8AA3-C393BD4FAC0F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A579F0EE-702D-48BE-98BC-0A155D255156}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A579F0EE-702D-48BE-98BC-0A155D255156}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A579F0EE-702D-48BE-98BC-0A155D255156}.Release|Any CPU.ActiveCfg = Release|Any CPU
