@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageTags>scheduler cqrs postgres</PackageTags>
+    <PackageTags>xpovoc scheduler cqrs postgres</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\K4os.Shared\Extensions.cs">

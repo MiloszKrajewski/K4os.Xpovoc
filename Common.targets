@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>
-    <Version>0.0.1</Version>
-    <AssemblyVersion>0.0.1</AssemblyVersion>
-    <FileVersion>0.0.1</FileVersion>
+    <Version>0.0.3</Version>
+    <AssemblyVersion>0.0.3</AssemblyVersion>
+    <FileVersion>0.0.3</FileVersion>
   </PropertyGroup>
   <PropertyGroup>
     <!-- Χρόνος -->
@@ -11,8 +11,7 @@
     <Copyright>Milosz Krajewski</Copyright>
     <Description>Simple job scheduler for .NET/.NET Core</Description>
     <PackageId>$(AssemblyName)</PackageId>
-    <PackageTags>scheduler cqrs</PackageTags>
-    <RepositoryUrl>https://.../K4os.Xpovoc</RepositoryUrl>
+    <PackageTags>xpovoc scheduler cqrs</PackageTags>
     <PackageLicenseUrl>https://raw.githubusercontent.com/MiloszKrajewski/K4os.Xpovoc/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc</PackageProjectUrl>
     <RepositoryUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc</RepositoryUrl>

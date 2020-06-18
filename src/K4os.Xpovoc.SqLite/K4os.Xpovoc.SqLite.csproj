@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageTags>scheduler cqrs sqlite</PackageTags>
+    <PackageTags>xpovoc scheduler cqrs sqlite</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
