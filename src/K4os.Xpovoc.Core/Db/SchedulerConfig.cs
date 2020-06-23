@@ -4,34 +4,24 @@ namespace K4os.Xpovoc.Core.Db
 {
 	public class SchedulerConfig: ISchedulerConfig
 	{
-		public static readonly SchedulerConfig Default = new SchedulerConfig {
-			WorkerCount = 4,
-			PollInterval = TimeSpan.FromSeconds(15),
-			KeepAliveInterval = TimeSpan.FromSeconds(5),
-			KeepAlivePeriod = TimeSpan.FromMinutes(1),
-			KeepAliveRetryInterval = TimeSpan.FromSeconds(1),
-			RetryLimit = 10,
-			RetryInterval = TimeSpan.FromSeconds(30),
-			MaximumRetryInterval = TimeSpan.FromHours(6),
-			RetryFactor = 1.5,
-		};
+		public static readonly SchedulerConfig Default = new SchedulerConfig();
 
-		public TimeSpan PollInterval { get; set; }
+		public TimeSpan PollInterval { get; set; } = TimeSpan.FromSeconds(15);
 
-		public TimeSpan KeepAliveInterval { get; set; }
+		public TimeSpan KeepAliveInterval { get; set; } = TimeSpan.FromSeconds(5);
 
-		public TimeSpan KeepAlivePeriod { get; set; }
+		public TimeSpan KeepAlivePeriod { get; set; } = TimeSpan.FromMinutes(1);
 
-		public TimeSpan RetryInterval { get; set; }
+		public TimeSpan KeepAliveRetryInterval { get; set; } = TimeSpan.FromSeconds(1);
 
-		public double RetryFactor { get; set; }
+		public TimeSpan RetryInterval { get; set; } = TimeSpan.FromSeconds(30);
 
-		public int RetryLimit { get; set; }
+		public int RetryLimit { get; set; } = 10;
 
-		public TimeSpan MaximumRetryInterval { get; set; }
+		public double RetryFactor { get; set; } = 1.5;
 
-		public TimeSpan KeepAliveRetryInterval { get; set; }
+		public TimeSpan MaximumRetryInterval { get; set; } = TimeSpan.FromHours(6);
 
-		public int WorkerCount { get; set; }
+		public int WorkerCount { get; set; } = 4;
 	}
 }
