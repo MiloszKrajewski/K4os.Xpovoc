@@ -16,7 +16,7 @@ namespace K4os.Xpovoc.MsSql
 			IDbConnection connection,
 			string schema,
 			IEnumerable<IMigration> migrations):
-			base(connection, migrations)
+			base("Xpovoc", connection, migrations)
 		{
 			var hasSchema = !string.IsNullOrWhiteSpace(schema);
 			_schemaName = schema ?? string.Empty;

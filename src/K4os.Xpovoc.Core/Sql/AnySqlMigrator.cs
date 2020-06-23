@@ -7,15 +7,19 @@ namespace K4os.Xpovoc.Core.Sql
 {
 	public abstract class AnySqlMigrator
 	{
+		private string _productId;
 		private readonly IDbConnection _connection;
 		private readonly Migration[] _migrations;
 
 		protected AnySqlMigrator(
+			string productId,
 			IDbConnection connection,
 			IEnumerable<IMigration> migrations)
 		{
-			_connection = connection ?? throw new ArgumentNullException(nameof(connection));
-			_migrations = (migrations ?? throw new ArgumentNullException(nameof(migrations)))
+			_productId = productId.Required(nameof(productId));
+			_connection = connection.Required(nameof(connection));
+			_migrations = migrations
+				.Required(nameof(migrations))
 				.Select(m => new Migration(m))
 				.ToArray();
 		}
@@ -26,10 +30,11 @@ namespace K4os.Xpovoc.Core.Sql
 
 			foreach (var migration in _migrations)
 			{
-				var alreadyApplied = IsMigrationApplied(_connection, migration.Id);
+				var migrationId = $"{_productId}/{migration.Id}";
+				var alreadyApplied = IsMigrationApplied(_connection, migrationId);
 				if (alreadyApplied) continue;
 
-				ApplyMigration(_connection, migration.Id, migration.Script);
+				ApplyMigration(_connection, migrationId, migration.Script);
 			}
 		}
 

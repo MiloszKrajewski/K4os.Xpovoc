@@ -13,7 +13,7 @@ namespace K4os.Xpovoc.MySql
 			IDbConnection connection,
 			string prefix,
 			IEnumerable<IMigration> migrations):
-			base(connection, migrations)
+			base("Xpovoc", connection, migrations)
 		{
 			_table = $"{prefix ?? string.Empty}Migrations";
 		}

@@ -14,7 +14,7 @@ namespace K4os.Xpovoc.PgSql
 			IDbConnection connection,
 			string schema,
 			IEnumerable<IMigration> migrations):
-			base(connection, migrations)
+			base("Xpovoc", connection, migrations)
 		{
 			var hasSchema = !string.IsNullOrWhiteSpace(schema);
 			_schema = hasSchema ? Quoted(schema) : string.Empty;
