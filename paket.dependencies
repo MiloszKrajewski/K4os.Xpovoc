@@ -2,8 +2,6 @@ storage none
 framework auto-detect
 source https://www.nuget.org/api/v2
 
-nuget Microsoft.Extensions.Logging.Abstractions < 3
-
 nuget Microsoft.Extensions.DependencyInjection
 nuget Microsoft.Extensions.DependencyInjection.Abstractions
 nuget Microsoft.Extensions.Logging
@@ -13,15 +11,16 @@ nuget System.Interactive
 
 nuget K4os.Async.Batch
 
-nuget MySqlConnector
-nuget Npgsql
-nuget Microsoft.Data.Sqlite
-nuget System.Data.SqlClient
+nuget MySqlConnector ~> 0
+nuget Npgsql ~> 4
+nuget Microsoft.Data.Sqlite ~> 3
+nuget System.Data.SqlClient ~> 4
 
-nuget Dapper
-nuget Polly
-nuget Newtonsoft.Json
-nuget MediatR
+nuget Dapper ~> 1
+nuget Polly ~> 7
+nuget Newtonsoft.Json ~> 10
+nuget MediatR ~> 8
+nuget Microsoft.Extensions.Logging.Abstractions ~> 2
 
 nuget Microsoft.NET.Test.Sdk
 nuget xunit
