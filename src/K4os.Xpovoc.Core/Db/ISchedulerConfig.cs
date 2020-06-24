@@ -4,14 +4,14 @@ namespace K4os.Xpovoc.Core.Db
 {
 	public interface ISchedulerConfig
 	{
-		int WorkerCount { get; set; }
-		TimeSpan PollInterval { get; set; }
-		TimeSpan KeepAliveInterval { get; set; }
-		TimeSpan KeepAlivePeriod { get; set; }
-		TimeSpan KeepAliveRetryInterval { get; set; }
-		TimeSpan RetryInterval { get; set; }
-		double RetryFactor { get; set; }
-		int RetryLimit { get; set; }
-		TimeSpan MaximumRetryInterval { get; set; }
+		int WorkerCount { get; }
+		TimeSpan PollInterval { get; }
+		TimeSpan KeepAliveInterval { get; }
+		TimeSpan KeepAlivePeriod { get; }
+		TimeSpan KeepAliveRetryInterval { get; }
+		TimeSpan RetryInterval { get; }
+		double RetryFactor { get; }
+		int RetryLimit { get; }
+		TimeSpan MaximumRetryInterval { get; }
 	}
 }
