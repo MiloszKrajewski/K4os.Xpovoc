@@ -1,9 +1,13 @@
-## 0.0.8 (2020/06/24)
-* set fixed dependencies
-* removed 'set' methods from ISchedulerConfig interface
+## 0.0.10 (2020/06/25)
+* Lowered requirement for MySqlConnector (to 0.59) 
+
+## 0.0.9 (2020/06/24)
+* Set fixed dependencies
+* Removed 'set' methods from ISchedulerConfig interface
+* Added Install method AnySqlStorage
 
 ## 0.0.7 (2020/06/23)
-* modified default migration mechanism to avoid migration name conflicts
+* Modified default migration mechanism to avoid migration name conflicts
 * DbJobSchedulerConfig is created with default values
 
 ## 0.0.3 (2020/06/18)

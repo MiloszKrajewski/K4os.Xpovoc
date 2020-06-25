@@ -109,6 +109,12 @@ namespace K4os.Xpovoc.Core.Sql
 
 		public abstract Task<Guid> Schedule(object payload, DateTime when);
 
+		public virtual async Task Install()
+		{
+			using (var lease = await Connect())
+				_ = lease.Required("Lease").Connection.Required("Connection");
+		}
+
 		async Task<IDbJob> IDbJobStorage.Claim(
 			CancellationToken token, Guid worker, DateTime now, DateTime until) =>
 			await Claim(token, worker, now, until);

@@ -41,10 +41,10 @@ namespace K4os.Xpovoc.Core.Db
 			_configuration = FixExternalConfig(configuration ?? SchedulerConfig.Default);
 			_pollers = CreateWorkers();
 
-			Startup();
+			Start();
 		}
-
-		private void Startup() => _ready.TrySetResult(true);
+		
+		public void Start() => _ready.TrySetResult(true);
 
 		private async Task Shutdown()
 		{
