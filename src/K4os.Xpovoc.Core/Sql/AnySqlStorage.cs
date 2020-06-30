@@ -10,10 +10,8 @@ namespace K4os.Xpovoc.Core.Sql
 {
 	public abstract class AnySqlStorage<TConnection>: IDbJobStorage where TConnection: DbConnection
 	{
-		private int _databaseCreated;
-
-		private readonly TaskCompletionSource<bool> _databaseReady =
-			new TaskCompletionSource<bool>();
+		private readonly SemaphoreSlim _migrationLock = new SemaphoreSlim(1);
+		private int _databaseReady;
 
 		private readonly IJobSerializer _serializer;
 
@@ -37,7 +35,9 @@ namespace K4os.Xpovoc.Core.Sql
 				if (connection.State == ConnectionState.Closed)
 					await OpenConnection(connection);
 
-				await TryCreateDatabase(connection);
+				if (!IsDatabaseReady)
+					await TryCreateDatabase(connection);
+				
 				return lease;
 			}
 			catch
@@ -59,21 +59,26 @@ namespace K4os.Xpovoc.Core.Sql
 
 		protected async Task TryCreateDatabase(TConnection connection)
 		{
-			if (Interlocked.CompareExchange(ref _databaseCreated, 1, 0) == 0)
-			{
-				try
-				{
-					await CreateDatabase(connection);
-					_databaseReady.TrySetResult(true);
-				}
-				catch (Exception e)
-				{
-					_databaseReady.TrySetException(e);
-				}
-			}
+			if (IsDatabaseReady)
+				return;
 
-			await _databaseReady.Task;
+			await _migrationLock.WaitAsync();
+			try
+			{
+				// check again
+				if (IsDatabaseReady) 
+					return;
+
+				await CreateDatabase(connection);
+			}
+			finally
+			{
+				_migrationLock.Release();
+			}
 		}
+
+		private bool IsDatabaseReady =>
+			Interlocked.CompareExchange(ref _databaseReady, 0, 0) != 0;
 
 		protected virtual async Task<T> Exec<T>(
 			TConnection connection, Func<TConnection, Task<T>> action,

@@ -1,5 +1,8 @@
-## 0.0.10 (2020/06/25)
-* Lowered requirement for MySqlConnector (to 0.59) 
+## 0.0.12 (2020/06/30)
+* Safer DB migrations
+
+## 0.0.11 (2020/06/25)
+* Lowered requirement for MySqlConnector (to 0.56) 
 
 ## 0.0.9 (2020/06/24)
 * Set fixed dependencies

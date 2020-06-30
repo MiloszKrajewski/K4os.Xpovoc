@@ -5,7 +5,7 @@
   ]]></migration>
   -->
   <migration id="initial"><![CDATA[
-    create table {prefix}Jobs (
+    create table `{prefix}Jobs` (
       row_id int auto_increment primary key,
       job_id char(36) collate ascii_bin not null,
       created_on datetime(6) not null,
@@ -17,7 +17,7 @@
     );
   ]]></migration>
   <migration id="indices"><![CDATA[
-    create index ix_scan on {prefix}Jobs (scheduled_for, invisible_until);
-    create unique index ix_update on {prefix}Jobs (job_id);  
+    create index ix_scan on `{prefix}Jobs` (scheduled_for, invisible_until);
+    create unique index ix_update on `{prefix}Jobs` (job_id);  
   ]]></migration>
 </migrations>
