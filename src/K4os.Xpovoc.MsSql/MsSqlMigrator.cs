@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using Dapper;
@@ -19,7 +20,7 @@ namespace K4os.Xpovoc.MsSql
 			base("Xpovoc", connection, migrations)
 		{
 			var hasSchema = !string.IsNullOrWhiteSpace(schema);
-			_schemaName = schema ?? string.Empty;
+			_schemaName = schema ?? "dbo";
 			_tableName = "Migrations";
 
 			_schema = hasSchema ? Quoted(schema) : string.Empty;

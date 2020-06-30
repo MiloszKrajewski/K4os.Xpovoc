@@ -30,6 +30,9 @@ namespace System
 		public static T NotMoreThan<T>(this T subject, T limit) =>
 			Compare(subject, limit) > 0 ? limit : subject;
 
+		public static string NotBlank(this string text, string defaultValue = null) =>
+			string.IsNullOrWhiteSpace(text) ? defaultValue : text;
+
 		public static R PipeTo<T, R>(this T subject, Func<T, R> func) =>
 			func(subject);
 

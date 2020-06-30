@@ -35,9 +35,9 @@ namespace K4os.Xpovoc.Core.Sql
 				if (connection.State == ConnectionState.Closed)
 					await OpenConnection(connection);
 
-				if (!IsDatabaseReady)
+				if (!DatabaseReady)
 					await TryCreateDatabase(connection);
-				
+
 				return lease;
 			}
 			catch
@@ -59,17 +59,19 @@ namespace K4os.Xpovoc.Core.Sql
 
 		protected async Task TryCreateDatabase(TConnection connection)
 		{
-			if (IsDatabaseReady)
+			if (DatabaseReady)
 				return;
 
 			await _migrationLock.WaitAsync();
 			try
 			{
 				// check again
-				if (IsDatabaseReady) 
+				if (DatabaseReady)
 					return;
 
 				await CreateDatabase(connection);
+
+				DatabaseReady = true;
 			}
 			finally
 			{
@@ -77,8 +79,11 @@ namespace K4os.Xpovoc.Core.Sql
 			}
 		}
 
-		private bool IsDatabaseReady =>
-			Interlocked.CompareExchange(ref _databaseReady, 0, 0) != 0;
+		public bool DatabaseReady
+		{
+			get => Interlocked.CompareExchange(ref _databaseReady, 0, 0) != 0;
+			set => Interlocked.Exchange(ref _databaseReady, value ? 1 : 0);
+		}
 
 		protected virtual async Task<T> Exec<T>(
 			TConnection connection, Func<TConnection, Task<T>> action,
