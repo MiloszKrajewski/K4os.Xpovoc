@@ -7,7 +7,7 @@ Don't get me wrong: Hangfire is an excellent piece of software (MySql driver not
 and Χρόνος provides less, but it provides exactly what I needed. 
 
 It is lightweight scheduler, build with CQRS in mind.
-The only thing it really does is: "send this message to me at this time", that's it.
+The only thing it really does is: "send this message back to me when the time comes", that's it.
 
 There are two interfaces:
 
@@ -27,25 +27,40 @@ interface IJobHandler
 }
 ```
 
-where implementation of `IJobScheduler` is provided by Χρόνος 
-while `IJobHandler` needs to be provided by the user.
+## IJobScheduler
 
-Simplistic implementation of `IJobScheduler` would be:
+`IJobScheduler` is meant to schedule a message at a given time. 
+You can imagine that very naive implementation of `IJobScheduler` would be: 
 
 ```c#
-class SimplisticJobScheduler: IJobScheduler
+class NaiveJobScheduler: IJobScheduler
 {
     public SimplisticJobScheduler(IJobHandler handler) =>
         _handler = handler;
 
     public Task<Guid> Schedule(DateTimeOffset time, object message)
     {
-        Task.Delay(time.Subtract(DateTimeOffset.Now));
-            .ContinueWith(_ => _handler.Handle(CancellationToken.None, message));
+        var delay = time.Subtract(DateTimeOffset.Now);
+        Task.Delay(delay).ContinueWith(_ => _handler.Handle(CancellationToken.None, message));
         return Task.FromResult(Guid.NewGuid());
     }
 }
 ```
+
+making sure message gets delivered at given time.
+
+## IJobHandler
+
+Handler needs to be implemented by the user. It is responsible for handling messages.
+Χρόνος does not care at all how you implement this handler. 
+
+One of approaches would be to pass  
+
+
+
+ 
+while `IJobHandler` needs to be implemented by the user.
+
 
 Job's done. 
 

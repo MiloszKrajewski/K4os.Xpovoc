@@ -1,3 +1,6 @@
+## 0.0.15 (2020/07/24)
+* MySQL driver compatible with 5.7 (was 8.x)
+
 ## 0.0.14 (2020/06/30)
 * Safer DB migrations
 

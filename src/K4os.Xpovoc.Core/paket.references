@@ -1,3 +1,4 @@
 ﻿System.Reactive
 System.Interactive
 Microsoft.Extensions.Logging.Abstractions
+Microsoft.Extensions.DependencyInjection.Abstractions
