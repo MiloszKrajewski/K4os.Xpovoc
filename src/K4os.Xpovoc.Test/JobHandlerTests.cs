@@ -15,7 +15,7 @@ namespace K4os.Xpovoc.Test
 	public class JobHandlerTests
 	{
 		[Fact]
-		public async Task Test1()
+		public async Task SimpleJobHandlerResolvesRightHandler()
 		{
 			var services = new ServiceCollection();
 			var result = new TaskCompletionSource<string>();
