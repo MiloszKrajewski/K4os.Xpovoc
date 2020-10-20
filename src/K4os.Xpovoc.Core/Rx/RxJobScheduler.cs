@@ -25,11 +25,11 @@ namespace K4os.Xpovoc.Core.Rx
 		public RxJobScheduler(
 			ILoggerFactory loggerFactory,
 			IJobHandler jobHandler,
-			IScheduler scheduler)
+			IScheduler scheduler = null)
 		{
 			Log = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger(GetType());
 			_jobHandler = jobHandler.Required(nameof(jobHandler));
-			_scheduler = scheduler.Required(nameof(scheduler));
+			_scheduler = scheduler ?? Scheduler.Default;
 			_cancel = new CancellationTokenSource();
 		}
 

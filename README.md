@@ -83,7 +83,7 @@ for example, (well established) [MediatR](https://github.com/jbogard/MediatR) or
 another of my toys, [RoutR](https://github.com/MiloszKrajewski/K4os.RoutR).
 
 MediatR integration is already implemented, but it if you are curious how it is done you can check 
-[here](https://github.com/MiloszKrajewski/K4os.Xpovoc/blob/master/src/K4os.Xpovoc.MediatR/JobHandlerMediatorAdapter.cs).
+[here](https://github.com/MiloszKrajewski/K4os.Xpovoc/blob/master/src/K4os.Xpovoc.MediatR/MediatorJobHandler.cs).
 
 So what Χρόνος actually does? Χρόνος is providing three things: persistence, distributed processing and retries.
 
@@ -119,14 +119,14 @@ implemented but also means some complexity setting it up.
 but if you are reading this you probably don't want to. You just want to get going as quickly as 
 possible.
 
-There are two quick options for now: using internal very simple "message broker" `DefaultJobHandler` or 
-integrate with [MediatR](https://github.com/jbogard/MediatR).
+There are two quick options for now: using internal very simple "message broker" `SimpleJobHandler` 
+or integrate with [MediatR](https://github.com/jbogard/MediatR).
 
-### DefaultJobHandler
+### SimpleJobHandler
 
 Register broker itself:
 ```c#
-collection.AddSingleton<IJobHandler, DefaultJobHandler>();
+collection.AddSingleton<IJobHandler, SimpleJobHandler>();
 ```
 and then register handlers:
 ```c#
@@ -143,9 +143,11 @@ as it will be resolved only once.
 
 Register `MediatR` adapter as `IJobHandler`:
 ```c#
-collection.AddSingleton<IJobHandler, JobHandlerMediatorAdapter>();
+collection.AddSingleton<IJobHandler, MediatorJobHandler>();
 ```
+
 From now on, just keep registering `MediatR` handlers:
+
 ```c#
 collection.AddScoped<IRequestHandler<MessageA>, MyMessageAHandler>();
 collection.AddScoped<IRequestHandler<MessageB>, MyMessageBHandler>();
@@ -197,8 +199,200 @@ with Brighter, or put the message on some RabbitMQ queue.
 Or... you just can have massing `switch` statement... Χρόνος does not care 
 (the Gods of Software do though).
 
-# Usage 
-  
+The other option of simple approach is to put a handler on a message itself, so you can:
+
+```c#
+async Task Handle(CancellationToken token, object payload)
+{
+    switch (payload) 
+    {
+        case ICanHandleMyself m: return m.Handle(token);
+        default: throw new ArgumentException("It cannot handle itself");
+    }
+}
+```
+
+Throw `IServiceProvider` in new scope to the mix and you can have pretty compelling example 
+of encapsulation.
+
+## IJobScheduler (TL;DR)
+
+The other important component of this system is `IJobSceduler` it is responsible for both storing, 
+monitoring and and retrieving tasks to be executed. You probably want to persist your jobs in database, 
+so you need to configure `DbJobScheduler`:
+
+```c#
+collection.AddSingleton<IJobScheduler, DbJobScheduler>();
+```
+
+...and that's it (for now, at least).
+
+## IJobScheduler
+
+Actually, Χρόνος comes with two separate implementations: `RxJobScheduler` and `DbJobScheduler`.
+
+### RxJobScheduler
+
+This is a very simple wrapper around [Reactive Extensions](https://github.com/dotnet/reactive) 
+`IScheduler`. It uses provided or default scheduler to schedule jobs which allows for some
+blend of Rx and CQRS. It also enables testing with simulated time.
+Please note, this is in memory only scheduler.
+
+### DbJobScheduler
+
+This is the "real" scheduler. It requires `IJobHandler` (of course) but also requires storage 
+mechanism. All the persistence is delegated to `IDbJobStorage` (read below). Some aspects, the ones
+not related to database, can be configured using `ISchedulerConfig` (yet, it is not required).
+
+## IDbJobStorage
+
+The third component is actual storage. Currently Χρόνος comes with in 5 flavours:
+
+* MySQL
+* PostgreSQL
+* Microsoft SQL Server
+* SqLite
+* Memory
+
+I guess both SqLite and Memory are just toys, MySQL is the one which is really used, while both
+PostgreSQL and Microsoft SQL Server, well... they do pass integration tests but I don't know if
+they are used in production anywhere.
+
+## IDbJobStorage (TL;DR)
+
+Just pick the flavour you want and configure it:
+
+```c#
+collection.AddSingleton<IDbJobStorage, MySqlJobStorage>();
+collection.AddSingleton<IMySqlJobStorageConfig>(
+    new MySqlJobStorageConfig { ConnectionString = "..." });
+```
+
+## IJobSerializer (TL;DR)
+
+All DB storage providers implemented by me may take `IJobSerializer` which is responsible
+from serialization, to and from database. The default one is based on `BinaryFormatter` which
+is known for being... not the best. I used it as default though because it does not require and
+configuration, it just works (well, except for `[Serializable]` attribute, I guess).
+
+## IJobSerializer
+
+You can use any serialization mechanism you want though. All you need is to implement this interface:
+
+```c#
+public interface IJobSerializer
+{
+    string Serialize(object job);
+    object Deserialize(string payload);
+}
+```
+
+Why string, you might ask? Well, there was a decision to make do I store as byte blob which 
+would be (much?) faster but will be inherently unreadable or store as string so I can use 
+JSON for serialization which allows querying jobs if I really need to 
+(at least for MySQL and PostgreSQL). I flipped the coin.
+Actually, it could be solved with two fields... but it wasn't.
+
+Anyway, you can use any serializer you want: [protobuf](https://github.com/protobuf-net/protobuf-net),
+[Hyperion](https://github.com/hyperion-project/hyperion.ng)... I mean I don't know, whatever works for 
+you.
+
+Two things are worth noting:
+
+* If you have binary serializer `Convert.ToBase64String` is you friend
+* As jobs can be stored for very long time (scheduled something for next year?) you should check if 
+your serialization mechanism is polymorphic and version tolerant, you don't want your old job to 
+become unreadable after few sprints.
+
+### JsonJobSerializer
+
+**689,587,822 total downloads** is not a mistake. 
+[Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) is absolutely great and fits Χρόνος 
+very well. It is human readable, polymorphic and version tolerant, all those things have very
+high value in this case. It is not a fastest one, but it is not used for messaging but for persistence.
+You can quickly configure it:
+
+```c#
+collection.AddSingleton<IJobSerializer>(
+    new JsonJobSerializer(
+        new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto }));
+```
+
+Please note, setting `TypeNameHandling` to `TypeNameHandling.Auto` makes it polymorphic.
+
+There is a slight problem though, as `Newtonsoft.Json` is very version tolerant, 
+polymorphism in `Newtonsoft.Json` is not very version tolerant (when you start refactoring, 
+moving and renaming your jobs).
+
+I don't want to get into details here, but there are two ways to resolve it:
+
+* DON'T refactor, move nor rename your jobs
+* Use [K4os.Json.KnownTypes](https://github.com/MiloszKrajewski/K4os.Json.KnownTypes)
+
+# Usage
+
+Ok, so we've seen it all.
+Let me give you some minimal yet complete examples.
+All database setup looks roughly the same, one of the differences is that both MySQL and SqLite 
+do not have schemas (well, MySQL kind of does, but not exactly) so they use table name prefix 
+(if you want to use it), while both MsSQL and PostgreSQL can use schema for encapsulation.   
+
+## Configuration
+
+There's nothing new here, but let's put all I said before together, for example:
+
+MySQL, using `SimpleJobHandler` and `DefaultJobSerializer`:
+
+```c#
+collection.AddSingleton<IJobHandler, SimpleJobHandler>();
+collection.AddSingleton<IJobScheduler, DbJobScheduler>();
+collection.AddSingleton<IDbJobStorage, MySqlJobStorage>();
+collection.AddSingleton<IMySqlJobStorageConfig>(
+    new MySqlJobStorageConfig { ConnectionString = "<connection string>" });
+```
+
+PostgreSQL, using `MediatR` and `JsonJobSerializer`:
+
+```c#
+collection.AddSingleton<IJobHandler, MediatorJobHandler>();
+collection.AddSingleton<IJobScheduler, DbJobScheduler>();
+collection.AddSingleton<IDbJobStorage, PgSqlJobStorage>();
+collection.AddSingleton<IPgSqlJobStorageConfig>(
+    new PgSqlJobStorageConfig { ConnectionString = "<connection string>" });
+collection.AddSingleton<IJobSerializer>(
+    new JsonJobSerializer(
+        new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto }));
+```
+
+## Making it tick
+
+You did all the things above, and it just does not work. THere is still one thing you didn't do.
+You did not start it. It is relatively obscure because there is no obvious `Start` method, but
+there's no need for one, as it would do nothing. All you need to do is to request `IJobScheduler`
+from service provider.
+
+It may be different depending on what are you running: Console app, Web app, ASP.NET Core MVC, 
+I have no idea. When you need to is to call:
+
+```c#
+provider.GetRequiredService<IJobScheduler>();
+```
+
+as early as possible (some `Startup` method or something).
+
+## Usage
+
+There is one thing which I missed. How to actually schedule a job?
+Well, that's simple, just grab `IJobScheduler` for DI container and use the only method it has:
+
+```c#
+await scheduler.Schedule(
+    DateTimeOffset.Now.AddDays(666),
+    new TriggerApocalypse());
+```
+
+this message will get persisted in database and delivered back to you when the time comes 
+(as long as are able to deserialize it then).
 
 # Build
 

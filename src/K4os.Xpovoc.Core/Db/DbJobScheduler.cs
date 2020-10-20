@@ -43,7 +43,7 @@ namespace K4os.Xpovoc.Core.Db
 
 			Start();
 		}
-		
+
 		public void Start() => _ready.TrySetResult(true);
 
 		private async Task Shutdown()
@@ -87,7 +87,22 @@ namespace K4os.Xpovoc.Core.Db
 			}
 		}
 
-		public void Dispose() { Shutdown().Wait(); }
+		public void Dispose()
+		{
+			try
+			{
+				Shutdown().GetAwaiter().GetResult();
+			}
+			catch (OperationCanceledException) when (_cancel.IsCancellationRequested)
+			{
+				Log.LogInformation("Scheduler disposed");
+			}
+			catch (Exception e)
+			{
+				Log.LogError(e, "Scheduler shutdown failed");
+				throw;
+			}
+		}
 
 		protected static SchedulerConfig FixExternalConfig(ISchedulerConfig configuration)
 		{

@@ -27,8 +27,8 @@ namespace K4os.Xpovoc.SqLite
 		private readonly Random _tokenGenerator = new Random(Guid.NewGuid().GetHashCode());
 
 		public SqLiteJobStorage(
-			IJobSerializer serializer,
-			ISqLiteJobStorageConfig config):
+			ISqLiteJobStorageConfig config,
+			IJobSerializer serializer = null):
 			base(serializer)
 		{
 			if (config is null)

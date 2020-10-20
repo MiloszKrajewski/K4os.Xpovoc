@@ -2,6 +2,7 @@
 * ADDED: DefaultJobHandler
 * ADDED: NewScopeJobHandler
 * FIXED: MediatR handler creates new resolution scopes
+* FIXED: Potential TaskCancelledException on dispose
 
 ## 0.0.15 (2020/07/24)
 * FIXED: MySQL driver compatible with 5.7 (was 8.x)

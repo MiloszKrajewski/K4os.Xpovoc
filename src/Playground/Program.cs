@@ -110,13 +110,13 @@ namespace Playground
 
 			var memStorage = new MemoryJobStorage();
 			var mysqlStorage = new MySqlJobStorage(
-				serializer, serviceProvider.GetRequiredService<IMySqlJobStorageConfig>());
+				serviceProvider.GetRequiredService<IMySqlJobStorageConfig>(), serializer);
 			var postgresStorage = new PgSqlJobStorage(
-				serializer, serviceProvider.GetRequiredService<IPgSqlJobStorageConfig>());
+				serviceProvider.GetRequiredService<IPgSqlJobStorageConfig>(), serializer);
 			var sqliteStorage = new SqLiteJobStorage(
-				serializer, serviceProvider.GetRequiredService<ISqLiteJobStorageConfig>());
+				serviceProvider.GetRequiredService<ISqLiteJobStorageConfig>(), serializer);
 			var mssqlStorage = new MsSqlJobStorage(
-				serializer, serviceProvider.GetRequiredService<IMsSqlJobStorageConfig>()); 
+				serviceProvider.GetRequiredService<IMsSqlJobStorageConfig>(), serializer); 
 
 			var handler = new AdHocJobHandler(ConsumeOne);
 			var schedulerConfig = serviceProvider.GetRequiredService<ISchedulerConfig>();

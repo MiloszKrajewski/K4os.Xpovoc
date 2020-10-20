@@ -9,9 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace K4os.Xpovoc.Core
 {
-	public class DefaultJobHandler: NewScopeJobHandler
+	public class SimpleJobHandler: NewScopeJobHandler
 	{
-		public DefaultJobHandler(IServiceProvider provider): base(provider) { }
+		public SimpleJobHandler(IServiceProvider provider): base(provider) { }
 
 		protected override Task Handle(
 			CancellationToken token, IServiceProvider services, object payload)
@@ -41,7 +41,7 @@ namespace K4os.Xpovoc.Core
 		private static HandlerInvoker GetHandlerInvoker(Type messageType) =>
 			HandlerInvokers.GetOrAdd(messageType, NewHandlerInvoker);
 		
-		public Task GenericHandlerInvoker<TMessage>(
+		private static Task GenericHandlerInvoker<TMessage>(
 			object handler, CancellationToken token, object message) =>
 			((IJobHandler<TMessage>) handler).Handle(token, (TMessage) message);
 
@@ -51,7 +51,7 @@ namespace K4os.Xpovoc.Core
 			var tokenArg = Expression.Parameter(typeof(CancellationToken));
 			var messageArg = Expression.Parameter(typeof(object));
 			const BindingFlags bindingFlags = BindingFlags.NonPublic | BindingFlags.Static;
-			var method = typeof(DefaultJobHandler)
+			var method = typeof(SimpleJobHandler)
 				.GetMethod(nameof(GenericHandlerInvoker), bindingFlags)
 				.Required(nameof(GenericHandlerInvoker))
 				.MakeGenericMethod(messageType);

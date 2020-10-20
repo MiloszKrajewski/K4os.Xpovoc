@@ -1,6 +1,5 @@
 using Dapper;
 using K4os.Xpovoc.Core.Db;
-using K4os.Xpovoc.Core.Sql;
 using K4os.Xpovoc.MySql;
 using MySql.Data.MySqlClient;
 
@@ -12,7 +11,6 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 
 		protected override IDbJobStorage CreateStorage(string schema) =>
 			new MySqlJobStorage(
-				new DefaultJobSerializer(),
 				new MySqlJobStorageConfig {
 					ConnectionString = ConnectionString,
 					Prefix = schema,

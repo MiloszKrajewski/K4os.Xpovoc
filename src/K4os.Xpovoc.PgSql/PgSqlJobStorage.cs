@@ -19,8 +19,8 @@ namespace K4os.Xpovoc.PgSql
 		private readonly IDictionary<string, string> _queryMap;
 
 		public PgSqlJobStorage(
-			IJobSerializer serializer,
-			IPgSqlJobStorageConfig config):
+			IPgSqlJobStorageConfig config,
+			IJobSerializer serializer = null):
 			base(serializer)
 		{
 			if (config is null)

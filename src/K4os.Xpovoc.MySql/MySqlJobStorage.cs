@@ -20,13 +20,11 @@ namespace K4os.Xpovoc.MySql
 		private readonly MySqlExecutionPolicy _executionPolicy;
 
 		public MySqlJobStorage(
-			IJobSerializer serializer,
-			IMySqlJobStorageConfig config):
+			IMySqlJobStorageConfig config,
+			IJobSerializer serializer = null):
 			base(serializer)
 		{
-			if (config is null)
-				throw new ArgumentNullException(nameof(config));
-
+			config.Required(nameof(config));
 			_connectionFactory = ConnectionFactory(config.ConnectionString);
 			_tablePrefix = config.Prefix ?? string.Empty;
 			_resourceLoader = MySqlResourceLoader.Default;

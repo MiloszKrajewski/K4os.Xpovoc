@@ -15,9 +15,9 @@ namespace K4os.Xpovoc.Core.Sql
 
 		private readonly IJobSerializer _serializer;
 
-		protected AnySqlStorage(IJobSerializer serializer)
+		protected AnySqlStorage(IJobSerializer serializer = null)
 		{
-			_serializer = serializer.Required(nameof(serializer));
+			_serializer = serializer ?? new DefaultJobSerializer();
 		}
 
 		protected abstract Task<TConnection> CreateConnection();

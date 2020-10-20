@@ -7,11 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace K4os.Xpovoc.MediatR
 {
-	public class JobHandlerMediatorAdapter: IJobHandler
+	public class MediatorJobHandler: IJobHandler
 	{
 		private readonly IServiceProvider _provider;
 
-		public JobHandlerMediatorAdapter(IServiceProvider provider)
+		public MediatorJobHandler(IServiceProvider provider)
 		{
 			_provider = provider ?? throw new ArgumentNullException(nameof(provider));
 		}

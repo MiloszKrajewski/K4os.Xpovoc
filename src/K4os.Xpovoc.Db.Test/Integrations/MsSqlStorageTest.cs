@@ -1,7 +1,6 @@
 using System.Data.SqlClient;
 using Dapper;
 using K4os.Xpovoc.Core.Db;
-using K4os.Xpovoc.Core.Sql;
 using K4os.Xpovoc.MsSql;
 
 namespace K4os.Xpovoc.Db.Test.Integrations
@@ -12,7 +11,6 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 
 		protected override IDbJobStorage CreateStorage(string schema) =>
 			new MsSqlJobStorage(
-				new DefaultJobSerializer(),
 				new MsSqlJobStorageConfig {
 					ConnectionString = ConnectionString,
 					Schema = schema,

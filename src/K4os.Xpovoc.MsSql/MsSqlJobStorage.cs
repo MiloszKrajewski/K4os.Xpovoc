@@ -19,8 +19,8 @@ namespace K4os.Xpovoc.MsSql
 		private readonly MsSqlResourceLoader _resourceLoader;
 
 		public MsSqlJobStorage(
-			IJobSerializer serializer,
-			IMsSqlJobStorageConfig config):
+			IMsSqlJobStorageConfig config,
+			IJobSerializer serializer = null):
 			base(serializer)
 		{
 			if (config is null)
