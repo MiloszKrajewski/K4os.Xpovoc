@@ -8,4 +8,9 @@ namespace K4os.Xpovoc.Abstractions
 	{
 		Task Handle(CancellationToken token, object payload);
 	}
+
+	public interface IJobHandler<in TMessage>
+	{
+		Task Handle(CancellationToken token, TMessage payload);
+	}
 }

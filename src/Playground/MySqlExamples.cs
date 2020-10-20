@@ -1,5 +1,6 @@
 using System;
 using K4os.Xpovoc.Abstractions;
+using K4os.Xpovoc.Core;
 using K4os.Xpovoc.Core.Db;
 using K4os.Xpovoc.Core.Sql;
 using K4os.Xpovoc.MySql;
@@ -11,7 +12,7 @@ namespace Playground
 	{
 		public static void Configure(IServiceCollection collection)
 		{
-			collection.AddSingleton<IJobHandler>(new NullJobHandler());
+			collection.AddSingleton<IJobHandler, DefaultJobHandler>();
 
 			collection.AddSingleton<IJobScheduler, DbJobScheduler>();
 			collection.AddSingleton<ISchedulerConfig, SchedulerConfig>();
