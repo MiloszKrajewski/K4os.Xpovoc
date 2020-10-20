@@ -1,16 +1,21 @@
+## 0.0.16 (2020/10/20)
+* ADDED: DefaultJobHandler
+* ADDED: NewScopeJobHandler
+* FIXED: MediatR handler creates new resolution scopes
+
 ## 0.0.15 (2020/07/24)
-* MySQL driver compatible with 5.7 (was 8.x)
+* FIXED: MySQL driver compatible with 5.7 (was 8.x)
 
 ## 0.0.14 (2020/06/30)
-* Safer DB migrations
+* FIXED: Safer DB migrations
 
 ## 0.0.11 (2020/06/25)
-* Lowered requirement for MySqlConnector (to 0.56) 
+* FIXED: Lowered requirement for MySqlConnector (to 0.56) 
 
 ## 0.0.9 (2020/06/24)
 * Set fixed dependencies
-* Removed 'set' methods from ISchedulerConfig interface
-* Added Install method AnySqlStorage
+* FIXED: removed 'set' methods from ISchedulerConfig interface
+* ADDED: Install method AnySqlStorage
 
 ## 0.0.7 (2020/06/23)
 * Modified default migration mechanism to avoid migration name conflicts
