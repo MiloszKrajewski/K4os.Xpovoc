@@ -3,26 +3,33 @@ using System.Threading;
 using System.Threading.Tasks;
 using K4os.Xpovoc.Abstractions;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace K4os.Xpovoc.MediatR
 {
 	public class JobHandlerMediatorAdapter: IJobHandler
 	{
-		private readonly IMediator _mediator;
+		private readonly IServiceProvider _provider;
 
-		public JobHandlerMediatorAdapter(IMediator mediator)
+		public JobHandlerMediatorAdapter(IServiceProvider provider)
 		{
-			_mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+			_provider = provider ?? throw new ArgumentNullException(nameof(provider));
 		}
 
 		public Task Handle(CancellationToken token, object payload)
 		{
 			switch (payload)
 			{
-				case INotification _: return _mediator.Publish(payload, token);
-				case IRequest _: return _mediator.Send(payload, token);
+				case INotification _: return InNewScope(m => m.Publish(payload, token));
+				case IRequest _: return InNewScope(m => m.Send(payload, token));
 				default: throw InvalidMessageType(payload);
 			}
+		}
+
+		private async Task InNewScope(Func<IMediator, Task> action)
+		{
+			using (var scope = _provider.CreateScope())
+				await action(scope.ServiceProvider.GetService<IMediator>());
 		}
 
 		private static ArgumentException InvalidMessageType(object payload) =>

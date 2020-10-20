@@ -23,6 +23,15 @@ namespace Playground
 {
 	internal static class Program
 	{
+		public static Task Compositions(string[] args)
+		{
+			var collection = new ServiceCollection();
+			MySqlExamples.Configure(collection);
+			var provider = collection.BuildServiceProvider();
+			MySqlExamples.Startup(provider);
+			return Task.CompletedTask;
+		}
+
 		public static async Task Main(string[] args)
 		{
 			var loggerFactory = new LoggerFactory();
