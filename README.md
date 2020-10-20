@@ -368,10 +368,11 @@ collection.AddSingleton<IJobSerializer>(
 
 You did all the things above, and it just does not work. THere is still one thing you didn't do.
 You did not start it. It is relatively obscure because there is no obvious `Start` method, but
-there's no need for one, as it would do nothing. All you need to do is to request `IJobScheduler`
-from service provider.
+there's no need for one, as all everythinh is started in constructor, so this `Start` method 
+would actually do nothing. All you need to do is to run the constrcutor which will happen when 
+you request `IJobScheduler` from service provider.
 
-It may be different depending on what are you running: Console app, Web app, ASP.NET Core MVC, 
+It may be different place depending on what are you running: Console app, Web app, ASP.NET Core MVC, 
 I have no idea. When you need to is to call:
 
 ```c#
@@ -383,7 +384,7 @@ as early as possible (some `Startup` method or something).
 ## Usage
 
 There is one thing which I missed. How to actually schedule a job?
-Well, that's simple, just grab `IJobScheduler` for DI container and use the only method it has:
+Well, that's simple, just grab `IJobScheduler` from DI container and use the only method it has:
 
 ```c#
 await scheduler.Schedule(
