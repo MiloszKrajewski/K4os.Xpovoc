@@ -8,6 +8,5 @@ namespace K4os.Xpovoc.Abstractions
 		DateTime UtcTime { get; }
 		object Payload { get; }
 		object Context { get; }
-	
 	}
 }
