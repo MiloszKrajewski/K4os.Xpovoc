@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Db.Test", "K4os
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{05CC704E-DDB0-4335-82E4-460AD6E89D20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Quarterback", "K4os.Xpovoc.Quarterback\K4os.Xpovoc.Quarterback.csproj", "{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{DA732BE1-C721-4F63-9907-4A50C5E2B297}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA732BE1-C721-4F63-9907-4A50C5E2B297}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA732BE1-C721-4F63-9907-4A50C5E2B297}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
