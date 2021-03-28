@@ -22,4 +22,9 @@
     create unique index `ix_{prefix}Jobs_update` on `{prefix}Jobs` (job_id);
     create index `ix_{prefix}Jobs_claims` on `{prefix}Jobs` (claim_token, claimed_by);
   ]]></migration>
+  <migration id="20210328_status_field"><![CDATA[
+    alter table `{prefix}Jobs` add status integer not null default (0);
+    drop index `ix_{prefix}Jobs_scan`;
+    create index `ix_{prefix}Jobs_scan` on `{prefix}Jobs` (scheduled_for, invisible_until);
+  ]]></migration>
 </migrations>

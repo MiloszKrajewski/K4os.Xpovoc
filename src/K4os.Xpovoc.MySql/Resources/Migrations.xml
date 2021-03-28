@@ -20,4 +20,9 @@
     create index ix_scan on `{prefix}Jobs` (scheduled_for, invisible_until);
     create unique index ix_update on `{prefix}Jobs` (job_id);  
   ]]></migration>
+  <migration id="20210328_status_field"><![CDATA[
+    alter table `{prefix}Jobs` add status int not null default 0 after attempt;
+    alter table `{prefix}Jobs` drop index ix_scan;
+    create index ix_scan on `{prefix}Jobs` (invisible_until, scheduled_for);
+  ]]></migration>
 </migrations>

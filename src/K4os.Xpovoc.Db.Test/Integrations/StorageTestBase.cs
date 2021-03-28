@@ -70,7 +70,7 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 		}
 		
 		[Theory, InlineData(""), InlineData("xpovoc")]
-		public async Task ClaimedJobCannotBeKeptBeSomeoneElse(string schema)
+		public async Task ClaimedJobCannotBeKeptBySomeoneElse(string schema)
 		{
 			var payload = Guid.NewGuid();
 			var worker = Guid.NewGuid();

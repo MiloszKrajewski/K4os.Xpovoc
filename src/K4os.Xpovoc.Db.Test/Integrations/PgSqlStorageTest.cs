@@ -13,7 +13,7 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 			new PgSqlJobStorage(
 				new PgSqlJobStorageConfig {
 					ConnectionString = ConnectionString,
-					Schema = schema
+					Schema = schema,
 				});
 
 		protected override void ClearStorage(string schema)
