@@ -25,7 +25,7 @@
         select row_id
         from "{prefix}Jobs"
         where scheduled_for <= @now and invisible_until <= @now
-        order by scheduled_for
+        order by invisible_until
         limit 1
       ) 
       and invisible_until <= @now;

@@ -120,7 +120,7 @@ namespace Playground
 
 			var handler = new AdHocJobHandler(ConsumeOne);
 			var schedulerConfig = serviceProvider.GetRequiredService<ISchedulerConfig>();
-			var scheduler = new DbJobScheduler(null, mysqlStorage, handler, schedulerConfig);
+			var scheduler = new DbJobScheduler(null, sqliteStorage, handler, schedulerConfig);
 			// var scheduler = new RxJobScheduler(loggerFactory, handler, Scheduler.Default);
 
 			// var producer = Task.CompletedTask;

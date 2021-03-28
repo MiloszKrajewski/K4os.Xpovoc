@@ -24,7 +24,7 @@
         select row_id
         from {schema}"Jobs"
         where scheduled_for <= @now and invisible_until <= @now
-        order by scheduled_for
+        order by invisible_until
         limit 1
       ) f
     where
