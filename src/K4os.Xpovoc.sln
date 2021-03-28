@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{835ECD
 		..\.gitignore = ..\.gitignore
 		..\Signing.targets = ..\Signing.targets
 		..\.secrets.xml = ..\.secrets.xml
+		..\docker-compose.yml = ..\docker-compose.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.MySql", "K4os.Xpovoc.MySql\K4os.Xpovoc.MySql.csproj", "{7E5CB5CC-D8CC-4C92-963D-BBA5B684D880}"

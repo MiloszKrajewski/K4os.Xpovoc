@@ -1,3 +1,6 @@
+## 0.0.17 (2021/03/28)
+* ADDED: Support for K4os.Quarterback
+
 ## 0.0.16 (2020/10/20)
 * ADDED: DefaultJobHandler
 * ADDED: NewScopeJobHandler

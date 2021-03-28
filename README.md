@@ -99,10 +99,11 @@ So what Χρόνος actually does? Χρόνος is providing three things: pers
 | `K4os.Xpovoc.SqLite` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.SqLite.svg)](https://www.nuget.org/packages/K4os.Xpovoc.SqLite) | `JobStorage` implementation for Sqlite |
 | `K4os.Xpovoc.Json` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Json.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Json) | Json serialization for database storage using [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) |
 | `K4os.Xpovoc.MediatR` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MediatR.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MediatR) | [MediatR](https://github.com/jbogard/MediatR) integration |
+| `K4os.Xpovoc.Quarterback` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Quarterback.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Quarterback) | [K4os.Quarterback](https://github.com/MiloszKrajewski/K4os.Quarterback) integration |
 
 NOTE: I am a fan of not dragging too many dependencies (because they introduce risk of version mismatch) but some of them I consider "a standard":
-* Core: uses [Reactive Extensions](https://github.com/dotnet/reactive) because Rx I'm in denial and I don't believe it is not part of the system
-* MySql, PgSql, MsSql, and SqLite: all depend on [Dapper](https://github.com/StackExchange/Dapper) because dapper is good and should be part of `IDbConnection` extensions
+* Core: uses [Reactive Extensions](https://github.com/dotnet/reactive) because I am in denial and I don't believe Rx is not part of the system
+* MySql, PgSql, MsSql, and SqLite: all depend on [Dapper](https://github.com/StackExchange/Dapper) because dapper is good and should be considered part of `IDbConnection` extensions
 * MySql: depends on [Polly](https://github.com/App-vNext/Polly) as Polly should be used
 * Json: depends on [NewtonSoft.Json](https://github.com/JamesNK/Newtonsoft.Json) (of course)
 
@@ -157,6 +158,25 @@ collection.AddScoped<IRequestHandler<MessageC>, MyMessageCHandler>();
 
 Please note, that `IJobHandler` is registered as singleton. Changing it won't change anything 
 as it will be resolved only once.
+
+### K4os.Quarterback
+
+I also wrote my own mediator which you can find here: [K4os.Quarterback](https://github.com/MiloszKrajewski/K4os.Quarterback).
+It it very similar to `MediatR`, depends of DI container and requires registration of `Quarterback`'s job handler
+
+```c#
+collection.AddSingleton<IJobHandler, QuarterbackJobHandler>();
+```
+
+and then specific command handlers:
+
+```c#
+collection.AddScoped<ICommandHandler<CommandA>, MyCommandAHandler>();
+collection.AddScoped<ICommandHandler<CommandB>, MyCommandBHandler>();
+collection.AddScoped<ICommandHandler<CommandC>, MyCommandCHandler>();
+```
+
+That's it.
 
 ## IJobHandler
 

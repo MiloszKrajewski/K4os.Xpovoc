@@ -1,0 +1,29 @@
+version: "3.7"
+
+services:
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_DATABASE: "xpovoc"
+      MYSQL_USER: "xpovoc"
+      MYSQL_PASSWORD: "xpovoc"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    ports:
+    - 3306:3306
+
+  pgsql:
+    image: postgres
+    environment:
+      POSTGRES_USER: "xpovoc"
+      POSTGRES_PASSWORD: "xpovoc"
+    ports:
+    - 5432:5432
+  
+  mssql:
+    image: mcr.microsoft.com/mssql/server
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Xpovoc!123"
+      MSSQL_PID: "Developer"
+    ports:
+    - 1433:1433
