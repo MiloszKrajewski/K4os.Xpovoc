@@ -120,7 +120,7 @@ namespace Playground
 
 			var handler = new AdHocJobHandler(ConsumeOne);
 			var schedulerConfig = serviceProvider.GetRequiredService<ISchedulerConfig>();
-			var scheduler = new DbJobScheduler(null, sqliteStorage, handler, schedulerConfig);
+			var scheduler = new DbJobScheduler(null, mssqlStorage, handler, schedulerConfig);
 			// var scheduler = new RxJobScheduler(loggerFactory, handler, Scheduler.Default);
 
 			// var producer = Task.CompletedTask;
@@ -190,13 +190,14 @@ namespace Playground
 			}
 		}
 
-		private static ConcurrentDictionary<Guid, object> _guids =
+		private static readonly ConcurrentDictionary<Guid, object> Guids =
 			new ConcurrentDictionary<Guid, object>();
 
 		private static void ConsumeOne(object payload)
 		{
+			Thread.Sleep(1000);
 			var guid = (Guid) payload;
-			var result = _guids.TryAdd(guid, null);
+			var result = Guids.TryAdd(guid, null);
 			if (!result)
 				throw new ArgumentException("Job stealing!");
 

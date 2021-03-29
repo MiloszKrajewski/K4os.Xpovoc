@@ -1,3 +1,6 @@
+## 0.0.18 (2021/03/29)
+* CHANGED: changed index on jobs to use invisible_until (better performance)
+
 ## 0.0.17 (2021/03/28)
 * ADDED: Support for K4os.Quarterback
 
