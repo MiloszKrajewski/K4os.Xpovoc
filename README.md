@@ -80,7 +80,7 @@ internal class SimplisticJobHandler: IJobHandler
 
 This is, of course, pretty ineffective so I would recommend some message routing, using, 
 for example, (well established) [MediatR](https://github.com/jbogard/MediatR) or, 
-another of my toys, [RoutR](https://github.com/MiloszKrajewski/K4os.RoutR).
+my other creation, [Quarterback](https://github.com/MiloszKrajewski/K4os.Quarterback).
 
 MediatR integration is already implemented, but it if you are curious how it is done you can check 
 [here](https://github.com/MiloszKrajewski/K4os.Xpovoc/blob/master/src/K4os.Xpovoc.MediatR/MediatorJobHandler.cs).
