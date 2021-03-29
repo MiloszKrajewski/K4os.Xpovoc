@@ -16,13 +16,9 @@ namespace K4os.Xpovoc.Core.Memory
 	/// </summary>
 	public class MemoryJobStorage: IDbJobStorage
 	{
-		private readonly object _lock = new object();
-
-		private readonly Dictionary<Guid, MemoryJob> _jobs = 
-			new Dictionary<Guid, MemoryJob>();
-		private readonly SortedSet<(DateTime, Guid)> _queue = 
-			new SortedSet<(DateTime, Guid)>();
-
+		private readonly object _lock = new();
+		private readonly Dictionary<Guid, MemoryJob> _jobs = new();
+		private readonly SortedSet<(DateTime, Guid)> _queue = new();
 		private static readonly Task<IDbJob> NullJob = Task.FromResult<IDbJob>(null);
 
 		public Task<IDbJob> Claim(
@@ -33,10 +29,10 @@ namespace K4os.Xpovoc.Core.Memory
 				var job = FirstVisibleJob(now);
 				if (job is null) return NullJob;
 
-				_queue.Remove((job.ScheduledFor, job.JobId));
+				_queue.Remove((job.InvisibleUntil, job.JobId));
 				job.Context = worker;
 				job.Attempt++;
-				
+
 				return Task.FromResult<IDbJob>(job);
 			}
 		}
@@ -48,10 +44,7 @@ namespace K4os.Xpovoc.Core.Memory
 			{
 				if (time > now) break; // no more candidates
 
-				var job = _jobs[id];
-				if (job.InvisibleUntil > now) continue; // hidden, try next
-
-				return job; // that's the one
+				return _jobs[id]; // that's the one
 			}
 
 			return null;
@@ -63,7 +56,6 @@ namespace K4os.Xpovoc.Core.Memory
 			lock (_lock)
 				return Task.FromResult(job.Context as Guid? == worker);
 		}
-			
 
 		public Task Complete(Guid worker, IDbJob job, DateTime now)
 		{
@@ -93,7 +85,7 @@ namespace K4os.Xpovoc.Core.Memory
 				var entry = _jobs[jobId];
 				entry.InvisibleUntil = when;
 				entry.Context = null;
-				_queue.Add((entry.ScheduledFor, entry.JobId));
+				_queue.Add((entry.InvisibleUntil, entry.JobId));
 			}
 
 			return Task.CompletedTask;
@@ -112,7 +104,7 @@ namespace K4os.Xpovoc.Core.Memory
 					Attempt = 0,
 				};
 				_jobs[guid] = job;
-				_queue.Add((job.ScheduledFor, guid));
+				_queue.Add((job.InvisibleUntil, guid));
 
 				return Task.FromResult(job.JobId);
 			}

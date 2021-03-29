@@ -93,38 +93,37 @@ namespace K4os.Xpovoc.Core.Db
 		[SuppressMessage("ReSharper", "AccessToDisposedClosure")]
 		private async Task Process(CancellationToken token, IDbJob job)
 		{
-			// this seems like performance drag for not reason
+			// this seems like performance drag for no reason
 			// if job is hijacked do we need to try to interrupt it?
-			using (var hijacked = new CancellationTokenSource())
-			using (var combined = CancellationTokenSource
-				.CreateLinkedTokenSource(token, hijacked.Token))
-			using (var finished = new CancellationTokenSource())
+			using var hijacked = new CancellationTokenSource();
+			using var combined = CancellationTokenSource
+				.CreateLinkedTokenSource(token, hijacked.Token);
+			using var finished = new CancellationTokenSource();
+			
+			var keepAlive = Task.Run(
+				() => MaintainClaim(finished.Token, job, hijacked),
+				CancellationToken.None);
+
+			var success = await Handle(combined.Token, job);
+
+			if (await CancelClaim(finished, hijacked, keepAlive))
 			{
-				var keepAlive = Task.Run(
-					() => MaintainClaim(finished.Token, job, hijacked),
-					CancellationToken.None);
-
-				var success = await Handle(combined.Token, job);
-
-				if (await CancelClaim(finished, hijacked, keepAlive))
+				if (success)
 				{
-					if (success)
-					{
-						await Complete(job);
-					}
-					else if (job.Attempt < _configuration.RetryLimit)
-					{
-						await Retry(job);
-					}
-					else
-					{
-						await Forget(job);
-					}
+					await Complete(job);
+				}
+				else if (job.Attempt < _configuration.RetryLimit)
+				{
+					await Retry(job);
 				}
 				else
 				{
-					Log.LogError("Execution of job {0} has been hijacked", job.JobId);
+					await Forget(job);
 				}
+			}
+			else
+			{
+				Log.LogError("Execution of job {0} has been hijacked", job.JobId);
 			}
 		}
 

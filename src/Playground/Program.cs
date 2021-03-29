@@ -195,7 +195,7 @@ namespace Playground
 
 		private static void ConsumeOne(object payload)
 		{
-			Thread.Sleep(1000);
+			// Thread.Sleep(1000);
 			var guid = (Guid) payload;
 			var result = Guids.TryAdd(guid, null);
 			if (!result)
