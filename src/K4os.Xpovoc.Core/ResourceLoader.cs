@@ -10,17 +10,13 @@ namespace K4os.Xpovoc.Core
 		protected static XElement GetEmbeddedXml(Type type, string resourceName)
 		{
 			var assembly = type.Assembly;
-			using (var stream = assembly.GetManifestResourceStream(type, resourceName))
-			{
-				if (stream is null)
-					throw new ArgumentException(
-						$"Embedded stream {resourceName} for {type.Name} could not be found");
+			using var stream =
+				assembly.GetManifestResourceStream(type, resourceName) ??
+				throw new ArgumentException(
+					$"Embedded stream {resourceName} for {type.Name} could not be found");
 
-				using (var reader = new StreamReader(stream))
-				{
-					return XElement.Parse(reader.ReadToEnd());
-				}
-			}
+			using var reader = new StreamReader(stream);
+			return XElement.Parse(reader.ReadToEnd());
 		}
 
 		protected static XElement GetEmbeddedXml<THook>(string resourceName) =>

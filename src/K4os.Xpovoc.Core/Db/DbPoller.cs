@@ -1,85 +1,61 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using K4os.Xpovoc.Abstractions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace K4os.Xpovoc.Core.Db
 {
-	internal class DbPoller 
+	internal class DbPoller: DbAgent
 	{
-		protected ILogger Log { get; }
-
-		private string ObjectId => $"{GetType().Name}@{RuntimeHelpers.GetHashCode(this)}";
-
 		private readonly Guid _workerId;
-		private readonly IDbJobStorage _jobStorage;
 		private readonly IJobHandler _jobHandler;
-		private readonly ISchedulerConfig _configuration;
-		private readonly IDateTimeSource _dateTimeSource;
-
-		private int _started;
 
 		public DbPoller(
 			ILoggerFactory loggerFactory,
 			IDateTimeSource dateTimeSource,
 			IDbJobStorage storage,
 			IJobHandler handler,
-			ISchedulerConfig config)
+			ISchedulerConfig config): 
+			base(loggerFactory, dateTimeSource, storage, config)
 		{
-			Log = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger(ObjectId);
-
 			_workerId = Guid.NewGuid();
-			_dateTimeSource = dateTimeSource.Required(nameof(dateTimeSource));
-			_jobStorage = storage.Required(nameof(storage));
 			_jobHandler = handler.Required(nameof(handler));
-			_configuration = config.Required(nameof(config));
 		}
 
-		private DateTime Now => _dateTimeSource.Now.UtcDateTime;
-
-		public async Task Loop(CancellationToken token, Task ready)
+		protected override async Task Loop(CancellationToken token)
 		{
-			if (Interlocked.CompareExchange(ref _started, 1, 0) != 0)
-				throw new InvalidOperationException("Poller has been already started");
+			Log.LogInformation("Database poller agent {0} started", _workerId);
 
-			Log.LogDebug("Awaiting scheduler startup...");
+			var interval = Configuration.PollInterval;
 
-			await ready;
-
-			Log.LogInformation("Poller started for worker {0}", _workerId);
-
-			var interval = _configuration.PollInterval;
-
-			await ready;
 			while (!token.IsCancellationRequested)
 			{
 				var job = await Claim(token);
 				if (job is null)
 				{
+					// delay when idle, but no delay when busy
 					await Task.Delay(interval, token);
+					continue;
 				}
-				else
-				{
-					await Process(token, job);
-				}
+
+				await Process(token, job);
 			}
 		}
 
 		private async Task<IDbJob> Claim(CancellationToken token)
 		{
 			var now = Now;
-			var until = now.Add(_configuration.KeepAlivePeriod);
+			var until = now.Add(Configuration.KeepAlivePeriod);
 
 			try
 			{
-				var job = await _jobStorage.Claim(token, _workerId, now, until);
+				var job = await JobStorage.Claim(token, _workerId, now, until);
 				if (job is null) return null;
+
 				Log.LogDebug(
-					"Job {0} has been claimed by {1} until {2}", 
+					"Job {0} has been claimed by {1} until {2}",
 					job.JobId, _workerId, until);
 				return job;
 			}
@@ -99,7 +75,7 @@ namespace K4os.Xpovoc.Core.Db
 			using var combined = CancellationTokenSource
 				.CreateLinkedTokenSource(token, hijacked.Token);
 			using var finished = new CancellationTokenSource();
-			
+
 			var keepAlive = Task.Run(
 				() => MaintainClaim(finished.Token, job, hijacked),
 				CancellationToken.None);
@@ -112,7 +88,7 @@ namespace K4os.Xpovoc.Core.Db
 				{
 					await Complete(job);
 				}
-				else if (job.Attempt < _configuration.RetryLimit)
+				else if (job.Attempt < Configuration.RetryLimit)
 				{
 					await Retry(job);
 				}
@@ -132,7 +108,7 @@ namespace K4os.Xpovoc.Core.Db
 			try
 			{
 				Log.LogInformation(
-					"Job {0} attempt {1} has been started", 
+					"Job {0} attempt {1} has been started",
 					job.JobId, job.Attempt);
 				await _jobHandler.Handle(token, job.Payload);
 				return true;
@@ -149,7 +125,7 @@ namespace K4os.Xpovoc.Core.Db
 			try
 			{
 				Log.LogInformation("Job {0} has been completed", job.JobId);
-				await _jobStorage.Complete(_workerId, job, Now);
+				await JobStorage.Complete(_workerId, job, Now);
 			}
 			catch (Exception e)
 			{
@@ -160,9 +136,9 @@ namespace K4os.Xpovoc.Core.Db
 		private int MaxRetries()
 		{
 			// l = r*(f^n) -> n = log(l/r) / log(f)
-			var l = _configuration.MaximumRetryInterval.TotalSeconds;
-			var r = _configuration.RetryInterval.TotalSeconds;
-			var f = _configuration.RetryFactor;
+			var l = Configuration.MaximumRetryInterval.TotalSeconds;
+			var r = Configuration.RetryInterval.TotalSeconds;
+			var f = Configuration.RetryFactor;
 			return (int) Math.Ceiling(Math.Log(l / r) / Math.Log(f));
 		}
 
@@ -171,9 +147,9 @@ namespace K4os.Xpovoc.Core.Db
 			// l = r*(f^n) -> n = log(l/r) / log(f)
 			var retry = attempt - 1; // second attempt is first retry
 			var n = retry.NotLessThan(0).NotMoreThan(MaxRetries());
-			var l = _configuration.MaximumRetryInterval.TotalSeconds;
-			var r = _configuration.RetryInterval.TotalSeconds;
-			var f = _configuration.RetryFactor;
+			var l = Configuration.MaximumRetryInterval.TotalSeconds;
+			var r = Configuration.RetryInterval.TotalSeconds;
+			var f = Configuration.RetryFactor;
 			return TimeSpan.FromSeconds((r * Math.Pow(f, n)).NotMoreThan(l));
 		}
 
@@ -186,7 +162,7 @@ namespace K4os.Xpovoc.Core.Db
 				Log.LogInformation(
 					"Job {0} attempt {1} failed, job will retried after {2} at {3}",
 					job.JobId, job.Attempt, delay, when);
-				await _jobStorage.Retry(_workerId, job, when);
+				await JobStorage.Retry(_workerId, job, when);
 			}
 			catch (Exception e)
 			{
@@ -199,9 +175,9 @@ namespace K4os.Xpovoc.Core.Db
 			try
 			{
 				Log.LogWarning(
-					"Job {0} attempt {1} failed, giving up...", 
+					"Job {0} attempt {1} failed, giving up...",
 					job.JobId, job.Attempt);
-				await _jobStorage.Forget(_workerId, job, Now);
+				await JobStorage.Forget(_workerId, job, Now);
 			}
 			catch (Exception e)
 			{
@@ -212,8 +188,8 @@ namespace K4os.Xpovoc.Core.Db
 		private async Task MaintainClaim(
 			CancellationToken token, IDbJob job, CancellationTokenSource hijacked)
 		{
-			var healthyInterval = _configuration.KeepAliveInterval;
-			var failedInterval = _configuration.KeepAliveRetryInterval;
+			var healthyInterval = Configuration.KeepAliveInterval;
+			var failedInterval = Configuration.KeepAliveRetryInterval;
 
 			try
 			{
@@ -247,11 +223,11 @@ namespace K4os.Xpovoc.Core.Db
 
 		private async Task<ClaimStatus> KeepClaim(CancellationToken token, IDbJob job)
 		{
-			var until = Now.Add(_configuration.KeepAlivePeriod);
+			var until = Now.Add(Configuration.KeepAlivePeriod);
 
 			try
 			{
-				var kept = await _jobStorage.KeepClaim(token, _workerId, job, until);
+				var kept = await JobStorage.KeepClaim(token, _workerId, job, until);
 
 				if (!kept)
 				{

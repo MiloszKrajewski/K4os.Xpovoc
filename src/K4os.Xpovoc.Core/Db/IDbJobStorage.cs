@@ -30,5 +30,7 @@ namespace K4os.Xpovoc.Core.Db
 		Task Retry(Guid worker, IDbJob job, DateTime when);
 		
 		Task<Guid> Schedule(object payload, DateTime when);
+		
+		Task<bool> Cleanup(CancellationToken token, DateTime now);
 	}
 }

@@ -23,8 +23,7 @@ namespace K4os.Xpovoc.Core
 			return handlerInvoker(handler, token, payload);
 		}
 
-		private static readonly ConcurrentDictionary<Type, Type> HandlerTypes =
-			new ConcurrentDictionary<Type, Type>();
+		private static readonly ConcurrentDictionary<Type, Type> HandlerTypes = new();
 
 		private static Type GetHandlerType(Type messageType) =>
 			HandlerTypes.GetOrAdd(messageType, NewHandlerType);
@@ -35,8 +34,7 @@ namespace K4os.Xpovoc.Core
 		private delegate Task HandlerInvoker(
 			object handler, CancellationToken token, object message);
 
-		private static readonly ConcurrentDictionary<Type, HandlerInvoker> HandlerInvokers =
-			new ConcurrentDictionary<Type, HandlerInvoker>();
+		private static readonly ConcurrentDictionary<Type, HandlerInvoker> HandlerInvokers = new();
 
 		private static HandlerInvoker GetHandlerInvoker(Type messageType) =>
 			HandlerInvokers.GetOrAdd(messageType, NewHandlerInvoker);

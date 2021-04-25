@@ -15,6 +15,7 @@ namespace K4os.Xpovoc.Core.Db
 		private readonly IDbJobStorage _jobStorage;
 		private readonly IJobHandler _jobHandler;
 		private readonly Task[] _pollers;
+		private readonly Task _cleaner;
 		private readonly CancellationTokenSource _cancel;
 		private readonly TaskCompletionSource<bool> _ready;
 
@@ -40,6 +41,7 @@ namespace K4os.Xpovoc.Core.Db
 
 			_configuration = FixExternalConfig(configuration ?? SchedulerConfig.Default);
 			_pollers = CreateWorkers();
+			_cleaner = CreateCleaner();
 
 			Start();
 		}
@@ -52,6 +54,7 @@ namespace K4os.Xpovoc.Core.Db
 			_ready.TrySetCanceled(_cancel.Token);
 
 			await Task.WhenAll(_pollers);
+			await _cleaner;
 
 			_jobStorage.TryDispose();
 		}
@@ -62,14 +65,23 @@ namespace K4os.Xpovoc.Core.Db
 				.Select(_ => Task.Run(Poll))
 				.ToArray();
 
-		private async Task Poll()
+		private Task CreateCleaner() => Task.Run(Cleanup);
+
+		private Task Poll()
 		{
 			var poller = new DbPoller(
 				_loggerFactory,
 				_dateTimeSource,
 				_jobStorage, _jobHandler,
 				_configuration);
-			await poller.Loop(_cancel.Token, _ready.Task);
+			return poller.Start(_cancel.Token, _ready.Task);
+		}
+
+		private Task Cleanup()
+		{
+			var cleaner = new DbCleaner(
+				_loggerFactory, _dateTimeSource, _jobStorage, _configuration);
+			return cleaner.Start(_cancel.Token, _ready.Task);
 		}
 
 		public DateTimeOffset Now => _dateTimeSource.Now;

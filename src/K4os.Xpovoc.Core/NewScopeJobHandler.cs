@@ -17,8 +17,8 @@ namespace K4os.Xpovoc.Core
 
 		async Task IJobHandler.Handle(CancellationToken token, object payload)
 		{
-			using (var scope = _provider.CreateScope())
-				await Handle(token, scope.ServiceProvider, payload);
+			using var scope = _provider.CreateScope();
+			await Handle(token, scope.ServiceProvider, payload);
 		}
 
 		protected abstract Task Handle(

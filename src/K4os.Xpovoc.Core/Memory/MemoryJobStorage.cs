@@ -109,5 +109,7 @@ namespace K4os.Xpovoc.Core.Memory
 				return Task.FromResult(job.JobId);
 			}
 		}
+
+		public Task<bool> Cleanup(CancellationToken token, DateTime now) => Task.FromResult(false);
 	}
 }

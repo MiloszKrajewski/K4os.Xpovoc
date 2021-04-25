@@ -8,9 +8,16 @@ using K4os.Xpovoc.Core.Db;
 
 namespace K4os.Xpovoc.Core.Sql
 {
-	public abstract class AnySqlStorage<TConnection>: IDbJobStorage where TConnection: DbConnection
+	public abstract class AnySqlStorage
 	{
-		private readonly SemaphoreSlim _migrationLock = new SemaphoreSlim(1);
+		protected static readonly Task<bool> AlwaysFalse = Task.FromResult(false);
+	}
+	
+	public abstract class AnySqlStorage<TConnection>: 
+		AnySqlStorage, IDbJobStorage 
+		where TConnection: DbConnection
+	{
+		private readonly SemaphoreSlim _migrationLock = new(1);
 		private int _databaseReady;
 
 		private readonly IJobSerializer _serializer;
@@ -98,8 +105,8 @@ namespace K4os.Xpovoc.Core.Sql
 			CancellationToken token = default)
 		{
 			token.ThrowIfCancellationRequested();
-			using (var lease = await Connect())
-				return await Exec(lease.Connection, action, token);
+			using var lease = await Connect();
+			return await Exec(lease.Connection, action, token);
 		}
 
 		protected string Serialize(object payload) => _serializer.Serialize(payload);
@@ -119,10 +126,12 @@ namespace K4os.Xpovoc.Core.Sql
 
 		public abstract Task<Guid> Schedule(object payload, DateTime when);
 
+		public virtual Task<bool> Cleanup(CancellationToken token, DateTime now) => AlwaysFalse;
+
 		public virtual async Task Install()
 		{
-			using (var lease = await Connect())
-				_ = lease.Required("Lease").Connection.Required("Connection");
+			using var lease = await Connect();
+			_ = lease.Required("Lease").Connection.Required("Connection");
 		}
 
 		async Task<IDbJob> IDbJobStorage.Claim(
