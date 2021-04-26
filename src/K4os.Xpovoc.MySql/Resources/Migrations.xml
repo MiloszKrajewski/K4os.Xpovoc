@@ -25,4 +25,8 @@
     alter table `{prefix}Jobs` drop index ix_scan;
     create index ix_scan on `{prefix}Jobs` (invisible_until, scheduled_for);
   ]]></migration>
+  <migration id="20210425_status_index"><![CDATA[
+    alter table `{prefix}Jobs` drop index ix_scan;
+    create index ix_scan on `{prefix}Jobs` (status, invisible_until, scheduled_for);
+  ]]></migration>
 </migrations>

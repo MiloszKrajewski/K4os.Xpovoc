@@ -25,5 +25,12 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 			connection.Execute($"drop table if exists {prefix}\"Jobs\"");
 			connection.Execute($"drop table if exists {prefix}\"Migrations\"");
 		}
+
+		protected override int CountJobs(string schema)
+		{
+			var prefix = string.IsNullOrEmpty(schema) ? string.Empty : $"\"{schema}\".";
+			using var connection = new NpgsqlConnection(ConnectionString);
+			return connection.QueryFirst<int>($"select count(*) from {prefix}\"Jobs\"");
+		}
 	}
 }

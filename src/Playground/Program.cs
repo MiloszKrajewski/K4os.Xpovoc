@@ -120,19 +120,18 @@ namespace Playground
 
 			var handler = new AdHocJobHandler(ConsumeOne);
 			var schedulerConfig = serviceProvider.GetRequiredService<ISchedulerConfig>();
-			var scheduler = new DbJobScheduler(null, mssqlStorage, handler, schedulerConfig);
+			var scheduler = new DbJobScheduler(null, mysqlStorage, handler, schedulerConfig);
 			// var scheduler = new RxJobScheduler(loggerFactory, handler, Scheduler.Default);
 
-			// var producer = Task.CompletedTask;
-			var producer = Task.Run(() => Producer(token, scheduler), token);
-
-			// var producerSpeed = Task.CompletedTask;
-			var producerSpeed = Task.Run(
-				() => Measure(
-					token,
-					loggerFactory,
-					"Produced",
-					() => Volatile.Read(ref _producedCount)));
+			var producer = Task.CompletedTask;
+			var producerSpeed = Task.CompletedTask;
+			// var producer = Task.Run(() => Producer(token, scheduler), token);
+			// var producerSpeed = Task.Run(
+			// 	() => Measure(
+			// 		token,
+			// 		loggerFactory,
+			// 		"Produced",
+			// 		() => Volatile.Read(ref _producedCount)));
 
 			var consumedSpeed = Task.Run(
 				() => Measure(

@@ -120,6 +120,7 @@ namespace K4os.Xpovoc.MySql
 			var args = new {
 				row_id = job.RowId,
 				claimed_by = worker,
+				max_date = DateTime.MaxValue.ToUtc(),
 			};
 
 			await Exec("complete", args);
@@ -141,26 +142,37 @@ namespace K4os.Xpovoc.MySql
 			var args = new {
 				row_id = job.RowId,
 				claimed_by = worker,
+				max_date = DateTime.MaxValue.ToUtc(),
 			};
 
 			await Exec("forget", args);
 		}
 
+		public override async Task<bool> Prune(DateTime cutoff)
+		{
+			var args = new {
+				cutoff_date = cutoff.ToUtc(),
+				max_date = DateTime.MaxValue.ToUtc(),
+			};
+
+			return await Exec("prune", args) > 0;
+		}
+
 		#region JobRec
 
 		// ReSharper disable once ClassNeverInstantiated.Local
+		// ReSharper disable InconsistentNaming
+		#pragma warning disable 649
 		private class JobRec
 		{
-#pragma warning disable 649
-			// ReSharper disable InconsistentNaming
 			public long row_id;
 			public Guid job_id;
 			public DateTime scheduled_for;
 			public string payload;
 			public int attempt;
-			// ReSharper restore InconsistentNaming
-#pragma warning restore 649
 		}
+		#pragma warning restore 649
+		// ReSharper restore InconsistentNaming
 
 		#endregion
 	}

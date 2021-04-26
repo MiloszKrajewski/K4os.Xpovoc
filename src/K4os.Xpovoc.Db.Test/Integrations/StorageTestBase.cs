@@ -10,13 +10,13 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 {
 	public abstract class StorageTestBase
 	{
-		private readonly XDocument _secrets;
-
-		protected StorageTestBase() { _secrets = Secrets.Load(".secrets.xml"); }
+		private readonly XDocument _secrets = Secrets.Load(".secrets.xml");
 
 		protected abstract IDbJobStorage CreateStorage(string schema);
 
 		protected abstract void ClearStorage(string schema);
+		
+		protected abstract int CountJobs(string schema);
 
 		protected string Secret(string path) => _secrets.XPathSelectElement(path)?.Value;
 
@@ -180,6 +180,50 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 				Now, Now.AddSeconds(5));
 
 			Assert.Null(anotherJob);
+		}
+		
+		[Theory, InlineData(""), InlineData("xpovoc")]
+		public async Task PruneDeletesCompletedRowsFromDatabase(string schema)
+		{
+			var payload = Guid.NewGuid();
+			var worker = Guid.NewGuid();
+			ClearStorage(schema);
+			var storage = CreateStorage(schema);
+			await storage.Schedule(payload, Now.AddSeconds(-1));
+			var job = await storage.Claim(
+				CancellationToken.None, worker,
+				Now, Now.AddSeconds(5));
+
+			Assert.NotNull(job);
+			Assert.Equal(payload, job.Payload);
+
+			await storage.Complete(worker, job, Now);
+
+			await storage.Prune(Now);
+			
+			Assert.Equal(0, CountJobs(schema));
+		}
+		
+		[Theory, InlineData(""), InlineData("xpovoc")]
+		public async Task PruneDeletesForgottenRowsFromDatabase(string schema)
+		{
+			var payload = Guid.NewGuid();
+			var worker = Guid.NewGuid();
+			ClearStorage(schema);
+			var storage = CreateStorage(schema);
+			await storage.Schedule(payload, Now.AddSeconds(-1));
+			var job = await storage.Claim(
+				CancellationToken.None, worker,
+				Now, Now.AddSeconds(5));
+
+			Assert.NotNull(job);
+			Assert.Equal(payload, job.Payload);
+
+			await storage.Forget(worker, job, Now);
+
+			await storage.Prune(Now);
+			
+			Assert.Equal(0, CountJobs(schema));
 		}
 	}
 }

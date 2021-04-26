@@ -13,5 +13,8 @@ namespace K4os.Xpovoc.Core.Db
 		public static readonly TimeSpan MinimumKeepAliveInterval = TimeSpan.FromSeconds(1);
 		public static readonly TimeSpan MinimumKeepAlivePeriod = TimeSpan.FromMinutes(1);
 		public static readonly TimeSpan MaximumRetryInterval = TimeSpan.FromDays(1);
+		public static readonly TimeSpan MinimumPruneInterval = TimeSpan.FromMinutes(1);
+		public static readonly TimeSpan MaximumPruneInterval = TimeSpan.FromDays(1);
+		public static readonly TimeSpan MaximumKeepFinishedJobsPeriod = TimeSpan.FromDays(5 * 366);
 	}
 }

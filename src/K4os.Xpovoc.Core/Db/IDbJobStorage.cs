@@ -31,6 +31,18 @@ namespace K4os.Xpovoc.Core.Db
 		
 		Task<Guid> Schedule(object payload, DateTime when);
 		
-		Task<bool> Cleanup(CancellationToken token, DateTime now);
+		/// <summary>
+		/// Performs pruning of old jobs (if they are persisted).
+		/// This method is called in intervals by scheduler itself.
+		/// Returns <c>true</c> if there are more things to do or <c>false</c> when
+		/// database is in pretty clean state.
+		/// Please note that this method is called from all instances so it may require
+		/// some locking on some databases.
+		/// </summary>
+		/// <param name="cutoff">Date in the past defining the cut-off point
+		/// (finished jobs older than that can be deleted)</param>
+		/// <returns><c>true</c> if more work is needed, <c>false</c> if database is
+		/// clean at the moment.</returns>
+		Task<bool> Prune(DateTime cutoff);
 	}
 }

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageTags>xpovoc scheduler cqrs mysql</PackageTags>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />

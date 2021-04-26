@@ -10,6 +10,8 @@ namespace K4os.Xpovoc.Core.Db
 {
 	public class DbJobScheduler: IJobScheduler
 	{
+		private static readonly TimeSpan VeryLongTime = TimeSpan.FromDays(5*365);
+
 		private readonly ILoggerFactory _loggerFactory;
 		private readonly IDateTimeSource _dateTimeSource;
 		private readonly IDbJobStorage _jobStorage;
@@ -140,6 +142,12 @@ namespace K4os.Xpovoc.Core.Db
 			var maxRetryInterval = configuration.MaximumRetryInterval
 				.NotLessThan(retryInterval)
 				.NotMoreThan(DbJobSchedulerDefaults.MaximumRetryInterval);
+			var pruneInterval = configuration.PruneInterval
+				.NotLessThan(DbJobSchedulerDefaults.MinimumPruneInterval)
+				.NotMoreThan(DbJobSchedulerDefaults.MaximumPruneInterval);
+			var keepFinishedJobsPeriod = configuration.KeepFinishedJobsPeriod
+				.NotLessThan(TimeSpan.Zero)
+				.NotMoreThan(DbJobSchedulerDefaults.MaximumKeepFinishedJobsPeriod);
 
 			return new SchedulerConfig {
 				WorkerCount = workerCount,
@@ -151,6 +159,8 @@ namespace K4os.Xpovoc.Core.Db
 				RetryInterval = retryInterval,
 				RetryFactor = retryFactor,
 				MaximumRetryInterval = maxRetryInterval,
+				PruneInterval = pruneInterval,
+				KeepFinishedJobsPeriod = keepFinishedJobsPeriod,
 			};
 		}
 	}

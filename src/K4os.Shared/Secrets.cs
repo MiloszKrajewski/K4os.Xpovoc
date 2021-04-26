@@ -20,9 +20,7 @@ namespace System
 			return Load(parent, filename);
 		}
 
-		private static bool IsSamePath(string root, string parent)
-		{
-			return Path.GetFullPath(root) == Path.GetFullPath(parent);
-		}
+		private static bool IsSamePath(string pathA, string pathB) => 
+			Path.GetFullPath(pathA) == Path.GetFullPath(pathB);
 	}
 }

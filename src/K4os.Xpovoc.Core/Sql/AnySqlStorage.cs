@@ -126,7 +126,7 @@ namespace K4os.Xpovoc.Core.Sql
 
 		public abstract Task<Guid> Schedule(object payload, DateTime when);
 
-		public virtual Task<bool> Cleanup(CancellationToken token, DateTime now) => AlwaysFalse;
+		public virtual Task<bool> Prune(DateTime cutoff) => AlwaysFalse;
 
 		public virtual async Task Install()
 		{

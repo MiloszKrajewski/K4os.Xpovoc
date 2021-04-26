@@ -25,6 +25,9 @@ namespace System
 		public static TimeSpan Times(this TimeSpan subject, double scale) =>
 			TimeSpan.FromSeconds(subject.TotalSeconds * scale);
 
+		public static T ClampBetween<T>(this T subject, T min, T max) =>
+			subject.NotLessThan(min).NotMoreThan(max);
+
 		public static T NotLessThan<T>(this T subject, T limit) =>
 			Compare(subject, limit) < 0 ? limit : subject;
 
@@ -46,17 +49,11 @@ namespace System
 			return subject;
 		}
 
-		public static DateTime ToUtc(this DateTime timestamp)
-		{
-			switch (timestamp.Kind)
-			{
-				case DateTimeKind.Utc: 
-					return timestamp;
-				case DateTimeKind.Unspecified:
-					return DateTime.SpecifyKind(timestamp, DateTimeKind.Utc);
-				default: 
-					return timestamp.ToUniversalTime();
-			}
-		}
+		public static DateTime ToUtc(this DateTime timestamp) =>
+			timestamp.Kind switch {
+				DateTimeKind.Utc => timestamp,
+				DateTimeKind.Unspecified => DateTime.SpecifyKind(timestamp, DateTimeKind.Utc),
+				_ => timestamp.ToUniversalTime(),
+			};
 	}
 }

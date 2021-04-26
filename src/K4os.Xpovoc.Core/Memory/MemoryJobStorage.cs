@@ -20,6 +20,7 @@ namespace K4os.Xpovoc.Core.Memory
 		private readonly Dictionary<Guid, MemoryJob> _jobs = new();
 		private readonly SortedSet<(DateTime, Guid)> _queue = new();
 		private static readonly Task<IDbJob> NullJob = Task.FromResult<IDbJob>(null);
+		private static readonly Task<bool> AlwaysFalse = Task.FromResult(false);
 
 		public Task<IDbJob> Claim(
 			CancellationToken token, Guid worker, DateTime now, DateTime until)
@@ -110,6 +111,14 @@ namespace K4os.Xpovoc.Core.Memory
 			}
 		}
 
-		public Task<bool> Cleanup(CancellationToken token, DateTime now) => Task.FromResult(false);
+		public Task<bool> Prune(DateTime cutoff) => AlwaysFalse;
+
+		public int Size
+		{
+			get
+			{
+				lock (_lock) return _jobs.Count;
+			}
+		}
 	}
 }

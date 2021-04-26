@@ -5,9 +5,17 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 {
 	public class MemoryStorageTest: StorageTestBase
 	{
-		protected override IDbJobStorage CreateStorage(string schema) =>
-			new MemoryJobStorage();
+		private MemoryJobStorage _storage;
 
-		protected override void ClearStorage(string schema) { }
+		protected override IDbJobStorage CreateStorage(string schema) =>
+			_storage = new MemoryJobStorage();
+
+		protected override void ClearStorage(string schema) => 
+			_storage = null;
+
+		protected override int CountJobs(string schema)
+		{
+			return _storage.Size;
+		}
 	}
 }
