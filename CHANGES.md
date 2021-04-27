@@ -1,3 +1,8 @@
+## 0.0.20 (2021/04/27)
+* CHANGED: keep completed and failed jobs (for a period of time)
+* ADDED: pruning archived (completed and failed) jobs
+* ADDED: added job status to scan index
+
 ## 0.0.18 (2021/03/29)
 * CHANGED: changed index on jobs to use invisible_until (better performance)
 
