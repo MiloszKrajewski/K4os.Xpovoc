@@ -1,7 +1,9 @@
+using System.Threading.Tasks;
 using Dapper;
 using K4os.Xpovoc.Core.Db;
 using K4os.Xpovoc.MySql;
 using MySql.Data.MySqlClient;
+using Xunit;
 
 namespace K4os.Xpovoc.Db.Test.Integrations
 {
@@ -30,5 +32,9 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 			using var connection = new MySqlConnection(ConnectionString);
 			return connection.QueryFirst<int>($"select count(*) from {prefix}Jobs");
 		}
+		
+		// [Theory, InlineData("")]
+		public Task MassPruningDoesNotThrowExceptions(string schema) => 
+			MassPruningDoesNotThrowExceptionsImpl(schema);
 	}
 }

@@ -114,6 +114,17 @@ namespace K4os.Xpovoc.MySql
 
 			return await Exec("keep", args, token) > 0;
 		}
+		
+		protected override async Task Retry(Guid worker, SqlJob job, DateTime when)
+		{
+			var args = new {
+				row_id = job.RowId,
+				claimed_by = worker,
+				invisible_until = when.ToUtc(),
+			};
+
+			await Exec("retry", args);
+		}
 
 		protected override async Task Complete(Guid worker, SqlJob job, DateTime now)
 		{
@@ -124,17 +135,6 @@ namespace K4os.Xpovoc.MySql
 			};
 
 			await Exec("complete", args);
-		}
-
-		protected override async Task Retry(Guid worker, SqlJob job, DateTime when)
-		{
-			var args = new {
-				row_id = job.RowId,
-				claimed_by = worker,
-				invisible_until = when.ToUtc(),
-			};
-
-			await Exec("retry", args);
 		}
 
 		protected override async Task Forget(Guid worker, SqlJob job, DateTime now)

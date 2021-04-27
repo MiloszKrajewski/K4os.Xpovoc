@@ -27,4 +27,8 @@
     create unique index "ix_Jobs_update" on {schema}"Jobs" (job_id);
     create index "ix_Jobs_scan" on {schema}"Jobs" (invisible_until, scheduled_for);
   ]]></migration>
+  <migration id="20210425_status_index"><![CDATA[
+    drop index {schema}"ix_Jobs_scan";
+    create index "ix_Jobs_scan" on {schema}"Jobs" (status, invisible_until, scheduled_for);
+  ]]></migration>
 </migrations>

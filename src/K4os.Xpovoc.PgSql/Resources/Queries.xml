@@ -7,48 +7,70 @@
   <query id="schedule"><![CDATA[
     -- insert new job
     insert into {schema}"Jobs" (
-      job_id, created_on, scheduled_for, invisible_until, payload
+      job_id, created_on, status, scheduled_for, invisible_until, payload
     ) values (
-      @job_id, now(), @scheduled_for, @scheduled_for, @payload
+      @job_id, now(), 0, @scheduled_for, @scheduled_for, @payload
     )
   ]]></query>
   <query id="claim"><![CDATA[
-    -- claim jobs 
+    -- claim jobs
+    with candidate as (
+      select row_id
+      from {schema}"Jobs"
+      where status = 0 and invisible_until <= @now and scheduled_for <= @now
+      order by invisible_until
+      limit 1
+    ) 
     update {schema}"Jobs" j
-    set
-      claimed_by = @claimed_by,
-      invisible_until = @invisible_until,
+    set 
+      claimed_by = @claimed_by, 
+      invisible_until = @invisible_until, 
       attempt = attempt + 1
-    from
-      (
-        select row_id
-        from {schema}"Jobs"
-        where scheduled_for <= @now and invisible_until <= @now
-        order by invisible_until
-        limit 1
-      ) f
-    where
-      j.row_id = f.row_id and j.invisible_until <= @now
-    returning j.row_id, job_id, scheduled_for, payload, attempt;  
+    from candidate
+    where 
+      j.row_id = candidate.row_id and 
+      j.invisible_until <= @now
+    returning 
+      j.row_id, job_id, scheduled_for, payload, attempt;  
   ]]></query>
   <query id="keep"><![CDATA[
     -- keep job claim 
 		update {schema}"Jobs" 
-      set invisible_until = @invisible_until
-      where row_id = @row_id and claimed_by = @claimed_by
+    set invisible_until = @invisible_until
+    where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="complete"><![CDATA[
     -- complete job 
-		delete from {schema}"Jobs" where row_id = @row_id and claimed_by = @claimed_by
+		update {schema}"Jobs"
+    set claimed_by = null, invisible_until = @max_date, status = 1 
+    where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="forget"><![CDATA[
     -- forget job 
-		delete from {schema}"Jobs" where row_id = @row_id and claimed_by = @claimed_by
+		update {schema}"Jobs"
+    set claimed_by = null, invisible_until = @max_date, status = 2 
+    where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="retry"><![CDATA[
     -- retry job 
 		update {schema}"Jobs" 
-      set claimed_by = null, invisible_until = @invisible_until
-      where row_id = @row_id and claimed_by = @claimed_by
+    set claimed_by = null, invisible_until = @invisible_until
+    where row_id = @row_id and claimed_by = @claimed_by
+  ]]></query>
+  <query id="prune"><![CDATA[
+    -- clean old jobs
+    with candidates as (
+      select row_id
+      from {schema}"Jobs"
+      where
+        status > 0 and
+        invisible_until >= @max_date and 
+        scheduled_for < @cutoff_date
+      limit 100
+    )
+    delete from {schema}"Jobs"
+    where row_id in (
+      select row_id from candidates
+    )
   ]]></query>
 </queries>

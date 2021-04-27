@@ -123,6 +123,7 @@ namespace K4os.Xpovoc.PgSql
 			var args = new {
 				row_id = job.RowId,
 				claimed_by = worker,
+				max_date = DateTime.MaxValue.ToUtc(),
 			};
 
 			await Exec("complete", args);
@@ -133,9 +134,20 @@ namespace K4os.Xpovoc.PgSql
 			var args = new {
 				row_id = job.RowId,
 				claimed_by = worker,
+				max_date = DateTime.MaxValue.ToUtc(),
 			};
 
 			await Exec("forget", args);
+		}
+		
+		public override async Task<bool> Prune(DateTime cutoff)
+		{
+			var args = new {
+				cutoff_date = cutoff.ToUtc(),
+				max_date = DateTime.MaxValue.ToUtc(),
+			};
+
+			return await Exec("prune", args) > 0;
 		}
 
 		#region JobRec
