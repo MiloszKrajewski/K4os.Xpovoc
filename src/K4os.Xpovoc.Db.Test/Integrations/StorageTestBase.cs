@@ -241,8 +241,9 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 			Assert.Equal(1, CountJobs(schema));
 		}
 
-		public async Task MassPruningDoesNotThrowExceptionsImpl(string schema)
+		public async Task MassPruningDoesNotThrowExceptionsImpl()
 		{
+			var schema = string.Empty;
 			var payload = Guid.NewGuid();
 			var worker = Guid.NewGuid();
 			ClearStorage(schema);

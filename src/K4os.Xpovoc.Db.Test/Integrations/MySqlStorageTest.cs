@@ -33,8 +33,8 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 			return connection.QueryFirst<int>($"select count(*) from {prefix}Jobs");
 		}
 		
-		// [Theory, InlineData("")]
-		public Task MassPruningDoesNotThrowExceptions(string schema) => 
-			MassPruningDoesNotThrowExceptionsImpl(schema);
+		// [Fact]
+		// public Task MassPruningDoesNotThrowExceptions() => 
+		// 	MassPruningDoesNotThrowExceptionsImpl();
 	}
 }

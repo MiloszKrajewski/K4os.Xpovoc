@@ -7,9 +7,9 @@
   <query id="schedule"><![CDATA[
     -- insert new job
     insert into {schema}[Jobs] (
-      job_id, created_on, scheduled_for, invisible_until, payload
+      job_id, created_on, status, scheduled_for, invisible_until, payload
     ) values (
-      @job_id, getdate(), @scheduled_for, @scheduled_for, @payload
+      @job_id, getdate(), 0, @scheduled_for, @scheduled_for, @payload
     )
   ]]></query>
   <query id="claim"><![CDATA[
@@ -17,7 +17,7 @@
     with j as (
       select top 1 *
       from {schema}[Jobs]
-      where scheduled_for <= @now and invisible_until <= @now
+      where status = 0 and invisible_until <= @now and scheduled_for <= @now
       order by invisible_until
     )
     update j
@@ -38,16 +38,29 @@
   ]]></query>
   <query id="complete"><![CDATA[
     -- complete job 
-    delete from {schema}[Jobs] where row_id = @row_id and claimed_by = @claimed_by
+		update {schema}[Jobs]
+    set claimed_by = null, invisible_until = @max_date, status = 1 
+    where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="forget"><![CDATA[
     -- forget job 
-    delete from {schema}[Jobs] where row_id = @row_id and claimed_by = @claimed_by
+		update {schema}[Jobs]
+    set claimed_by = null, invisible_until = @max_date, status = 2 
+    where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="retry"><![CDATA[
     -- retry job 
     update {schema}[Jobs] 
       set claimed_by = null, invisible_until = @invisible_until
       where row_id = @row_id and claimed_by = @claimed_by
+  ]]></query>
+  <query id="prune"><![CDATA[
+    -- clean old jobs
+    delete top (100)
+    from {schema}[Jobs]
+    where
+      status > 0 and
+      invisible_until >= @max_date and 
+      scheduled_for < @cutoff_date
   ]]></query>
 </queries>
