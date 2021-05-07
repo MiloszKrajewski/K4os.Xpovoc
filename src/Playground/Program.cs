@@ -123,15 +123,15 @@ namespace Playground
 			var scheduler = new DbJobScheduler(null, mysqlStorage, handler, schedulerConfig);
 			// var scheduler = new RxJobScheduler(loggerFactory, handler, Scheduler.Default);
 
-			var producer = Task.CompletedTask;
-			var producerSpeed = Task.CompletedTask;
-			// var producer = Task.Run(() => Producer(token, scheduler), token);
-			// var producerSpeed = Task.Run(
-			// 	() => Measure(
-			// 		token,
-			// 		loggerFactory,
-			// 		"Produced",
-			// 		() => Volatile.Read(ref _producedCount)));
+			// var producer = Task.CompletedTask;
+			// var producerSpeed = Task.CompletedTask;
+			var producer = Task.Run(() => Producer(token, scheduler), token);
+			var producerSpeed = Task.Run(
+				() => Measure(
+					token,
+					loggerFactory,
+					"Produced",
+					() => Volatile.Read(ref _producedCount)));
 
 			var consumedSpeed = Task.Run(
 				() => Measure(

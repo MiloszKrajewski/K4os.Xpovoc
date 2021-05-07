@@ -7,7 +7,7 @@ namespace K4os.Xpovoc.Core.Sql
 {
 	public abstract class AnySqlMigrator
 	{
-		private string _productId;
+		private readonly string _productId;
 		private readonly IDbConnection _connection;
 		private readonly Migration[] _migrations;
 
@@ -50,12 +50,10 @@ namespace K4os.Xpovoc.Core.Sql
 		{
 			// NOTE: Some operations cannot be executed in transactions (create table?)
 			// we will need some mechanism to handle that if we need it
-			using (var transaction = connection.BeginTransaction())
-			{
-				ExecuteScript(connection, transaction, script);
-				MarkMigrationDone(connection, transaction, id);
-				transaction.Commit();
-			}
+			using var transaction = connection.BeginTransaction();
+			ExecuteScript(connection, transaction, script);
+			MarkMigrationDone(connection, transaction, id);
+			transaction.Commit();
 		}
 
 		protected abstract void ExecuteScript(

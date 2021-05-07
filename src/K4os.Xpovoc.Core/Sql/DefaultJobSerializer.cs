@@ -13,21 +13,17 @@ namespace K4os.Xpovoc.Core.Sql
 		public string Serialize(object job)
 		{
 			var formatter = CreateFormatter();
-			using (var stream = new MemoryStream())
-			{
-				formatter.Serialize(stream, job);
-				stream.Flush();
-				return Convert.ToBase64String(stream.ToArray());
-			}
+			using var stream = new MemoryStream();
+			formatter.Serialize(stream, job);
+			stream.Flush();
+			return Convert.ToBase64String(stream.ToArray());
 		}
 
 		public object Deserialize(string payload)
 		{
 			var formatter = CreateFormatter();
-			using (var stream = new MemoryStream(Convert.FromBase64String(payload)))
-			{
-				return formatter.Deserialize(stream);
-			}
+			using var stream = new MemoryStream(Convert.FromBase64String(payload));
+			return formatter.Deserialize(stream);
 		}
 	}
 }

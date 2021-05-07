@@ -10,8 +10,6 @@ namespace K4os.Xpovoc.Core.Db
 {
 	public class DbJobScheduler: IJobScheduler
 	{
-		private static readonly TimeSpan VeryLongTime = TimeSpan.FromDays(5*365);
-
 		private readonly ILoggerFactory _loggerFactory;
 		private readonly IDateTimeSource _dateTimeSource;
 		private readonly IDbJobStorage _jobStorage;

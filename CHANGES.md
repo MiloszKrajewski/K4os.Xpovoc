@@ -1,3 +1,7 @@
+## 0.1.0 (2021/05/07)
+* CHANGED: upgraded MySqlConnector to v1
+* CHANGED: upgraded Dapper to v2
+
 ## 0.0.20 (2021/04/27)
 * CHANGED: keep completed and failed jobs (for a period of time)
 * ADDED: pruning archived (completed and failed) jobs

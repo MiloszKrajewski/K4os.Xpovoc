@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using K4os.Xpovoc.Abstractions;
 using K4os.Xpovoc.Core.Sql;
 using K4os.Xpovoc.MySql.Resources;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 
 namespace K4os.Xpovoc.MySql
 {

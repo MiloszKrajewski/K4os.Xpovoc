@@ -1,9 +1,7 @@
 using System.Data.SqlClient;
-using System.Threading.Tasks;
 using Dapper;
 using K4os.Xpovoc.Core.Db;
 using K4os.Xpovoc.MsSql;
-using Xunit;
 
 namespace K4os.Xpovoc.Db.Test.Integrations
 {

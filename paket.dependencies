@@ -12,12 +12,12 @@ nuget System.Interactive
 nuget K4os.Async.Batch
 nuget K4os.Quarterback
 
-nuget MySqlConnector 0.56.0
+nuget MySqlConnector ~> 1
 nuget Npgsql ~> 4
 nuget Microsoft.Data.Sqlite ~> 3
 nuget System.Data.SqlClient ~> 4
 
-nuget Dapper ~> 1
+nuget Dapper ~> 2
 nuget Polly ~> 7
 nuget Newtonsoft.Json ~> 10
 nuget MediatR ~> 8

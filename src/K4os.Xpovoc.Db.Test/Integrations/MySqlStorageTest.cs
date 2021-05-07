@@ -1,9 +1,7 @@
-using System.Threading.Tasks;
 using Dapper;
 using K4os.Xpovoc.Core.Db;
 using K4os.Xpovoc.MySql;
-using MySql.Data.MySqlClient;
-using Xunit;
+using MySqlConnector;
 
 namespace K4os.Xpovoc.Db.Test.Integrations
 {
