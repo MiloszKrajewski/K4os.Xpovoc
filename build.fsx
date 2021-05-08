@@ -63,11 +63,15 @@ Target.create "Release:GitHub" (fun _ ->
     |> Proj.publishGitHub repository user token
 )
 
+// only dependencies are important
+Target.create "Release:All" ignore
+
 open Fake.Core.TargetOperators
 
 "Refresh" ==> "Restore" ==> "Build" ==> "Rebuild" ==> "Release"
-"Release" ==> "Release:GitHub"
-"Release" ==> "Release:Nuget"
+"Release" ==> "Release:GitHub" ==> "Release:All"
+"Release" ==> "Release:Nuget" ==> "Release:All"
+
 "Clean" ==> "Rebuild"
 
 "Clean" ?=> "Restore"
