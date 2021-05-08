@@ -1,8 +1,9 @@
-## 0.1.2 (2021/05/08)
+## 0.1.3 (2021/05/08)
 * CHANGED: upgraded MySqlConnector to v1
 * CHANGED: upgraded Dapper to v2
 * CHANGED: updated minimum required versions of dependencies
 * BUGFIX: removed PruneInterval setter from interface
+* CHANGED: explicit field charsets for MySql
 
 ## 0.0.20 (2021/04/27)
 * CHANGED: keep completed and failed jobs (for a period of time)

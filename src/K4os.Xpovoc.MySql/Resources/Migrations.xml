@@ -29,4 +29,9 @@
     alter table `{prefix}Jobs` drop index ix_scan;
     create index ix_scan on `{prefix}Jobs` (status, invisible_until, scheduled_for);
   ]]></migration>
+  <migration id="20210508_explicit_charsets"><![CDATA[
+    alter table `{prefix}Jobs` modify job_id char(36) character set ascii not null;
+    alter table `{prefix}Jobs` modify claimed_by char(36) character set ascii null;
+    alter table `{prefix}Jobs` modify payload longtext character set utf8mb4 null;
+  ]]></migration>
 </migrations>
