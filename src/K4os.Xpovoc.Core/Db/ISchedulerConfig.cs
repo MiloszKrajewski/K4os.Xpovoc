@@ -14,6 +14,6 @@ namespace K4os.Xpovoc.Core.Db
 		int RetryLimit { get; }
 		TimeSpan MaximumRetryInterval { get; }
 		TimeSpan KeepFinishedJobsPeriod { get; }
-		TimeSpan PruneInterval { get; set; }
+		TimeSpan PruneInterval { get; }
 	}
 }
