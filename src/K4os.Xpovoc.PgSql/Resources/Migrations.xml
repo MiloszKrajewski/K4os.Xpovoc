@@ -31,4 +31,8 @@
     drop index {schema}"ix_Jobs_scan";
     create index "ix_Jobs_scan" on {schema}"Jobs" (status, invisible_until, scheduled_for);
   ]]></migration>
+  <migration id="20210625_pk_job_to_bigint"><![CDATA[
+    alter table {schema}"Jobs" alter column row_id type bigint using row_id::bigint;
+    alter sequence {schema}"Jobs_row_id_seq" as bigint;
+  ]]></migration>
 </migrations>

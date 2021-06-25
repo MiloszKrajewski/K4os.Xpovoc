@@ -7,8 +7,7 @@ namespace K4os.Xpovoc.Core.Sql
 {
 	public class DefaultJobSerializer: IJobSerializer
 	{
-		protected virtual BinaryFormatter CreateFormatter() => 
-			new BinaryFormatter();
+		protected virtual BinaryFormatter CreateFormatter() => new();
 
 		public string Serialize(object job)
 		{

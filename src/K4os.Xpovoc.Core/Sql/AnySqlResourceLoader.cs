@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace K4os.Xpovoc.Core.Sql
 {
-	public abstract class AnySqlResourceLoader: ResourceLoader, IAnySqlResourceLoader
+	public abstract class AnySqlResourceLoader: ResourceLoader
 	{
 		public static IEnumerable<IMigration> LoadMigrations(
 			XElement xml, Func<string, string> update)
@@ -18,8 +18,7 @@ namespace K4os.Xpovoc.Core.Sql
 
 		public static IDictionary<string, string> LoadQueries(
 			XElement xml, Func<string, string> update) =>
-			xml.Elements("query")
-				.ToDictionary(GetId, e => Update(update, e.Value));
+			xml.Elements("query").ToDictionary(GetId, e => Update(update, e.Value));
 		
 		private static string Update(Func<string, string> update, string text) =>
 			update is null ? text : update(text);

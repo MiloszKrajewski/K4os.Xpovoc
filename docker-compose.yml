@@ -27,3 +27,12 @@ services:
       MSSQL_PID: "Developer"
     ports:
     - 1433:1433
+
+  mongo:
+    image: mongo:4.4.6
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "test"
+      MONGO_INITDB_ROOT_PASSWORD: "Test!123"
+    ports:
+    - 27017:27017

@@ -29,4 +29,19 @@
     drop index ix_scan on {schema}[Jobs];
     create index ix_scan on {schema}[Jobs] (status, invisible_until, scheduled_for);
   ]]></migration>
+  <migration id="20210625_pk_job_to_bigint"><![CDATA[
+    declare @key_name sysname = (
+      select name
+      from sys.key_constraints
+      where parent_object_id = object_id('{schema}[Jobs]') and type = 'PK'
+    );
+  
+    if @key_name is not null begin
+      declare @sql nvarchar(max) = 'alter table {schema}[Jobs] drop constraint [' + @key_name + ']'
+      exec sp_executesql @sql
+    end;
+    
+    alter table {schema}[Jobs] alter column row_id bigint not null;
+    alter table {schema}[Jobs] add constraint pk_jobs primary key clustered (row_id);
+  ]]></migration>
 </migrations>

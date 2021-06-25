@@ -1,3 +1,6 @@
+## 0.1.4 (2021/06/26)
+* CHANGED: update row_id to long for all databases
+
 ## 0.1.3 (2021/05/08)
 * CHANGED: upgraded MySqlConnector to v1
 * CHANGED: upgraded Dapper to v2

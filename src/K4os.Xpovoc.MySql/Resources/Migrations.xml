@@ -34,4 +34,7 @@
     alter table `{prefix}Jobs` modify claimed_by char(36) character set ascii null;
     alter table `{prefix}Jobs` modify payload longtext character set utf8mb4 null;
   ]]></migration>
+  <migration id="20210625_pk_job_to_bigint"><![CDATA[
+    alter table `{prefix}Jobs` modify row_id bigint auto_increment;
+  ]]></migration>
 </migrations>
