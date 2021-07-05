@@ -11,7 +11,7 @@ namespace K4os.Xpovoc.Db.Test.Integrations
 {
 	public abstract class StorageTestBase
 	{
-		private readonly XDocument _secrets = Secrets.Load(".secrets.xml");
+		private readonly XDocument _secrets = Secrets.Load("databases.xml");
 
 		protected abstract IDbJobStorage CreateStorage(string schema);
 

@@ -1,3 +1,6 @@
+## 0.2.0 (2021/07/05)
+* ADDED: MongoDb driver (experimental!)
+
 ## 0.1.4 (2021/06/26)
 * CHANGED: update row_id to long for all databases
 

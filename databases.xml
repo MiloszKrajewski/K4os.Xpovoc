@@ -4,4 +4,5 @@
   <pgsql>host=localhost;database=postgres;username=test;password=Test!123</pgsql>
   <mssql>data source=localhost;initial catalog=master;integrated security=false;user id=sa;password=Test!123</mssql>
   <sqlite>data source=./xpovoc.sqlite3</sqlite>
+  <mongo>mongodb://test:Test!123@localhost</mongo>
 </secrets>

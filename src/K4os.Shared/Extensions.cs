@@ -1,5 +1,8 @@
+#nullable enable
+
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedType.Global
@@ -10,7 +13,7 @@ namespace System
 {
 	internal static class Extensions
 	{
-		public static T Required<T>(this T subject, string name = null) where T: class =>
+		public static T Required<T>(this T subject, string? name = null) where T: class =>
 			subject ?? throw new ArgumentNullException(name ?? "<unknown>");
 
 		public static void TryDispose(this object subject)
@@ -33,7 +36,7 @@ namespace System
 		public static T NotMoreThan<T>(this T subject, T limit) =>
 			Compare(subject, limit) > 0 ? limit : subject;
 
-		public static string NotBlank(this string text, string defaultValue = null) =>
+		public static string? NotBlank(this string text, string? defaultValue = null) =>
 			string.IsNullOrWhiteSpace(text) ? defaultValue : text;
 
 		public static R PipeTo<T, R>(this T subject, Func<T, R> func) =>
@@ -54,5 +57,22 @@ namespace System
 				DateTimeKind.Unspecified => DateTime.SpecifyKind(timestamp, DateTimeKind.Utc),
 				_ => timestamp.ToUniversalTime(),
 			};
+
+		public static T NotNull<T>(this T? subject) where T: class, new() =>
+			subject ?? SharedNotNull<T>.Instance;
+
+		public static IEnumerable<T> NotNull<T>(this IEnumerable<T>? subject) =>
+			subject ?? Array.Empty<T>();
+
+		public static T[] NotNull<T>(this T[]? subject) =>
+			subject ?? Array.Empty<T>();
+
+		public static T[] EnsureArray<T>(this IEnumerable<T>? subject) =>
+			subject switch { null => Array.Empty<T>(), T[] a => a, var e => e.ToArray(), };
+	}
+
+	internal class SharedNotNull<T> where T: class, new()
+	{
+		public static readonly T Instance = new T();
 	}
 }

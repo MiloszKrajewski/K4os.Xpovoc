@@ -21,7 +21,7 @@ namespace K4os.Xpovoc.MySql
 
 		public MySqlJobStorage(
 			IMySqlJobStorageConfig config,
-			IJobSerializer serializer = null):
+			IJobSerializer? serializer = null):
 			base(serializer)
 		{
 			config.Required(nameof(config));
@@ -60,11 +60,11 @@ namespace K4os.Xpovoc.MySql
 			return Exec(c => c.ExecuteAsync(query, args), token);
 		}
 
-		private Task<T> Eval<T>(
+		private Task<T?> Eval<T>(
 			string queryName, object args, CancellationToken token = default)
 		{
 			var query = GetQuery(queryName);
-			return Exec(c => c.QueryFirstOrDefaultAsync<T>(query, args), token);
+			return Exec(c => c.QueryFirstOrDefaultAsync<T?>(query, args), token);
 		}
 
 		public override async Task<Guid> Schedule(object payload, DateTime when)
@@ -82,7 +82,7 @@ namespace K4os.Xpovoc.MySql
 			return guid;
 		}
 
-		protected override async Task<SqlJob> Claim(
+		protected override async Task<SqlJob?> Claim(
 			CancellationToken token,
 			Guid worker, DateTime now, DateTime until)
 		{
@@ -168,7 +168,7 @@ namespace K4os.Xpovoc.MySql
 			public long row_id;
 			public Guid job_id;
 			public DateTime scheduled_for;
-			public string payload;
+			public string? payload;
 			public int attempt;
 		}
 		#pragma warning restore 649

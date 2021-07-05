@@ -20,6 +20,7 @@ nuget Dapper 2.0.35
 nuget Polly 7.2.1
 nuget Newtonsoft.Json 10.0.3
 nuget MediatR 8.0.1
+# nuget MongoDB.Driver 2.11.6 # https://github.com/fsprojects/Paket/issues/4039
 
 nuget Microsoft.Extensions.Logging.Abstractions ~> 2
 nuget Microsoft.Extensions.DependencyInjection.Abstractions ~> 2

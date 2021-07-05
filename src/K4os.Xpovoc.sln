@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{835ECD
 		..\Signing.targets = ..\Signing.targets
 		..\.secrets.xml = ..\.secrets.xml
 		..\docker-compose.yml = ..\docker-compose.yml
+		..\databases.xml = ..\databases.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.MySql", "K4os.Xpovoc.MySql\K4os.Xpovoc.MySql.csproj", "{7E5CB5CC-D8CC-4C92-963D-BBA5B684D880}"
@@ -49,6 +50,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Quarterback", "K4os.Xpovoc.Quarterback\K4os.Xpovoc.Quarterback.csproj", "{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Databases", "Databases", "{4964B568-60A9-45DC-BFB5-F09772ECB635}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Mongo", "K4os.Xpovoc.Mongo\K4os.Xpovoc.Mongo.csproj", "{1AE85D8D-41FA-437C-8949-79F5E53714FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -108,6 +111,10 @@ Global
 		{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AE85D8D-41FA-437C-8949-79F5E53714FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AE85D8D-41FA-437C-8949-79F5E53714FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AE85D8D-41FA-437C-8949-79F5E53714FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AE85D8D-41FA-437C-8949-79F5E53714FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -123,5 +130,6 @@ Global
 		{7E5CB5CC-D8CC-4C92-963D-BBA5B684D880} = {4964B568-60A9-45DC-BFB5-F09772ECB635}
 		{1A9463EF-E0AC-4ED8-88A0-48CCFC85313D} = {4964B568-60A9-45DC-BFB5-F09772ECB635}
 		{F577C5BA-8040-4AB1-8F12-1C3BC96D5517} = {4964B568-60A9-45DC-BFB5-F09772ECB635}
+		{1AE85D8D-41FA-437C-8949-79F5E53714FC} = {4964B568-60A9-45DC-BFB5-F09772ECB635}
 	EndGlobalSection
 EndGlobal

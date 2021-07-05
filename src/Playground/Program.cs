@@ -10,12 +10,14 @@ using K4os.Xpovoc.Abstractions;
 using K4os.Xpovoc.Core.Db;
 using K4os.Xpovoc.Core.Memory;
 using K4os.Xpovoc.Core.Sql;
+using K4os.Xpovoc.Mongo;
 using K4os.Xpovoc.MsSql;
 using K4os.Xpovoc.MySql;
 using K4os.Xpovoc.PgSql;
 using K4os.Xpovoc.SqLite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 
 // ReSharper disable UnusedParameter.Local
 
@@ -23,6 +25,12 @@ namespace Playground
 {
 	internal static class Program
 	{
+		private const int VLN = 1_000_000;
+		private static readonly int ProduceDelay = VLN;
+		private static readonly int ConsumeDelay = VLN;
+		private static readonly int ConsumeThreads = 4;
+		private static readonly bool EnablePruning = true;
+		
 		public static Task Compositions(string[] args)
 		{
 			var collection = new ServiceCollection();
@@ -47,16 +55,19 @@ namespace Playground
 
 		private static void Configure(ServiceCollection serviceCollection)
 		{
-			var secrets = Secrets.Load(".secrets.xml");
-			
+			var secrets = Secrets.Load("databases.xml");
+
 			ConfigureMySql(serviceCollection, secrets);
 			ConfigurePgSql(serviceCollection, secrets);
 			ConfigureSqLite(serviceCollection, secrets);
 			ConfigureMsSql(serviceCollection, secrets);
+			ConfigureMongo(serviceCollection, secrets);
 
 			serviceCollection.AddSingleton<ISchedulerConfig>(
 				new SchedulerConfig {
-					WorkerCount = 4,
+					WorkerCount = ConsumeThreads,
+					KeepFinishedJobsPeriod = EnablePruning ? TimeSpan.Zero : TimeSpan.FromDays(90),
+					PruneInterval = EnablePruning ? TimeSpan.FromSeconds(1) : TimeSpan.FromDays(1),
 				});
 		}
 
@@ -66,7 +77,7 @@ namespace Playground
 			serviceCollection.AddSingleton<IMySqlJobStorageConfig>(
 				new MySqlJobStorageConfig {
 					ConnectionString = connectionString,
-					Prefix = "xpovoc_"
+					Prefix = "xpovoc_",
 				});
 		}
 
@@ -78,18 +89,17 @@ namespace Playground
 					ConnectionString = connectionString,
 				});
 		}
-		
+
 		private static void ConfigureMsSql(ServiceCollection serviceCollection, XDocument secrets)
 		{
 			var connectionString = secrets.XPathSelectElement("/secrets/mssql")?.Value;
 			serviceCollection.AddSingleton<IMsSqlJobStorageConfig>(
 				new MsSqlJobStorageConfig {
 					ConnectionString = connectionString,
-					Schema = "xpovoc"
+					Schema = "xpovoc",
 				});
 		}
 
-		
 		private static void ConfigureSqLite(ServiceCollection serviceCollection, XDocument secrets)
 		{
 			var connectionString = secrets.XPathSelectElement("/secrets/sqlite")?.Value;
@@ -99,6 +109,15 @@ namespace Playground
 					Prefix = "xpovoc_",
 					PoolSize = 1,
 				});
+		}
+
+		private static void ConfigureMongo(ServiceCollection serviceCollection, XDocument secrets)
+		{
+			var connectionString = secrets.XPathSelectElement("/secrets/mongo")?.Value;
+			serviceCollection.AddSingleton<IMongoClient>(
+				p => new MongoClient(connectionString));
+			serviceCollection.AddSingleton(
+				p => p.GetRequiredService<IMongoClient>().GetDatabase("test"));
 		}
 
 		private static async Task Execute(
@@ -116,13 +135,19 @@ namespace Playground
 			var sqliteStorage = new SqLiteJobStorage(
 				serviceProvider.GetRequiredService<ISqLiteJobStorageConfig>(), serializer);
 			var mssqlStorage = new MsSqlJobStorage(
-				serviceProvider.GetRequiredService<IMsSqlJobStorageConfig>(), serializer); 
+				serviceProvider.GetRequiredService<IMsSqlJobStorageConfig>(), serializer);
+			var mongoStorage = new MongoJobStorage(
+				serviceProvider.GetRequiredService<IMongoDatabase>,
+				"xpovoc_devel_jobs",
+				DefaultMongoJobSerializer.Instance);
 
 			var handler = new AdHocJobHandler(ConsumeOne);
 			var schedulerConfig = serviceProvider.GetRequiredService<ISchedulerConfig>();
-			var scheduler = new DbJobScheduler(null, mysqlStorage, handler, schedulerConfig);
+			// var scheduler = new DbJobScheduler(null, mysqlStorage, handler, schedulerConfig);
 			// var scheduler = new RxJobScheduler(loggerFactory, handler, Scheduler.Default);
 
+			var scheduler = new DbJobScheduler(null, mongoStorage, handler, schedulerConfig);
+			
 			// var producer = Task.CompletedTask;
 			// var producerSpeed = Task.CompletedTask;
 			var producer = Task.Run(() => Producer(token, scheduler), token);
@@ -182,6 +207,8 @@ namespace Playground
 			var random = new Random();
 			while (!token.IsCancellationRequested)
 			{
+				if (ProduceDelay > 0) 
+					await Task.Delay(ProduceDelay, token);
 				var delay = TimeSpan.FromSeconds(random.NextDouble() * 5);
 				var message = Guid.NewGuid();
 				await scheduler.Schedule(DateTimeOffset.UtcNow.Add(delay), message);
@@ -194,11 +221,15 @@ namespace Playground
 
 		private static void ConsumeOne(object payload)
 		{
-			// Thread.Sleep(1000);
+			if (ConsumeDelay > 0) 
+				Thread.Sleep(ConsumeDelay);
 			var guid = (Guid) payload;
 			var result = Guids.TryAdd(guid, null);
 			if (!result)
+			{
+				Console.WriteLine("!!!");
 				throw new ArgumentException("Job stealing!");
+			}
 
 			Interlocked.Increment(ref _consumedCount);
 		}
