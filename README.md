@@ -97,8 +97,10 @@ So what Χρόνος actually does? Χρόνος is providing three things: pers
 | `K4os.Xpovoc.PgSql` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.PgSql.svg)](https://www.nuget.org/packages/K4os.Xpovoc.PgSql) | `JobStorage` implementation for Postgres |
 | `K4os.Xpovoc.MsSql` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MsSql.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MsSql) | `JobStorage` implementation for SQL Server |
 | `K4os.Xpovoc.SqLite` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.SqLite.svg)](https://www.nuget.org/packages/K4os.Xpovoc.SqLite) | `JobStorage` implementation for Sqlite |
+| `K4os.Xpovoc.Mongo` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Mongo.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Mongo) | `JobStorage` implementation for MongoDb |
 | `K4os.Xpovoc.Json` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Json.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Json) | Json serialization for database storage using [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) |
 | `K4os.Xpovoc.MediatR` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MediatR.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MediatR) | [MediatR](https://github.com/jbogard/MediatR) integration |
+| `K4os.Xpovoc.Brighter` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Brighter.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Brighter) | [Brighter](https://github.com/BrighterCommand/Brighter) integration |
 | `K4os.Xpovoc.Quarterback` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Quarterback.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Quarterback) | [K4os.Quarterback](https://github.com/MiloszKrajewski/K4os.Quarterback) integration |
 
 NOTE: I am a fan of not dragging too many dependencies (because they introduce risk of version mismatch) but some of them I consider "a standard":

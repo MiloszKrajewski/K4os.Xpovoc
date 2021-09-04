@@ -14,10 +14,7 @@ namespace System
 			if (File.Exists(combined)) return XDocument.Load(combined);
 
 			var parent = Path.Combine(root, "..");
-			if (IsSamePath(root, parent))
-				return null;
-
-			return Load(parent, filename);
+			return IsSamePath(root, parent) ? null : Load(parent, filename);
 		}
 
 		private static bool IsSamePath(string pathA, string pathB) => 
