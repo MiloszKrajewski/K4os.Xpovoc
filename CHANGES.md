@@ -1,3 +1,6 @@
+## 0.2.1 (2021/09/04)
+* ADDED: Brighter integration
+
 ## 0.2.0 (2021/07/05)
 * ADDED: MongoDb driver (experimental!)
 
