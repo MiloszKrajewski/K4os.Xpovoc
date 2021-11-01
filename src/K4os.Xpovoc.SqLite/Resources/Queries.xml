@@ -38,21 +38,21 @@
   ]]></query>
   <query id="keep"><![CDATA[
     -- keep job claim 
-		update "{prefix}Jobs" 
+    update "{prefix}Jobs" 
       set claim_token = null, invisible_until = @invisible_until
       where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="complete"><![CDATA[
     -- complete job 
-		delete from "{prefix}Jobs" where row_id = @row_id and claimed_by = @claimed_by
+    delete from "{prefix}Jobs" where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="forget"><![CDATA[
     -- forget job 
-		delete from "{prefix}Jobs" where row_id = @row_id and claimed_by = @claimed_by
+    delete from "{prefix}Jobs" where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
   <query id="retry"><![CDATA[
     -- retry job 
-		update "{prefix}Jobs" 
+    update "{prefix}Jobs" 
       set claimed_by = null, claim_token = null, invisible_until = @invisible_until
       where row_id = @row_id and claimed_by = @claimed_by
   ]]></query>
