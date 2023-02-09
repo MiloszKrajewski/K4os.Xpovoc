@@ -7,29 +7,28 @@ using K4os.Xpovoc.MySql;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace Playground
+namespace Playground;
+
+internal class MySqlExamples
 {
-	internal class MySqlExamples
+	public static void Configure(IServiceCollection collection)
 	{
-		public static void Configure(IServiceCollection collection)
-		{
-			collection.AddSingleton<IJobHandler, SimpleJobHandler>();
+		collection.AddSingleton<IJobHandler, SimpleJobHandler>();
 
-			collection.AddSingleton<IJobScheduler, DbJobScheduler>();
-			collection.AddSingleton<IDbJobStorage, MySqlJobStorage>();
-			collection.AddSingleton<IMySqlJobStorageConfig>(
-				new MySqlJobStorageConfig { ConnectionString = "..." });
+		collection.AddSingleton<IJobScheduler, DbJobScheduler>();
+		collection.AddSingleton<IDbJobStorage, MySqlJobStorage>();
+		collection.AddSingleton<IMySqlJobStorageConfig>(
+			new MySqlJobStorageConfig { ConnectionString = "..." });
 
-			collection.AddSingleton<IJobSerializer>(
-				new JsonJobSerializer(
-					new JsonSerializerSettings {
-						TypeNameHandling = TypeNameHandling.Auto
-					}));
-		}
+		collection.AddSingleton<IJobSerializer>(
+			new JsonJobSerializer(
+				new JsonSerializerSettings {
+					TypeNameHandling = TypeNameHandling.Auto
+				}));
+	}
 
-		public static void Startup(IServiceProvider provider)
-		{
-			_ = provider.GetService<IJobScheduler>();
-		}
+	public static void Startup(IServiceProvider provider)
+	{
+		_ = provider.GetService<IJobScheduler>();
 	}
 }

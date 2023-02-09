@@ -7,13 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Test", "K4os.Xp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{835ECDA0-7229-4D96-8B74-8D9F119E6683}"
 	ProjectSection(SolutionItems) = preProject
-		..\build.fsx = ..\build.fsx
-		..\build.tools.fsx = ..\build.tools.fsx
 		..\CHANGES.md = ..\CHANGES.md
-		..\paket.dependencies = ..\paket.dependencies
 		..\README.md = ..\README.md
 		..\.secrets.cfg = ..\.secrets.cfg
-		..\Common.targets = ..\Common.targets
 		..\LICENSE = ..\LICENSE
 		..\settings.cfg = ..\settings.cfg
 		..\.gitignore = ..\.gitignore
@@ -21,6 +17,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{835ECD
 		..\.secrets.xml = ..\.secrets.xml
 		..\docker-compose.yml = ..\docker-compose.yml
 		..\databases.xml = ..\databases.xml
+		..\Directory.Build.props = ..\Directory.Build.props
+		..\Directory.Build.targets = ..\Directory.Build.targets
+		..\Directory.Packages.props = ..\Directory.Packages.props
+		..\global.json = ..\global.json
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.MySql", "K4os.Xpovoc.MySql\K4os.Xpovoc.MySql.csproj", "{7E5CB5CC-D8CC-4C92-963D-BBA5B684D880}"
@@ -57,12 +57,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Brighter", "K4o
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dispatch", "Dispatch", "{F032EA99-FA15-4FFD-9261-0B7E77613C5E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Sqs", "K4os.Xpovoc.Sqs\K4os.Xpovoc.Sqs.csproj", "{ED3837B6-3434-4213-B6D1-9DA0E7F9A258}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Redis", "K4os.Xpovoc.Redis\K4os.Xpovoc.Redis.csproj", "{9A66EC7B-41D6-4C72-94CE-D359164EE0AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Hosting", "K4os.Xpovoc.Hosting\K4os.Xpovoc.Hosting.csproj", "{309DF87F-E5C2-47D4-B4D2-DAA857C7EA16}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\.nuke\build\_build.csproj", "{F7D34DD7-E82F-41A3-AE97-789FEE5A9C39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F7D34DD7-E82F-41A3-AE97-789FEE5A9C39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7D34DD7-E82F-41A3-AE97-789FEE5A9C39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79E08BEA-FB8C-4ECA-AB12-09826D68988E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{79E08BEA-FB8C-4ECA-AB12-09826D68988E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79E08BEA-FB8C-4ECA-AB12-09826D68988E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -123,6 +133,18 @@ Global
 		{9DAF8CFC-7E73-4033-A5BF-1C668BCF16F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DAF8CFC-7E73-4033-A5BF-1C668BCF16F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DAF8CFC-7E73-4033-A5BF-1C668BCF16F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED3837B6-3434-4213-B6D1-9DA0E7F9A258}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED3837B6-3434-4213-B6D1-9DA0E7F9A258}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED3837B6-3434-4213-B6D1-9DA0E7F9A258}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED3837B6-3434-4213-B6D1-9DA0E7F9A258}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A66EC7B-41D6-4C72-94CE-D359164EE0AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A66EC7B-41D6-4C72-94CE-D359164EE0AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A66EC7B-41D6-4C72-94CE-D359164EE0AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A66EC7B-41D6-4C72-94CE-D359164EE0AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{309DF87F-E5C2-47D4-B4D2-DAA857C7EA16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{309DF87F-E5C2-47D4-B4D2-DAA857C7EA16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{309DF87F-E5C2-47D4-B4D2-DAA857C7EA16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{309DF87F-E5C2-47D4-B4D2-DAA857C7EA16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -142,5 +164,7 @@ Global
 		{9DAF8CFC-7E73-4033-A5BF-1C668BCF16F5} = {F032EA99-FA15-4FFD-9261-0B7E77613C5E}
 		{A579F0EE-702D-48BE-98BC-0A155D255156} = {F032EA99-FA15-4FFD-9261-0B7E77613C5E}
 		{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C} = {F032EA99-FA15-4FFD-9261-0B7E77613C5E}
+		{ED3837B6-3434-4213-B6D1-9DA0E7F9A258} = {4964B568-60A9-45DC-BFB5-F09772ECB635}
+		{9A66EC7B-41D6-4C72-94CE-D359164EE0AA} = {4964B568-60A9-45DC-BFB5-F09772ECB635}
 	EndGlobalSection
 EndGlobal

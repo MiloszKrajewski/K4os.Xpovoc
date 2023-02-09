@@ -14,10 +14,12 @@ using K4os.Xpovoc.Mongo;
 using K4os.Xpovoc.MsSql;
 using K4os.Xpovoc.MySql;
 using K4os.Xpovoc.PgSql;
+using K4os.Xpovoc.Redis;
 using K4os.Xpovoc.SqLite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using StackExchange.Redis;
 
 // ReSharper disable UnusedParameter.Local
 
@@ -26,8 +28,8 @@ namespace Playground
 	internal static class Program
 	{
 		private const int VLN = 1_000_000;
-		private static readonly int ProduceDelay = VLN;
-		private static readonly int ConsumeDelay = VLN;
+		private static readonly int ProduceDelay = 0;
+		private static readonly int ConsumeDelay = 0;
 		private static readonly int ConsumeThreads = 4;
 		private static readonly bool EnablePruning = true;
 		
@@ -55,13 +57,14 @@ namespace Playground
 
 		private static void Configure(ServiceCollection serviceCollection)
 		{
-			var secrets = Secrets.Load("databases.xml");
+			var secrets = Secrets.Load("databases.xml").Required();
 
 			ConfigureMySql(serviceCollection, secrets);
 			ConfigurePgSql(serviceCollection, secrets);
 			ConfigureSqLite(serviceCollection, secrets);
 			ConfigureMsSql(serviceCollection, secrets);
 			ConfigureMongo(serviceCollection, secrets);
+			ConfigureRedis(serviceCollection, secrets);
 
 			serviceCollection.AddSingleton<ISchedulerConfig>(
 				new SchedulerConfig {
@@ -76,7 +79,7 @@ namespace Playground
 			var connectionString = secrets.XPathSelectElement("/secrets/mysql")?.Value;
 			serviceCollection.AddSingleton<IMySqlJobStorageConfig>(
 				new MySqlJobStorageConfig {
-					ConnectionString = connectionString,
+					ConnectionString = connectionString.Required(),
 					Prefix = "xpovoc_",
 				});
 		}
@@ -86,7 +89,7 @@ namespace Playground
 			var connectionString = secrets.XPathSelectElement("/secrets/pgsql")?.Value;
 			serviceCollection.AddSingleton<IPgSqlJobStorageConfig>(
 				new PgSqlJobStorageConfig {
-					ConnectionString = connectionString,
+					ConnectionString = connectionString.Required(),
 				});
 		}
 
@@ -95,7 +98,7 @@ namespace Playground
 			var connectionString = secrets.XPathSelectElement("/secrets/mssql")?.Value;
 			serviceCollection.AddSingleton<IMsSqlJobStorageConfig>(
 				new MsSqlJobStorageConfig {
-					ConnectionString = connectionString,
+					ConnectionString = connectionString.Required(),
 					Schema = "xpovoc",
 				});
 		}
@@ -105,7 +108,7 @@ namespace Playground
 			var connectionString = secrets.XPathSelectElement("/secrets/sqlite")?.Value;
 			serviceCollection.AddSingleton<ISqLiteJobStorageConfig>(
 				new SqLiteJobStorageConfig {
-					ConnectionString = connectionString,
+					ConnectionString = connectionString.Required(),
 					Prefix = "xpovoc_",
 					PoolSize = 1,
 				});
@@ -118,6 +121,15 @@ namespace Playground
 				p => new MongoClient(connectionString));
 			serviceCollection.AddSingleton(
 				p => p.GetRequiredService<IMongoClient>().GetDatabase("test"));
+		}
+		
+		private static void ConfigureRedis(ServiceCollection serviceCollection, XDocument secrets)
+		{
+			var connectionString = secrets.XPathSelectElement("/secrets/redis")?.Value;
+			serviceCollection.AddSingleton(
+				p => ConnectionMultiplexer.Connect(connectionString).GetDatabase());
+			serviceCollection.AddSingleton<IRedisJobStorageConfig>(
+				p => new RedisJobStorageConfig { Prefix = "xpovoc" });
 		}
 
 		private static async Task Execute(
@@ -140,13 +152,18 @@ namespace Playground
 				serviceProvider.GetRequiredService<IMongoDatabase>,
 				"xpovoc_devel_jobs",
 				DefaultMongoJobSerializer.Instance);
+			var redisStorage = new RedisJobStorage(
+				serviceProvider.GetRequiredService<IDatabase>(),
+				serviceProvider.GetRequiredService<IRedisJobStorageConfig>(),
+				serializer);
+
 
 			var handler = new AdHocJobHandler(ConsumeOne);
 			var schedulerConfig = serviceProvider.GetRequiredService<ISchedulerConfig>();
 			// var scheduler = new DbJobScheduler(null, mysqlStorage, handler, schedulerConfig);
 			// var scheduler = new RxJobScheduler(loggerFactory, handler, Scheduler.Default);
 
-			var scheduler = new DbJobScheduler(null, mongoStorage, handler, schedulerConfig);
+			var scheduler = new DbJobScheduler(null, redisStorage, handler, schedulerConfig);
 			
 			// var producer = Task.CompletedTask;
 			// var producerSpeed = Task.CompletedTask;
@@ -216,8 +233,7 @@ namespace Playground
 			}
 		}
 
-		private static readonly ConcurrentDictionary<Guid, object> Guids =
-			new ConcurrentDictionary<Guid, object>();
+		private static readonly ConcurrentDictionary<Guid, object?> Guids = new();
 
 		private static void ConsumeOne(object payload)
 		{

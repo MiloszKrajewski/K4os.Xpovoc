@@ -1,3 +1,6 @@
+## 0.3.2 (2023/01/08)
+* ADDED: Redis storage
+
 ## 0.2.1 (2021/09/04)
 * ADDED: Brighter integration
 

@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net462;net5.0</TargetFrameworks>
     <PackageTags>xpovoc scheduler cqrs postgres</PackageTags>
-    <LangVersion>8.0</LangVersion>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\K4os.Shared\Extensions.cs">
@@ -11,12 +10,17 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
+    <EmbeddedResource Include="Resources\Migrations.xml"/>
+    <EmbeddedResource Include="Resources\Queries.xml"/>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Migrations.xml" />
-    <EmbeddedResource Include="Resources\Queries.xml" />
+    <PackageReference Include="Npgsql" VersionOverride="4.1.3.1"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+    <PackageReference Include="Dapper"/>
+    <PackageReference Include="Polly"/>
   </ItemGroup>
-  <Import Project="..\..\Common.targets" />
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj"/>
+  </ItemGroup>
+
 </Project>

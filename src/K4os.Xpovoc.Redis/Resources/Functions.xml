@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<functions>
+  <!--
+  <function id="xyz"><![CDATA[
+  ]]></function>
+  -->
+  <function id="claim"><![CDATA[
+    if @until <= @now then return nil end;
+  
+    local id = redis.call('zrange', @queue, 0, @now, 'byscore', 'limit', 0, 1)[1];
+    if id == nil then return nil end;
+  
+    redis.call('zadd', @queue, 'xx', @until, id);
+    
+    return id;
+  ]]></function>
+</functions>

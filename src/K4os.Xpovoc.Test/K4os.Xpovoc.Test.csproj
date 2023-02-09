@@ -1,12 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
   </ItemGroup>
-  <Import Project="..\..\Common.targets" />
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+  <ItemGroup>
+    <PackageReference Include="MediatR" VersionOverride="11.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" VersionOverride="7.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" VersionOverride="17.3.2" />
+    <PackageReference Include="xunit" VersionOverride="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" VersionOverride="2.4.5" />
+  </ItemGroup>
 </Project>

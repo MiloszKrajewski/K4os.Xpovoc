@@ -1,8 +1,7 @@
-namespace K4os.Xpovoc.MySql
+namespace K4os.Xpovoc.MySql;
+
+public interface IMySqlJobStorageConfig
 {
-	public interface IMySqlJobStorageConfig
-	{
-		string ConnectionString { get; }
-		string? Prefix { get; }
-	}
+	string ConnectionString { get; }
+	string? Prefix { get; }
 }

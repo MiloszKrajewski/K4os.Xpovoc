@@ -1,10 +1,9 @@
 using MongoDB.Bson;
 
-namespace K4os.Xpovoc.Mongo
+namespace K4os.Xpovoc.Mongo;
+
+public interface IMongoJobSerializer
 {
-	public interface IMongoJobSerializer
-	{
-		BsonValue Serialize(object payload);
-		object Deserialize(BsonValue payload);
-	}
+	BsonValue Serialize(object payload);
+	object Deserialize(BsonValue payload);
 }

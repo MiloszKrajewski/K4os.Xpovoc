@@ -1,9 +1,8 @@
 using System;
 
-namespace K4os.Xpovoc.Abstractions
+namespace K4os.Xpovoc.Abstractions;
+
+public interface IDateTimeSource
 {
-	public interface IDateTimeSource
-	{
-		DateTimeOffset Now { get; }
-	}
+	DateTimeOffset Now { get; }
 }

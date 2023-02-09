@@ -1,9 +1,8 @@
 using System;
 
-namespace K4os.Xpovoc.Core.Sql
+namespace K4os.Xpovoc.Core.Sql;
+
+public interface ILease<out T>: IDisposable
 {
-	public interface ILease<out T>: IDisposable
-	{
-		T Connection { get; }
-	}
+	T Connection { get; }
 }

@@ -7,29 +7,28 @@ using K4os.Xpovoc.PgSql;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace Playground
+namespace Playground;
+
+internal class PgSqlExamples
 {
-	internal class PgSqlExamples
+	public static void Configure(IServiceCollection collection)
 	{
-		public static void Configure(IServiceCollection collection)
-		{
-			collection.AddSingleton<IJobHandler, SimpleJobHandler>();
+		collection.AddSingleton<IJobHandler, SimpleJobHandler>();
 
-			collection.AddSingleton<IJobScheduler, DbJobScheduler>();
-			collection.AddSingleton<IDbJobStorage, PgSqlJobStorage>();
-			collection.AddSingleton<IPgSqlJobStorageConfig>(
-				new PgSqlJobStorageConfig { ConnectionString = "..." });
+		collection.AddSingleton<IJobScheduler, DbJobScheduler>();
+		collection.AddSingleton<IDbJobStorage, PgSqlJobStorage>();
+		collection.AddSingleton<IPgSqlJobStorageConfig>(
+			new PgSqlJobStorageConfig { ConnectionString = "..." });
 
-			collection.AddSingleton<IJobSerializer>(
-				new JsonJobSerializer(
-					new JsonSerializerSettings {
-						TypeNameHandling = TypeNameHandling.Auto
-					}));
-		}
+		collection.AddSingleton<IJobSerializer>(
+			new JsonJobSerializer(
+				new JsonSerializerSettings {
+					TypeNameHandling = TypeNameHandling.Auto
+				}));
+	}
 
-		public static void Startup(IServiceProvider provider)
-		{
-			_ = provider.GetService<IJobScheduler>();
-		}
+	public static void Startup(IServiceProvider provider)
+	{
+		_ = provider.GetService<IJobScheduler>();
 	}
 }

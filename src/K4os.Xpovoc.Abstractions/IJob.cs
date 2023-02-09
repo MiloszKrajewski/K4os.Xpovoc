@@ -1,12 +1,11 @@
 using System;
 
-namespace K4os.Xpovoc.Abstractions
+namespace K4os.Xpovoc.Abstractions;
+
+public interface IJob
 {
-	public interface IJob
-	{
-		Guid JobId { get; }
-		DateTime UtcTime { get; }
-		object Payload { get; }
-		object Context { get; }
-	}
+	Guid JobId { get; }
+	DateTime UtcTime { get; }
+	object? Payload { get; }
+	object? Context { get; }
 }

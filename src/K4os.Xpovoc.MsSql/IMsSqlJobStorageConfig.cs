@@ -1,8 +1,7 @@
-namespace K4os.Xpovoc.MsSql
+namespace K4os.Xpovoc.MsSql;
+
+public interface IMsSqlJobStorageConfig
 {
-	public interface IMsSqlJobStorageConfig
-	{
-		string ConnectionString { get; }
-		string Schema { get; }
-	}
+	string ConnectionString { get; }
+	string? Schema { get; }
 }

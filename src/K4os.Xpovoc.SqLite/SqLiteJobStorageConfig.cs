@@ -1,13 +1,12 @@
 using System;
 
-namespace K4os.Xpovoc.SqLite
+namespace K4os.Xpovoc.SqLite;
+
+public class SqLiteJobStorageConfig: ISqLiteJobStorageConfig
 {
-	public class SqLiteJobStorageConfig: ISqLiteJobStorageConfig
-	{
-		public string ConnectionString { get; set; }
+	public string ConnectionString { get; set; } = string.Empty;
 
-		public string Prefix { get; set; }
+	public string? Prefix { get; set; }
 
-		public int PoolSize { get; set; } = 1;
-	}
+	public int PoolSize { get; set; } = 1;
 }

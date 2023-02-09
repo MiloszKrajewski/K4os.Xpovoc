@@ -1,14 +1,13 @@
-namespace K4os.Xpovoc.Core.Sql
+namespace K4os.Xpovoc.Core.Sql;
+
+public class Migration: IMigration
 {
-	public class Migration: IMigration
-	{
-		public string Id { get; }
-		public string Script { get; }
+	public string Id { get; } = null!;
+	public string Script { get; } = string.Empty;
 
-		public Migration() { }
+	public Migration() { }
 
-		public Migration(string id, string script) => (Id, Script) = (id, script);
+	public Migration(string id, string script) => (Id, Script) = (id, script);
 
-		public Migration(IMigration migration): this(migration.Id, migration.Script) { }
-	}
+	public Migration(IMigration migration): this(migration.Id, migration.Script) { }
 }

@@ -1,8 +1,7 @@
-namespace K4os.Xpovoc.Abstractions
+namespace K4os.Xpovoc.Abstractions;
+
+public interface IJobSerializer
 {
-	public interface IJobSerializer
-	{
-		string Serialize(object job);
-		object Deserialize(string payload);
-	}
+	string Serialize(object job);
+	object Deserialize(string payload);
 }

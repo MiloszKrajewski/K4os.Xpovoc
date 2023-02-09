@@ -3,10 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using K4os.Xpovoc.Abstractions;
 
-namespace Playground
+namespace Playground;
+
+internal class NullJobHandler: IJobHandler
 {
-	internal class NullJobHandler: IJobHandler
-	{
-		public Task Handle(CancellationToken token, object payload) => Task.CompletedTask;
-	}
+	public Task Handle(CancellationToken token, object payload) => Task.CompletedTask;
 }

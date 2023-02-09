@@ -1,8 +1,7 @@
-namespace K4os.Xpovoc.Core.Sql
+namespace K4os.Xpovoc.Core.Sql;
+
+public interface IMigration
 {
-	public interface IMigration
-	{
-		string Id { get; }
-		string Script { get; }
-	}
+	string Id { get; }
+	string Script { get; }
 }

@@ -1,9 +1,8 @@
-namespace K4os.Xpovoc.SqLite
+namespace K4os.Xpovoc.SqLite;
+
+public interface ISqLiteJobStorageConfig
 {
-	public interface ISqLiteJobStorageConfig
-	{
-		string ConnectionString { get; }
-		string Prefix { get; }
-		int PoolSize { get; }
-	}
+	string ConnectionString { get; }
+	string? Prefix { get; }
+	int PoolSize { get; }
 }

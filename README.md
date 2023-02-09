@@ -98,6 +98,7 @@ So what Χρόνος actually does? Χρόνος is providing three things: pers
 | `K4os.Xpovoc.MsSql` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MsSql.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MsSql) | `JobStorage` implementation for SQL Server |
 | `K4os.Xpovoc.SqLite` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.SqLite.svg)](https://www.nuget.org/packages/K4os.Xpovoc.SqLite) | `JobStorage` implementation for Sqlite |
 | `K4os.Xpovoc.Mongo` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Mongo.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Mongo) | `JobStorage` implementation for MongoDb |
+| `K4os.Xpovoc.Redis` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Redis.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Redis) | `JobStorage` implementation for Redis |
 | `K4os.Xpovoc.Json` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Json.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Json) | Json serialization for database storage using [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) |
 | `K4os.Xpovoc.MediatR` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.MediatR.svg)](https://www.nuget.org/packages/K4os.Xpovoc.MediatR) | [MediatR](https://github.com/jbogard/MediatR) integration |
 | `K4os.Xpovoc.Brighter` | [![NuGet Stats](https://img.shields.io/nuget/v/K4os.Xpovoc.Brighter.svg)](https://www.nuget.org/packages/K4os.Xpovoc.Brighter) | [Brighter](https://github.com/BrighterCommand/Brighter) integration |
@@ -420,6 +421,6 @@ this message will get persisted in database and delivered back to you when the t
 # Build
 
 ```shell
-paket install
-fake build
+dotnet tool restore
+dotnet r build
 ```

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net462;net5.0</TargetFrameworks>
+    <PackageTags>$(PackageTags) sqs</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\K4os.Shared\Extensions.cs">
+      <Link>Extensions.cs</Link>
+    </Compile>
+  </ItemGroup>
+</Project>

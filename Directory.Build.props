@@ -1,8 +1,11 @@
 <Project>
   <PropertyGroup>
-    <Version>0.2.1</Version>
-    <AssemblyVersion>0.2.1</AssemblyVersion>
-    <FileVersion>0.2.1</FileVersion>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <NoWarn>$(NoWarn);NU5125;NU5048</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <!-- Χρόνος -->
@@ -18,6 +21,6 @@
     <PackageIconUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc/blob/master/doc/icon.png?raw=true</PackageIconUrl>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="*.?sproj.DotSettings" />
+    <None Remove="*.?sproj.DotSettings"/>
   </ItemGroup>
 </Project>

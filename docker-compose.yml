@@ -2,36 +2,52 @@ version: "3.7"
 
 services:
   mysql:
-    image: mysql:5
+    image: "mysql:5"
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_DATABASE: "xpovoc"
       MYSQL_USER: "test"
       MYSQL_PASSWORD: "Test!123"
       MYSQL_RANDOM_ROOT_PASSWORD: "Y"
-    ports:
-    - 3306:3306
 
   pgsql:
-    image: postgres:10
+    image: "postgres:10"
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: "test"
       POSTGRES_PASSWORD: "Test!123"
-    ports:
-    - 5432:5432
   
   mssql:
-    image: mcr.microsoft.com/mssql/server:2017-latest
+    image: "mcr.microsoft.com/mssql/server:2017-latest"
+    ports:
+      - "1433:1433"
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "Test!123"
       MSSQL_PID: "Developer"
-    ports:
-    - 1433:1433
 
   mongo:
-    image: mongo:4.4.6
+    image: "mongo:4.4.6"
+    ports:
+      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: "test"
       MONGO_INITDB_ROOT_PASSWORD: "Test!123"
+      
+  redis:
+    image: "redis:6"
+    entrypoint: redis-server
+    command: --appendonly yes
     ports:
-    - 27017:27017
+      - "6379:6379"
+
+#  localstack:
+#    image: "localstack/localstack"
+#    network_mode: bridge
+#    ports:
+#      - "127.0.0.1:4566:4566"
+#      - "127.0.0.1:4571:4571"
+#    environment:
+#      SERVICES: sqs

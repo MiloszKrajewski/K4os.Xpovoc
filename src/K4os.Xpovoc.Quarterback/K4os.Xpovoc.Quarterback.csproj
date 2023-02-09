@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <TargetFrameworks>netstandard2.0;net462;net5.0</TargetFrameworks>
+    <PackageTags>$(PackageTags) adapter quarterback</PackageTags>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="K4os.Quarterback" VersionOverride="0.0.8" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj" />
   </ItemGroup>
-  <Import Project="..\..\Common.targets" />
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

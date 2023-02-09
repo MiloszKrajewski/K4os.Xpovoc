@@ -1,0 +1,18 @@
+<Project>
+  <!--
+  $(MSBuildThisFileDirectory) - is a variable that points to the directory of the current project file.
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />  
+  -->
+  <ItemGroup>
+    <PackageVersion Include="System.Reactive" Version="4.4.1" />
+    <PackageVersion Include="System.Interactive" Version="4.1.1" />
+    <PackageVersion Include="Newtonsoft.Json" Version="12.0.3" />
+
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+
+    <PackageVersion Include="Dapper" Version="2.0.35" />
+    <PackageVersion Include="Polly" Version="7.2.1" />
+  </ItemGroup>
+</Project>
