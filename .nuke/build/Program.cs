@@ -4,9 +4,11 @@ using NuGet.Versioning;
 using Nuke.Common;
 using Nuke.Common.ChangeLog;
 using Nuke.Common.CI.GitHubActions;
+using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
@@ -30,9 +32,13 @@ class Program: NukeBuild
 		Configuration.Release;
 
 	[Solution] readonly Solution Solution;
+	[GitRepository] readonly GitRepository GitRepository;
+	[GitVersion] readonly GitVersion GitVersion;
 
 	static readonly AbsolutePath NukeDirectory = RootDirectory / ".nuke";
 	static readonly AbsolutePath OutputDirectory = RootDirectory / ".output";
+	
+	AbsolutePath ArtifactsPattern => OutputDirectory / $"*.{PackageVersion}.nupkg";
 
 	readonly ReleaseNotes[] ReleaseNotes = ChangelogTasks
 		.ReadReleaseNotes(RootDirectory / "CHANGES.md")
@@ -89,36 +95,42 @@ class Program: NukeBuild
 				.EnableNoBuild());
 		});
 
-	Target Publish => _ => _
-		.DependsOn(Release)
+	Target PublishToNuget => _ => _
+		.After(Release).After(PublishToGitHub)
+		.Requires(() => ArtifactsPattern.GlobFiles().Any())
 		.Executes(() =>
 		{
-			var apiKey = GetNugetApiKey();
+			var token = GetNugetApiKey();
 
 			DotNetNuGetPush(s => s
-				.SetTargetPath(OutputDirectory / $"*.{PackageVersion}.nupkg")
+				.SetTargetPath(ArtifactsPattern)
 				.SetSource("https://api.nuget.org/v3/index.json")
-				.SetApiKey(apiKey));
+				.SetApiKey(token));
 		});
 
-	static string GetNugetApiKey()
-	{
-		var key = EnvironmentInfo.GetVariable<string>("NUGET_API_KEY");
-		if (string.IsNullOrWhiteSpace(key))
-			throw new Exception("NUGET_API_KEY is not set");
+	Target PublishToGitHub => _ => _
+		.After(Release)
+		.Requires(() => ArtifactsPattern.GlobFiles().Any())
+		.Executes(async () =>
+		{
+			var token = GetGitHubApiKey();
+			var artifacts = ArtifactsPattern.GlobFiles().ToArray();
+			await GitHubReleaser.Release(
+				token,
+				PackageVersion,
+				GitRepository,
+				GitVersion,
+				ReleaseNotes.First(),
+				artifacts);
+		});
 
-		return key;
-	}
+	static string GetNugetApiKey() =>
+		EnvironmentInfo.GetVariable<string>("NUGET_API_KEY").NullIfEmpty() ??
+		throw new Exception("NUGET_API_KEY is not set");
 
-	static (string Login, string Token) GetGitHubApi()
-	{
-		var key = EnvironmentInfo.GetVariable<string>("GITHUB_API_KEY");
-		if (string.IsNullOrWhiteSpace(key))
-			throw new Exception("GITHUB_API_KEY is not set, expecting '<login>:<token>'");
-
-		var (login, token) = key.Split(':');
-		return (login, token);
-	}
+	static string GetGitHubApiKey() =>
+		EnvironmentInfo.GetVariable<string>("GITHUB_API_KEY").NullIfEmpty() ??
+		throw new Exception("GITHUB_API_KEY is not set");
 
 	Target Test => _ => _
 		.After(Build)
