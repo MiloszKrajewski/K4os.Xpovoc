@@ -70,6 +70,8 @@
             "enum": [
               "Build",
               "Clean",
+              "PublishToGitHub",
+              "PublishToNuget",
               "Rebuild",
               "Release",
               "Restore",
@@ -89,6 +91,8 @@
             "enum": [
               "Build",
               "Clean",
+              "PublishToGitHub",
+              "PublishToNuget",
               "Rebuild",
               "Release",
               "Restore",

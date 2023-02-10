@@ -1,5 +1,6 @@
-## 0.3.2 (2023/01/08)
+## 0.3.3 (2023/01/10)
 * ADDED: Redis storage
+* YAK-SHAVED: build scripts
 
 ## 0.2.1 (2021/09/04)
 * ADDED: Brighter integration
