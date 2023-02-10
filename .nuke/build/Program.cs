@@ -3,6 +3,7 @@ using System.Linq;
 using NuGet.Versioning;
 using Nuke.Common;
 using Nuke.Common.ChangeLog;
+using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tools.DotNet;
@@ -12,6 +13,11 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 // ReSharper disable UnusedMember.Local
 
+[GitHubActions(
+	"continuous",
+	GitHubActionsImage.UbuntuLatest,
+	On = new[] { GitHubActionsTrigger.Push },
+	InvokedTargets = new[] { nameof(Release) })]
 class Program: NukeBuild
 {
 	public static int Main() => Execute<Program>(x => x.Build);
@@ -32,7 +38,7 @@ class Program: NukeBuild
 		.ReadReleaseNotes(RootDirectory / "CHANGES.md")
 		.ToArray();
 
-	NuGetVersion PackageVersion => 
+	NuGetVersion PackageVersion =>
 		ReleaseNotes.FirstOrDefault()?.Version ??
 		throw new ArgumentException("No release notes found");
 
@@ -71,6 +77,7 @@ class Program: NukeBuild
 
 	Target Release => _ => _
 		.DependsOn(Rebuild)
+		.Produces(OutputDirectory / "*.nupkg")
 		.Executes(() =>
 		{
 			DotNetPack(s => s
@@ -81,7 +88,38 @@ class Program: NukeBuild
 				.EnableNoRestore()
 				.EnableNoBuild());
 		});
-	
+
+	Target Publish => _ => _
+		.DependsOn(Release)
+		.Executes(() =>
+		{
+			var apiKey = GetNugetApiKey();
+
+			DotNetNuGetPush(s => s
+				.SetTargetPath(OutputDirectory / $"*.{PackageVersion}.nupkg")
+				.SetSource("https://api.nuget.org/v3/index.json")
+				.SetApiKey(apiKey));
+		});
+
+	static string GetNugetApiKey()
+	{
+		var key = EnvironmentInfo.GetVariable<string>("NUGET_API_KEY");
+		if (string.IsNullOrWhiteSpace(key))
+			throw new Exception("NUGET_API_KEY is not set");
+
+		return key;
+	}
+
+	static (string Login, string Token) GetGitHubApi()
+	{
+		var key = EnvironmentInfo.GetVariable<string>("GITHUB_API_KEY");
+		if (string.IsNullOrWhiteSpace(key))
+			throw new Exception("GITHUB_API_KEY is not set, expecting '<login>:<token>'");
+
+		var (login, token) = key.Split(':');
+		return (login, token);
+	}
+
 	Target Test => _ => _
 		.After(Build)
 		.Executes(() =>

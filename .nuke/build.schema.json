@@ -70,6 +70,7 @@
             "enum": [
               "Build",
               "Clean",
+              "Publish",
               "Rebuild",
               "Release",
               "Restore",
@@ -89,6 +90,7 @@
             "enum": [
               "Build",
               "Clean",
+              "Publish",
               "Rebuild",
               "Release",
               "Restore",
