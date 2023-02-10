@@ -15,7 +15,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [GitHubActions(
 	"continuous",
-	GitHubActionsImage.UbuntuLatest,
+	GitHubActionsImage.WindowsLatest,
 	On = new[] { GitHubActionsTrigger.Push },
 	InvokedTargets = new[] { nameof(Release) })]
 class Program: NukeBuild
