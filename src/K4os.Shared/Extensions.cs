@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedType.Global
@@ -13,7 +14,8 @@ namespace System;
 
 internal static class Extensions
 {
-	public static T Required<T>(this T? subject, string? name = null) where T: class =>
+	public static T Required<T>(
+		this T? subject, string? name = null) where T: class =>
 		subject ?? throw new ArgumentNullException(name ?? "<unknown>");
 
 	public static void TryDispose(this object subject)
@@ -68,7 +70,32 @@ internal static class Extensions
 		subject ?? Array.Empty<T>();
 
 	public static T[] EnsureArray<T>(this IEnumerable<T>? subject) =>
-		subject switch { null => Array.Empty<T>(), T[] a => a, var e => e.ToArray(), };
+		subject switch { null => Array.Empty<T>(), T[] a => a, _ => subject.ToArray() };
+
+	public static void AddIfNotNull<K, V>(
+		this IDictionary<K, V> dictionary, K key, V? value) where V: class
+	{
+		if (value is not null) 
+			dictionary.Add(key, value);
+	}
+	
+	public static V? TryGetOrDefault<K, V>(
+		this IDictionary<K, V> dictionary, K key, V? fallback = default) => 
+		dictionary.TryGetValue(key, out var value) ? value : fallback;
+	
+	public static IEnumerable<T> WhereNotNull<T>(
+		this IEnumerable<T?> sequence) => 
+		sequence.Where(x => x is not null)!;
+
+	public static IEnumerable<R> SelectNotNull<T, R>(
+		this IEnumerable<T> sequence, Func<T, R?> map) =>
+		sequence.Select(map).Where(x => x is not null)!;
+	
+	public static void Await(this Task task) => task.GetAwaiter().GetResult();
+	public static T Await<T>(this Task<T> task) => task.GetAwaiter().GetResult();
+	public static void Forget(this Task task) => 
+		task.ContinueWith(_ => _.Exception, TaskContinuationOptions.OnlyOnFaulted);
+
 }
 
 internal class SharedNotNull<T> where T: class, new()

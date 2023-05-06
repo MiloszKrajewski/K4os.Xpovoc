@@ -32,7 +32,7 @@ namespace Playground
 		private static readonly int ConsumeDelay = 0;
 		private static readonly int ConsumeThreads = 4;
 		private static readonly bool EnablePruning = true;
-		
+
 		public static Task Compositions(string[] args)
 		{
 			var collection = new ServiceCollection();
@@ -65,7 +65,7 @@ namespace Playground
 			ConfigureMsSql(serviceCollection, secrets);
 			ConfigureMongo(serviceCollection, secrets);
 			ConfigureRedis(serviceCollection, secrets);
-
+	
 			serviceCollection.AddSingleton<ISchedulerConfig>(
 				new SchedulerConfig {
 					WorkerCount = ConsumeThreads,
@@ -122,7 +122,7 @@ namespace Playground
 			serviceCollection.AddSingleton(
 				p => p.GetRequiredService<IMongoClient>().GetDatabase("test"));
 		}
-		
+
 		private static void ConfigureRedis(ServiceCollection serviceCollection, XDocument secrets)
 		{
 			var connectionString = secrets.XPathSelectElement("/secrets/redis")?.Value;
@@ -131,7 +131,7 @@ namespace Playground
 			serviceCollection.AddSingleton<IRedisJobStorageConfig>(
 				p => new RedisJobStorageConfig { Prefix = "xpovoc" });
 		}
-
+		
 		private static async Task Execute(
 			ILoggerFactory loggerFactory, IServiceProvider serviceProvider, string[] args)
 		{
@@ -157,14 +157,13 @@ namespace Playground
 				serviceProvider.GetRequiredService<IRedisJobStorageConfig>(),
 				serializer);
 
-
 			var handler = new AdHocJobHandler(ConsumeOne);
 			var schedulerConfig = serviceProvider.GetRequiredService<ISchedulerConfig>();
 			// var scheduler = new DbJobScheduler(null, mysqlStorage, handler, schedulerConfig);
 			// var scheduler = new RxJobScheduler(loggerFactory, handler, Scheduler.Default);
 
 			var scheduler = new DbJobScheduler(null, redisStorage, handler, schedulerConfig);
-			
+
 			// var producer = Task.CompletedTask;
 			// var producerSpeed = Task.CompletedTask;
 			var producer = Task.Run(() => Producer(token, scheduler), token);
@@ -224,7 +223,7 @@ namespace Playground
 			var random = new Random();
 			while (!token.IsCancellationRequested)
 			{
-				if (ProduceDelay > 0) 
+				if (ProduceDelay > 0)
 					await Task.Delay(ProduceDelay, token);
 				var delay = TimeSpan.FromSeconds(random.NextDouble() * 5);
 				var message = Guid.NewGuid();
@@ -237,9 +236,9 @@ namespace Playground
 
 		private static void ConsumeOne(object payload)
 		{
-			if (ConsumeDelay > 0) 
+			if (ConsumeDelay > 0)
 				Thread.Sleep(ConsumeDelay);
-			var guid = (Guid) payload;
+			var guid = (Guid)payload;
 			var result = Guids.TryAdd(guid, null);
 			if (!result)
 			{

@@ -16,3 +16,4 @@ public interface ISchedulerConfig
 	TimeSpan KeepFinishedJobsPeriod { get; }
 	TimeSpan PruneInterval { get; }
 }
+
