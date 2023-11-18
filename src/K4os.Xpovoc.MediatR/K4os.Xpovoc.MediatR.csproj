@@ -1,15 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462;net5.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net5.0;net6.0</TargetFrameworks>
     <PackageTags>$(PackageTags) adapter mediatr</PackageTags>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="MediatR" VersionOverride="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="MediatR" VersionOverride="8.0.1"/>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj"/>
   </ItemGroup>
+
 </Project>

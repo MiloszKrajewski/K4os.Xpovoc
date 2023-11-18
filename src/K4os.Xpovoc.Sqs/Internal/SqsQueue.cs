@@ -8,18 +8,14 @@ using Amazon.SQS.Model;
 
 namespace K4os.Xpovoc.Sqs.Internal;
 
-//public TimeSpan RetentionPeriod => TimeSpan.FromSeconds(Attributes.MessageRetentionPeriod);
-//public TimeSpan VisibilityTimeout => TimeSpan.FromSeconds(Attributes.VisibilityTimeout);
-
-
-public class SqsQueue: ISqsQueue
+internal class SqsQueue: ISqsQueue
 {
 	private readonly IAmazonSQS _client;
 	private readonly string _queueUrl;
 	private GetQueueAttributesResponse? _attributes;
 
 	public string Url => _queueUrl;
-
+	
 	public SqsQueue(IAmazonSQS client, string queueUrl)
 	{
 		_client = client;
@@ -43,8 +39,7 @@ public class SqsQueue: ISqsQueue
 				QueueUrl = _queueUrl,
 				Entries = messages,
 			}, token);
-
-		return ComposeResponse(response.Successful, response.Failed);
+		return Combine(response.Successful, response.Failed);
 	}
 
 	public async Task<List<Message>> Receive(CancellationToken token)
@@ -56,7 +51,6 @@ public class SqsQueue: ISqsQueue
 				AttributeNames = SqsAttributes.All, // ApproximateReceiveCount, SentTimestamp  
 				MessageAttributeNames = SqsAttributes.All,
 			}, token);
-
 		return response.Messages;
 	}
 
@@ -69,8 +63,7 @@ public class SqsQueue: ISqsQueue
 				QueueUrl = _queueUrl,
 				Entries = messages,
 			}, token);
-
-		return ComposeResponse(response.Successful, response.Failed);
+		return Combine(response.Successful, response.Failed);
 	}
 
 	public async Task<List<SqsResult<ChangeMessageVisibilityBatchResultEntry>>> Touch(
@@ -82,11 +75,10 @@ public class SqsQueue: ISqsQueue
 				QueueUrl = _queueUrl,
 				Entries = messages,
 			}, token);
-
-		return ComposeResponse(response.Successful, response.Failed);
+		return Combine(response.Successful, response.Failed);
 	}
 
-	private static List<SqsResult<T>> ComposeResponse<T>(
+	private static List<SqsResult<T>> Combine<T>(
 		IReadOnlyCollection<T> success,
 		IReadOnlyCollection<BatchResultErrorEntry> failure)
 	{

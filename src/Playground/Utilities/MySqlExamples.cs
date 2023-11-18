@@ -7,7 +7,7 @@ using K4os.Xpovoc.MySql;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace Playground;
+namespace Playground.Utilities;
 
 internal class MySqlExamples
 {

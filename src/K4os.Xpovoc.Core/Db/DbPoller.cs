@@ -14,11 +14,11 @@ internal class DbPoller: DbAgent
 
 	public DbPoller(
 		ILoggerFactory loggerFactory,
-		IDateTimeSource dateTimeSource,
+		ITimeSource timeSource,
 		IDbJobStorage storage,
 		IJobHandler handler,
 		ISchedulerConfig config):
-		base(loggerFactory, dateTimeSource, storage, config)
+		base(loggerFactory, timeSource, storage, config)
 	{
 		_workerId = Guid.NewGuid();
 		_jobHandler = handler.Required(nameof(handler));

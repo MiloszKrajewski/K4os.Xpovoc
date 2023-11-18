@@ -22,21 +22,21 @@ public class SqsJobQueueAdapterTests
 
 	private static readonly SqsJobQueueAdapterConfig DefaultAdapterConfig = new() {
 		QueueName = "mk-SqsJobQueueAdapter-tests",
-		Concurrency = 1,
+		JobConcurrency = 1,
 	};
 
 	private static readonly TestConfig FastRoundtripConfig = new() {
 		QueueName = "mk-SqsJobQueueAdapter-5s-tests",
-		Concurrency = 1,
-		SqsQueueSettings = new SqsQueueSettings {
+		JobConcurrency = 1,
+		QueueSettings = new SqsQueueSettings {
 			VisibilityTimeout = TimeSpan.FromSeconds(5),
 		},
 	};
 
 	private static readonly TestConfig BatchingConfig = new() {
 		QueueName = "mk-SqsJobQueueAdapter-10s-tests",
-		Concurrency = 16,
-		SqsQueueSettings = new SqsQueueSettings {
+		JobConcurrency = 16,
+		QueueSettings = new SqsQueueSettings {
 			VisibilityTimeout = TimeSpan.FromSeconds(10),
 		},
 	};

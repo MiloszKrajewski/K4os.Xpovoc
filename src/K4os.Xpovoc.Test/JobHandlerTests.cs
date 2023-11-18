@@ -33,8 +33,12 @@ public class JobHandlerTests
 		var guid = Guid.NewGuid().ToString();
 		await scheduler.Schedule(DateTimeOffset.Now, guid);
 
+		#pragma warning disable xUnit1031
+		
 		Assert.True(result.Task.Wait(5000));
 		Assert.Equal(guid, result.Task.Result);
+		
+		#pragma warning restore xUnit1031
 			
 		scheduler.Dispose();
 	}

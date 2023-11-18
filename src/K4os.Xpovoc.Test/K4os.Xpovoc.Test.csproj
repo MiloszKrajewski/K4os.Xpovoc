@@ -1,17 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj"/>
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="MediatR" VersionOverride="11.1.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" VersionOverride="7.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" VersionOverride="17.3.2" />
-    <PackageReference Include="xunit" VersionOverride="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" VersionOverride="2.4.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    <PackageReference Include="xunit"/>
+    <PackageReference Include="xunit.runner.visualstudio"/>
+    <PackageReference Include="coverlet.collector"/>
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" VersionOverride="12.1.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="7.0.0"/>
+    <PackageReference Include="Microsoft.Extensions.Logging" VersionOverride="7.0.0"/>
+  </ItemGroup>
+
 </Project>

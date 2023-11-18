@@ -11,7 +11,7 @@ public class QueueJobScheduler: IJobScheduler
 {
 	public ILogger Log { get; }
 
-	private readonly IDateTimeSource _dateTimeSource;
+	private readonly ITimeSource _timeSource;
 	private readonly IJobQueueAdapter _jobQueueAdapter;
 	private readonly IJobHandler _jobHandler;
 	private readonly IDisposable _jobQueueSubscription;
@@ -20,10 +20,10 @@ public class QueueJobScheduler: IJobScheduler
 		ILoggerFactory? loggerFactory,
 		IJobQueueAdapter jobStorage,
 		IJobHandler jobHandler,
-		IDateTimeSource? dateTimeSource = null)
+		ITimeSource? dateTimeSource = null)
 	{
 		Log = loggerFactory?.CreateLogger(GetType()) ?? NullLogger.Instance;
-		_dateTimeSource = dateTimeSource ?? SystemDateTimeSource.Default;
+		_timeSource = dateTimeSource ?? SystemTimeSource.Default;
 		_jobHandler = jobHandler.Required(nameof(jobHandler));
 		_jobQueueAdapter = jobStorage.Required(nameof(jobStorage));
 		_jobQueueSubscription = _jobQueueAdapter.Subscribe(TryHandle);
@@ -59,7 +59,7 @@ public class QueueJobScheduler: IJobScheduler
 		}
 	}
 
-	public DateTimeOffset Now => _dateTimeSource.Now;
+	public DateTimeOffset Now => _timeSource.Now;
 	
 	protected class JobEnvelope: IJob
 	{

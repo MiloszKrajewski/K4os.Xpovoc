@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Amazon.SQS;
 using Amazon.SQS.Model;
@@ -10,11 +9,13 @@ namespace K4os.Xpovoc.Sqs.Internal;
 
 public class SqsQueueFactory: ISqsQueueFactory
 {
+	private static readonly SqsQueueSettings DeadLetterSqsQueueSettings = new();
+
 	private readonly IAmazonSQS _client;
 
 	public SqsQueueFactory(IAmazonSQS client) { _client = client; }
 
-	public async Task<ISqsQueue> Create(string queueName, SqsQueueSettings settings)
+	public async Task<ISqsQueue> Create(string queueName, ISqsQueueSettings settings)
 	{
 		var queueUrl =
 			await FindOrCreateQueue(queueName, settings) ??
@@ -22,7 +23,7 @@ public class SqsQueueFactory: ISqsQueueFactory
 		return new SqsQueue(_client, queueUrl);
 	}
 
-	private async Task<string> FindOrCreateQueue(string queueName, SqsQueueSettings settings)
+	private async Task<string> FindOrCreateQueue(string queueName, ISqsQueueSettings settings)
 	{
 		if (await TryFindQueue(queueName) is { } queueUrl)
 			return queueUrl;
@@ -30,7 +31,7 @@ public class SqsQueueFactory: ISqsQueueFactory
 		var deadLetterName = queueName + "-dlq";
 
 		var deadLetterUrl =
-			await TryCreateQueue(deadLetterName, null, new SqsQueueSettings()) ??
+			await TryCreateQueue(deadLetterName, null, DeadLetterSqsQueueSettings) ??
 			throw new InvalidOperationException(
 				$"Failed to create dead letter queue: {deadLetterName}");
 
@@ -40,7 +41,7 @@ public class SqsQueueFactory: ISqsQueueFactory
 	}
 
 	private async Task<string?> TryCreateQueue(
-		string queueName, string? deadLetterUrl, SqsQueueSettings settings)
+		string queueName, string? deadLetterUrl, ISqsQueueSettings settings)
 	{
 		var queueSettings = new Dictionary<string, string>();
 

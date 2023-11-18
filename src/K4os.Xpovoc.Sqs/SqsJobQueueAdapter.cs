@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.SQS;
@@ -12,25 +12,42 @@ using K4os.Xpovoc.Core.Queue;
 using K4os.Xpovoc.Sqs.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using ITimeAdapter = K4os.Async.Toys.ITimeSource;
+using ITimeSource = K4os.Xpovoc.Abstractions.ITimeSource;
 
 namespace K4os.Xpovoc.Sqs;
 
+using SqsBatchPublisher =
+	IBatchBuilder<SendMessageBatchRequestEntry, SqsResult<SendMessageBatchResultEntry>>;
+using SqsBatchSubscriber = BatchSubscriber<Message, string>;
+
 public class SqsJobQueueAdapter: IJobQueueAdapter
 {
+	private const int DefaultSqsConcurrency = 16;
+	private const int DefaultJobConcurrency = 4;
+
+	private static readonly TimeSpan DefaultRetryInterval = TimeSpan.FromSeconds(1);
+	private static readonly TimeSpan MinimumRetryInterval = TimeSpan.Zero;
+	private const int DefaultRetryCount = 0;
+
 	protected ILogger Log { get; }
-	
+
+	private static readonly SqsQueueSettings DefaultSqsQueueSettings = new();
+
 	private readonly IJobSerializer _serializer;
 	private readonly ISqsJobQueueAdapterConfig _config;
 	private readonly ISqsQueueFactory _factory;
 	private readonly Task _ready;
-	
+
 	private ISqsQueue _queue;
 	private TimeSpan _visibility;
 
-	private IBatchBuilder<SendMessageBatchRequestEntry, SqsResult<SendMessageBatchResultEntry>>
-		_batchSender;
+	private readonly object _mutex = new();
+	private long _messageId;
 
-	private IAliveKeeper<Message> _aliveKeeper;
+	private SqsBatchAdapter _adapter;
+	private SqsBatchPublisher _publisher;
+	private SqsBatchSubscriber? _subscriber;
 
 	public SqsJobQueueAdapter(
 		ILoggerFactory? loggerFactory,
@@ -43,89 +60,94 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 			serializer,
 			config) { }
 
-	public SqsJobQueueAdapter(
+	internal SqsJobQueueAdapter(
 		ILoggerFactory? loggerFactory,
 		ISqsQueueFactory queueFactory,
 		IJobSerializer serializer,
-		ISqsJobQueueAdapterConfig config)
+		ISqsJobQueueAdapterConfig config,
+		ITimeSource? timeSource = null)
 	{
-		Log = loggerFactory?.CreateLogger(GetType()) ?? NullLogger.Instance;
+		var log = Log = loggerFactory?.CreateLogger(GetType()) ?? NullLogger.Instance;
 
 		_factory = queueFactory;
 		_config = config;
 		_serializer = serializer;
-
-		_queue = null!;
 		_visibility = SqsConstants.DefaultVisibilityTimeout; // might not be true
-		_batchSender = null!;
-		_aliveKeeper = null!;
 
-		_ready = Task.Run(Startup);
+		// those are set in Startup
+		_queue = null!;
+		_adapter = null!;
+		_publisher = null!;
+
+		_ready = Task.Run(() => Startup(log, timeSource));
 	}
 
-	private async Task Startup()
+	private async Task Startup(ILogger log, ITimeSource? timeSource)
 	{
-		_queue = await CreateQueue();
+		var timeAdapter = timeSource is null ? null : new ToysTimeSourceAdapter(timeSource);
+
+		var queue = _queue = await CreateQueue();
 		var attributes = await _queue.GetAttributes();
-		_visibility = TimeSpan.FromSeconds(attributes.VisibilityTimeout);
-		_batchSender = CreateBatchSender();
-		_aliveKeeper = CreateAliveKeeper();
+		var visibility = _visibility = TimeSpan.FromSeconds(attributes.VisibilityTimeout);
+		var adapter = _adapter = new SqsBatchAdapter(log, queue, visibility);
+		_publisher = CreatePublisher(adapter, timeAdapter);
 	}
 
-	private static string TextId => Guid.NewGuid().ToString("D");
+	private Task<ISqsQueue> CreateQueue() =>
+		_factory.Create(
+			_config.QueueName,
+			// ReSharper disable once SuspiciousTypeConversion.Global
+			_config.QueueSettings ?? _config as ISqsQueueSettings ?? DefaultSqsQueueSettings);
 
-	private async Task<ISqsQueue> CreateQueue()
+	private SqsBatchPublisher CreatePublisher(SqsBatchAdapter adapter, ITimeAdapter? timeAdapter)
 	{
-		var queueSettings = _config.SqsQueueSettings ?? new SqsQueueSettings();
-		var queue = await _factory.Create(_config.QueueName, queueSettings);
-		return queue;
-	}
+		var concurrency = (_config.SqsConcurrency ?? DefaultSqsConcurrency).NotLessThan(1);
 
-	private IAliveKeeper<Message> CreateAliveKeeper()
-	{
-		
-		const int retryCount = 5;
-		var retryInterval = TimeSpan.FromSeconds(1);
-		var touchInterval = CalculateTouchInterval(
-			_visibility, retryInterval, retryCount);
-		var touchDelay = CalculateTouchDelay(
-			_visibility, touchInterval, retryInterval, retryCount);
-
-		var aliveKeeperSettings = new AliveKeeperSettings {
-			DeleteBatchSize = SqsConstants.MaximumNumberOfMessages,
-			TouchBatchSize = SqsConstants.MaximumNumberOfMessages,
-			RetryLimit = retryCount,
-			RetryInterval = retryInterval,
-			TouchInterval = touchInterval,
-			TouchBatchDelay = touchDelay,
-		};
-
-		var aliveKeeper = AliveKeeper.Create<Message>(
-			TouchMany,
-			DeleteMany,
-			m => m.MessageId,
-			aliveKeeperSettings,
-			Log);
-
-		return aliveKeeper;
-	}
-
-	private IBatchBuilder<SendMessageBatchRequestEntry, SqsResult<SendMessageBatchResultEntry>>
-		CreateBatchSender()
-	{
 		var batchSenderSettings = new BatchBuilderSettings {
 			BatchDelay = TimeSpan.Zero,
 			BatchSize = SqsConstants.MaximumNumberOfMessages,
-			Concurrency = 4,
+			Concurrency = concurrency,
 		};
 
-		return BatchBuilder
+		var builder = BatchBuilder
 			.Create<string, SendMessageBatchRequestEntry, SqsResult<SendMessageBatchResultEntry>>(
 				rq => rq.Id,
 				rs => rs.Error?.Id ?? rs.Result?.Id ?? string.Empty,
-				SendMany,
+				adapter.Send,
 				batchSenderSettings,
-				Log);
+				Log,
+				timeAdapter);
+
+		return builder;
+	}
+
+	private BatchSubscriber<Message, string> CreateSubscriber(
+		SqsBatchAdapter adapter,
+		Func<CancellationToken, IJob, Task> handler)
+	{
+		var retryInterval = (_config.RetryInterval ?? DefaultRetryInterval).NotLessThan(MinimumRetryInterval);
+		var retryCount = (_config.RetryCount ?? DefaultRetryCount).NotLessThan(0);
+		var sqsConcurrency = (_config.SqsConcurrency ?? DefaultSqsConcurrency).NotLessThan(1);
+		var jobConcurrency = (_config.JobConcurrency ?? DefaultJobConcurrency).NotLessThan(1);
+		
+		var touchInterval = CalculateTouchInterval(_visibility, retryInterval, retryCount);
+		var touchDelay = CalculateTouchDelay(_visibility, touchInterval, retryInterval, retryCount);
+		var subscriber = new BatchSubscriber<Message, string>(
+			adapter,
+			(m, t) => HandleMessage(m, handler, t),
+			new BatchSubscriberSettings {
+				AlternateBatches = true,
+				AsynchronousDeletes = true,
+				BatchConcurrency = sqsConcurrency,
+				HandlerCount = jobConcurrency,
+				RetryInterval = retryInterval,
+				RetryLimit = retryCount,
+				TouchInterval = touchInterval,
+				DeleteBatchSize = SqsConstants.MaximumNumberOfMessages,
+				TouchBatchSize = SqsConstants.MaximumNumberOfMessages,
+				TouchBatchDelay = touchDelay,
+			});
+		return subscriber;
 	}
 
 	private static TimeSpan CalculateTouchInterval(
@@ -146,72 +168,18 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 		var visibility = visibilityTimeout.TotalSeconds;
 		var interval = touchInterval.TotalSeconds;
 		var retryMargin = retryInterval.TotalSeconds * retryCount;
-		var delta = (visibility - interval - retryMargin) / retryCount;
+		var delta = (visibility - interval - retryMargin) / (retryCount + 1);
 		return TimeSpan.FromSeconds(delta.NotLessThan(0).NotMoreThan(1));
 	}
 
-	private async Task<SqsResult<SendMessageBatchResultEntry>[]> SendMany(
-		SendMessageBatchRequestEntry[] messages)
-	{
-		await _ready;
-		var requests = messages.ToList();
-		Log.LogDebug("Sending batch of {Count} messages", requests.Count);
-		var responses = await _queue.Send(requests, CancellationToken.None);
-		return responses.ToArray();
-	}
-
-	private async Task<Message[]> DeleteMany(Message[] messages)
-	{
-		await _ready;
-		var map = messages.ToDictionary(m => m.MessageId);
-		var requests = messages.Select(ToDeleteRequest).ToList();
-		Log.LogDebug("Deleting batch of {Count} messages", requests.Count);
-		if (requests.Count == 0) Debugger.Break();
-		var response = await _queue.Delete(requests, CancellationToken.None);
-		return response
-			.SelectNotNull(r => r.Result?.Id)
-			.SelectNotNull(id => map.TryGetOrDefault(id))
-			.ToArray();
-	}
-
-	private async Task<Message[]> TouchMany(Message[] messages)
-	{
-		await _ready;
-		var timeout = (int)_visibility.TotalSeconds;
-		var map = messages.ToDictionary(m => m.MessageId);
-		var requests = messages.Select(m => ToTouchRequest(m, timeout)).ToList();
-		Log.LogDebug("Touching batch of {Count} messages", requests.Count);
-		if (requests.Count == 0) Debugger.Break();
-		var response = await _queue.Touch(requests, CancellationToken.None);
-		return response
-			.SelectNotNull(r => r.Result?.Id)
-			.SelectNotNull(id => map.TryGetOrDefault(id))
-			.ToArray();
-	}
-
-	private static DeleteMessageBatchRequestEntry ToDeleteRequest(
-		Message message) =>
-		new() {
-			Id = message.MessageId,
-			ReceiptHandle = message.ReceiptHandle,
-		};
-
-	private static ChangeMessageVisibilityBatchRequestEntry ToTouchRequest(
-		Message message, int timeout) =>
-		new() {
-			Id = message.MessageId,
-			ReceiptHandle = message.ReceiptHandle,
-			VisibilityTimeout = timeout,
-		};
-
-	private static SendMessageBatchRequestEntry CreateSendOneRequest(
+	private SendMessageBatchRequestEntry CreateSendOneRequest(
 		TimeSpan delay, Guid jobId, DateTime scheduledFor, string? payload)
 	{
 		delay = delay.NotLessThan(TimeSpan.Zero).NotMoreThan(SqsConstants.MaximumDelay);
 
 		return new SendMessageBatchRequestEntry {
-			Id = TextId,
-			DelaySeconds = (int)delay.TotalSeconds,
+			Id = Interlocked.Increment(ref _messageId).ToString("x16"),
+			DelaySeconds = (int)Math.Ceiling(delay.TotalSeconds),
 			MessageBody = payload ?? string.Empty,
 			MessageAttributes = new Dictionary<string, MessageAttributeValue> {
 				[SqsAttributes.JobId] = CreateAttribute(jobId),
@@ -244,7 +212,7 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 
 		var jobId = job.JobId;
 		var request = CreateSendOneRequest(delay, job);
-		var response = await _batchSender.Request(request);
+		var response = await _publisher.Request(request);
 		var error = response.Error;
 
 		if (error is null)
@@ -255,50 +223,33 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 			nameof(job));
 	}
 
-	public IDisposable Subscribe(Func<CancellationToken, IJob, Task> handler) =>
-		Agent.Launch(c => LongPollLoop(c, handler, _config.Concurrency), Log);
-
-	private async Task LongPollLoop(
-		IAgentContext context,
-		Func<CancellationToken, IJob, Task> handler,
-		int concurrency)
+	public IDisposable Subscribe(Func<CancellationToken, IJob, Task> handler)
 	{
-		await _ready;
+		_ready.Await();
 
-		var token = context.Token;
-		var semaphore = new SemaphoreSlim(concurrency.NotLessThan(1));
-
-		while (!token.IsCancellationRequested)
+		lock (_mutex)
 		{
-			await LongPoll(handler, semaphore, token);
+			if (_subscriber is not null)
+				throw new InvalidOperationException("Only one subscriber is allowed");
+
+			_subscriber = CreateSubscriber(_adapter, handler);
+			_subscriber.Start();
+			return Disposable.Create(DisposeSubscriber);
 		}
 	}
 
-	private async Task LongPoll(
-		Func<CancellationToken, IJob, Task> handler,
-		SemaphoreSlim semaphore,
-		CancellationToken token)
+	private void DisposeSubscriber()
 	{
-		var messages = (await _queue.Receive(token)).ToArray();
-		if (messages.Length <= 0) return;
-
-		foreach (var message in messages)
+		lock (_mutex)
 		{
-			_aliveKeeper.Upkeep(message, token);
-		}
-
-		foreach (var message in messages)
-		{
-			await semaphore.WaitAsync(token);
-			// every execution is in separate "thread" and is not awaited
-			Task.Run(() => HandleMessage(message, handler, semaphore, token), token).Forget();
+			_subscriber?.Dispose();
+			_subscriber = null;
 		}
 	}
 
 	private async Task HandleMessage(
 		Message message,
 		Func<CancellationToken, IJob, Task> handler,
-		SemaphoreSlim semaphore,
 		CancellationToken token)
 	{
 		try
@@ -306,23 +257,18 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 			token.ThrowIfCancellationRequested();
 			var job = new SqsReceivedJob(message, _serializer);
 			await handler(token, job);
-			await _aliveKeeper.Delete(message, token);
 		}
 		catch (Exception e)
 		{
 			Log.LogError(e, "Failed to process message {MessageId}", message.MessageId);
 		}
-		finally
-		{
-			_aliveKeeper.Forget(message);
-			semaphore.Release();
-		}
 	}
 
+	#warning double dispose is killing it (most likely BatchBuilder)
 	public void Dispose()
 	{
 		_ready.Await(); // it is safe to finish async initialization
-		_batchSender.Dispose();
-		_aliveKeeper.Dispose();
+		_publisher.Dispose();
+		DisposeSubscriber();
 	}
 }

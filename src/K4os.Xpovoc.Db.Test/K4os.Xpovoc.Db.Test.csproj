@@ -1,8 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\K4os.Shared\Extensions.cs">
       <Link>Extensions.cs</Link>
@@ -11,17 +13,21 @@
       <Link>Secrets.cs</Link>
     </Compile>
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\K4os.Xpovoc.Mongo\K4os.Xpovoc.Mongo.csproj" />
-    <ProjectReference Include="..\K4os.Xpovoc.MsSql\K4os.Xpovoc.MsSql.csproj" />
-    <ProjectReference Include="..\K4os.Xpovoc.MySql\K4os.Xpovoc.MySql.csproj" />
-    <ProjectReference Include="..\K4os.Xpovoc.PgSql\K4os.Xpovoc.PgSql.csproj" />
-    <ProjectReference Include="..\K4os.Xpovoc.Redis\K4os.Xpovoc.Redis.csproj" />
-    <ProjectReference Include="..\K4os.Xpovoc.SqLite\K4os.Xpovoc.SqLite.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.Mongo\K4os.Xpovoc.Mongo.csproj"/>
+    <ProjectReference Include="..\K4os.Xpovoc.MsSql\K4os.Xpovoc.MsSql.csproj"/>
+    <ProjectReference Include="..\K4os.Xpovoc.MySql\K4os.Xpovoc.MySql.csproj"/>
+    <ProjectReference Include="..\K4os.Xpovoc.PgSql\K4os.Xpovoc.PgSql.csproj"/>
+    <ProjectReference Include="..\K4os.Xpovoc.Redis\K4os.Xpovoc.Redis.csproj"/>
+    <ProjectReference Include="..\K4os.Xpovoc.SqLite\K4os.Xpovoc.SqLite.csproj"/>
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" VersionOverride="17.3.2" />
-    <PackageReference Include="xunit" VersionOverride="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" VersionOverride="2.4.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    <PackageReference Include="xunit"/>
+    <PackageReference Include="xunit.runner.visualstudio"/>
+    <PackageReference Include="coverlet.collector"/>
   </ItemGroup>
+
 </Project>

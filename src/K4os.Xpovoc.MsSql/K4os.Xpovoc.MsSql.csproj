@@ -1,25 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462;net5.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net5.0;net6.0</TargetFrameworks>
     <PackageTags>xpovoc scheduler cqrs mssql</PackageTags>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Migrations.xml" />
-    <EmbeddedResource Include="Resources\Queries.xml" />
+    <EmbeddedResource Include="Resources\Migrations.xml"/>
+    <EmbeddedResource Include="Resources\Queries.xml"/>
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" VersionOverride="2.1.4" />
-    <PackageReference Include="Dapper" />
-    <PackageReference Include="Polly" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Data.SqlClient" VersionOverride="2.1.4"/>
+    <PackageReference Include="Dapper"/>
+    <PackageReference Include="Polly"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj"/>
   </ItemGroup>
+  
   <ItemGroup>
     <Compile Include="..\K4os.Shared\Extensions.cs">
       <Link>Extensions.cs</Link>
     </Compile>
   </ItemGroup>
+
 </Project>

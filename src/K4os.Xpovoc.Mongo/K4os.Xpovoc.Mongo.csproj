@@ -1,19 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462;net5.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net5.0;net6.0</TargetFrameworks>
     <PackageTags>xpovoc scheduler cqrs mongo</PackageTags>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\K4os.Shared\Extensions.cs">
       <Link>Extensions.cs</Link>
     </Compile>
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="MongoDB.Driver" VersionOverride="2.11.6" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="MongoDB.Driver" VersionOverride="2.11.6"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.Core\K4os.Xpovoc.Core.csproj"/>
   </ItemGroup>
+
 </Project>

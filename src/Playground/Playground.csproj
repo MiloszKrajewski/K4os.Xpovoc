@@ -21,14 +21,20 @@
     <ProjectReference Include="..\K4os.Xpovoc.PgSql\K4os.Xpovoc.PgSql.csproj" />
     <ProjectReference Include="..\K4os.Xpovoc.Redis\K4os.Xpovoc.Redis.csproj" />
     <ProjectReference Include="..\K4os.Xpovoc.SqLite\K4os.Xpovoc.SqLite.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.Sqs\K4os.Xpovoc.Sqs.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Reactive" VersionOverride="5.0.0" />
-    <PackageReference Include="System.Interactive" VersionOverride="6.0.1" />
-    <PackageReference Include="MySqlConnector" VersionOverride="2.2.5" />
-    <PackageReference Include="Dapper" VersionOverride="2.0.123" />
-    <PackageReference Include="Polly" VersionOverride="7.2.3" />
+    <PackageReference Include="MySqlConnector" VersionOverride="1.1.0"/>
+
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" VersionOverride="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" VersionOverride="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" VersionOverride="7.0.0"/>
+
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.Extensions.Logging" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="System.Reactive" />
+    <PackageReference Include="System.Interactive" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="Polly" />
   </ItemGroup>
 </Project>
