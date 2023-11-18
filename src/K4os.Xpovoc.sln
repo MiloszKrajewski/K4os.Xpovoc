@@ -62,6 +62,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Hosting", "K4os
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\.nuke\build\_build.csproj", "{F7D34DD7-E82F-41A3-AE97-789FEE5A9C39}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "K4os.Xpovoc.Sqs.Test", "K4os.Xpovoc.Sqs.Test\K4os.Xpovoc.Sqs.Test.csproj", "{26039CB2-C5F9-40E6-9F16-85A0CD6897EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,6 +144,10 @@ Global
 		{309DF87F-E5C2-47D4-B4D2-DAA857C7EA16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{309DF87F-E5C2-47D4-B4D2-DAA857C7EA16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{309DF87F-E5C2-47D4-B4D2-DAA857C7EA16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26039CB2-C5F9-40E6-9F16-85A0CD6897EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26039CB2-C5F9-40E6-9F16-85A0CD6897EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26039CB2-C5F9-40E6-9F16-85A0CD6897EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26039CB2-C5F9-40E6-9F16-85A0CD6897EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -163,5 +169,6 @@ Global
 		{48B30C5C-B95A-4690-921C-7D7C0BB0EC1C} = {F032EA99-FA15-4FFD-9261-0B7E77613C5E}
 		{ED3837B6-3434-4213-B6D1-9DA0E7F9A258} = {4964B568-60A9-45DC-BFB5-F09772ECB635}
 		{9A66EC7B-41D6-4C72-94CE-D359164EE0AA} = {4964B568-60A9-45DC-BFB5-F09772ECB635}
+		{26039CB2-C5F9-40E6-9F16-85A0CD6897EF} = {05CC704E-DDB0-4335-82E4-460AD6E89D20}
 	EndGlobalSection
 EndGlobal

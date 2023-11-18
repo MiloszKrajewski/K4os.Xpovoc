@@ -13,10 +13,10 @@ internal class DbCleaner: DbAgent
 
 	public DbCleaner(
 		ILoggerFactory loggerFactory,
-		IDateTimeSource dateTimeSource,
+		ITimeSource timeSource,
 		IDbJobStorage storage,
 		ISchedulerConfig config):
-		base(loggerFactory, dateTimeSource, storage, config)
+		base(loggerFactory, timeSource, storage, config)
 	{
 		PruneInterval = config.PruneInterval.NotLessThan(ShortInterval);
 	}

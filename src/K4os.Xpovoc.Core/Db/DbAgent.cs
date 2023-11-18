@@ -14,21 +14,21 @@ internal abstract class DbAgent
 
 	protected readonly ILogger Log;
 
-	protected DateTime Now => _dateTimeSource.Now.UtcDateTime;
+	protected DateTime Now => _timeSource.Now.UtcDateTime;
 
 	protected readonly IDbJobStorage JobStorage;
 	protected readonly ISchedulerConfig Configuration;
-	private readonly IDateTimeSource _dateTimeSource;
+	private readonly ITimeSource _timeSource;
 	private int _started;
 
 	protected DbAgent(
 		ILoggerFactory? loggerFactory,
-		IDateTimeSource dateTimeSource,
+		ITimeSource timeSource,
 		IDbJobStorage storage,
 		ISchedulerConfig config)
 	{
 		Log = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger(ObjectId);
-		_dateTimeSource = dateTimeSource;
+		_timeSource = timeSource;
 		Configuration = config;
 		JobStorage = storage;
 	}

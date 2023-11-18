@@ -4,6 +4,7 @@
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <NoWarn>$(NoWarn);NU5125;NU5048</NoWarn>
   </PropertyGroup>
@@ -20,7 +21,7 @@
     <RepositoryUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc</RepositoryUrl>
     <PackageIconUrl>https://github.com/MiloszKrajewski/K4os.Xpovoc/blob/master/doc/icon.png?raw=true</PackageIconUrl>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="*.?sproj.DotSettings"/>
+  <ItemGroup Condition=" '$(IsPackable)' == 'true' ">
+    <InternalsVisibleTo Include="$(AssemblyName).Test"/>
   </ItemGroup>
 </Project>

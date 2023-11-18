@@ -4,15 +4,33 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />  
   -->
   <ItemGroup>
+    <PackageVersion Include="K4os.Async.Toys" Version="0.0.18" />
+    <PackageVersion Include="Paramore.Brighter" Version="8.0.71" />
+    <PackageVersion Include="PolySharp" Version="1.13.2" PrivateAssets="All" />
     <PackageVersion Include="System.Reactive" Version="4.4.1" />
-    <PackageVersion Include="System.Interactive" Version="4.1.1" />
-    <PackageVersion Include="Newtonsoft.Json" Version="12.0.3" />
-
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
-
+    <PackageVersion Include="System.Interactive" Version="6.0.1" />
+    <PackageVersion Include="Microsoft.Reactive.Testing" Version="4.4.1" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageVersion Include="Dapper" Version="2.0.35" />
     <PackageVersion Include="Polly" Version="7.2.1" />
+    <PackageVersion Include="Serilog" Version="2.12.0" />
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="7.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Console" Version="4.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageVersion Include="xunit" Version="2.6.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.3" PrivateAssets="All" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.0" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' != 'net5.0' ">
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
   </ItemGroup>
 </Project>

@@ -1,19 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462;net5.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net5.0;net6.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\K4os.Shared\Extensions.cs">
       <Link>Extensions.cs</Link>
     </Compile>
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj" />
+    <ProjectReference Include="..\K4os.Xpovoc.Abstractions\K4os.Xpovoc.Abstractions.csproj"/>
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="System.Reactive" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="System.Reactive"/>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
+    <PackageReference Include="PolySharp"/>
   </ItemGroup>
+
 </Project>

@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using K4os.Xpovoc.Abstractions;
 
-namespace Playground;
+namespace Playground.Utilities;
 
 internal class NullJobHandler: IJobHandler
 {

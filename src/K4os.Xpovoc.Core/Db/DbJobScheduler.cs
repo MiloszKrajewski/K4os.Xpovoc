@@ -11,7 +11,7 @@ namespace K4os.Xpovoc.Core.Db;
 public class DbJobScheduler: IJobScheduler
 {
 	private readonly ILoggerFactory _loggerFactory;
-	private readonly IDateTimeSource _dateTimeSource;
+	private readonly ITimeSource _timeSource;
 	private readonly IDbJobStorage _jobStorage;
 	private readonly IJobHandler _jobHandler;
 	private readonly Task[] _pollers;
@@ -28,14 +28,14 @@ public class DbJobScheduler: IJobScheduler
 		IDbJobStorage jobStorage,
 		IJobHandler jobHandler,
 		ISchedulerConfig? configuration = null,
-		IDateTimeSource? dateTimeSource = null)
+		ITimeSource? dateTimeSource = null)
 	{
 		_loggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
 		Log = _loggerFactory.CreateLogger(GetType());
 
 		_jobStorage = jobStorage.Required(nameof(jobStorage));
 		_jobHandler = jobHandler.Required(nameof(jobHandler));
-		_dateTimeSource = dateTimeSource ?? SystemDateTimeSource.Default;
+		_timeSource = dateTimeSource ?? SystemTimeSource.Default;
 		_cancel = new CancellationTokenSource();
 		_ready = new TaskCompletionSource<bool>();
 
@@ -71,7 +71,7 @@ public class DbJobScheduler: IJobScheduler
 	{
 		var poller = new DbPoller(
 			_loggerFactory,
-			_dateTimeSource,
+			_timeSource,
 			_jobStorage, _jobHandler,
 			_configuration);
 		return poller.Start(_cancel.Token, _ready.Task);
@@ -80,11 +80,11 @@ public class DbJobScheduler: IJobScheduler
 	private Task Cleanup()
 	{
 		var cleaner = new DbCleaner(
-			_loggerFactory, _dateTimeSource, _jobStorage, _configuration);
+			_loggerFactory, _timeSource, _jobStorage, _configuration);
 		return cleaner.Start(_cancel.Token, _ready.Task);
 	}
 
-	public DateTimeOffset Now => _dateTimeSource.Now;
+	public DateTimeOffset Now => _timeSource.Now;
 
 	public async Task<Guid> Schedule(DateTimeOffset time, object payload)
 	{
