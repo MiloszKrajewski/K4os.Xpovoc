@@ -9,6 +9,7 @@ using Amazon.SQS.Model;
 using K4os.Async.Toys;
 using K4os.Xpovoc.Abstractions;
 using K4os.Xpovoc.Core.Queue;
+using K4os.Xpovoc.Core.Sql;
 using K4os.Xpovoc.Sqs.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -23,8 +24,9 @@ using SqsBatchSubscriber = BatchSubscriber<Message, string>;
 
 public class SqsJobQueueAdapter: IJobQueueAdapter
 {
-	private const int DefaultSqsConcurrency = 16;
+	private const int DefaultSqsConcurrency = 1;
 	private const int DefaultJobConcurrency = 4;
+	private const int MinimumBatchConcurrency = 16;
 
 	private static readonly TimeSpan DefaultRetryInterval = TimeSpan.FromSeconds(1);
 	private static readonly TimeSpan MinimumRetryInterval = TimeSpan.Zero;
@@ -35,7 +37,7 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 	private static readonly SqsQueueSettings DefaultSqsQueueSettings = new();
 
 	private readonly IJobSerializer _serializer;
-	private readonly ISqsJobQueueAdapterConfig _config;
+	private readonly ISqsJobQueueAdapterSettings _settings;
 	private readonly ISqsQueueFactory _factory;
 	private readonly Task _ready;
 
@@ -53,25 +55,25 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 		ILoggerFactory? loggerFactory,
 		IAmazonSQS client,
 		IJobSerializer serializer,
-		ISqsJobQueueAdapterConfig config):
+		ISqsJobQueueAdapterSettings settings):
 		this(
 			loggerFactory,
 			new SqsQueueFactory(client),
 			serializer,
-			config) { }
+			settings) { }
 
 	internal SqsJobQueueAdapter(
 		ILoggerFactory? loggerFactory,
 		ISqsQueueFactory queueFactory,
-		IJobSerializer serializer,
-		ISqsJobQueueAdapterConfig config,
+		IJobSerializer? serializer = null,
+		ISqsJobQueueAdapterSettings? settings = null,
 		ITimeSource? timeSource = null)
 	{
 		var log = Log = loggerFactory?.CreateLogger(GetType()) ?? NullLogger.Instance;
 
 		_factory = queueFactory;
-		_config = config;
-		_serializer = serializer;
+		_settings = Validate(settings ?? new SqsJobQueueAdapterSettings());
+		_serializer = serializer ?? new DefaultJobSerializer();
 		_visibility = SqsConstants.DefaultVisibilityTimeout; // might not be true
 
 		// those are set in Startup
@@ -81,6 +83,17 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 
 		_ready = Task.Run(() => Startup(log, timeSource));
 	}
+
+	private static SqsJobQueueAdapterSettings Validate(ISqsJobQueueAdapterSettings settings) =>
+		new() {
+			QueueName = settings.QueueName.Required(),
+			JobConcurrency = settings.JobConcurrency.NotLessThan(1),
+			PullConcurrency = settings.PullConcurrency.NotLessThan(1),
+			PushConcurrency = settings.PushConcurrency.NotLessThan(1),
+			RetryInterval = settings.RetryInterval.NotLessThan(MinimumRetryInterval),
+			RetryCount = settings.RetryCount.NotLessThan(0),
+			QueueSettings = settings.QueueSettings ?? new SqsQueueSettings(),
+		};
 
 	private async Task Startup(ILogger log, ITimeSource? timeSource)
 	{
@@ -94,14 +107,11 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 	}
 
 	private Task<ISqsQueue> CreateQueue() =>
-		_factory.Create(
-			_config.QueueName,
-			// ReSharper disable once SuspiciousTypeConversion.Global
-			_config.QueueSettings ?? _config as ISqsQueueSettings ?? DefaultSqsQueueSettings);
+		_factory.Create(_settings.QueueName, _settings.QueueSettings ?? DefaultSqsQueueSettings);
 
 	private SqsBatchPublisher CreatePublisher(SqsBatchAdapter adapter, ITimeAdapter? timeAdapter)
 	{
-		var concurrency = (_config.SqsConcurrency ?? DefaultSqsConcurrency).NotLessThan(1);
+		var concurrency = _settings.PushConcurrency;
 
 		var batchSenderSettings = new BatchBuilderSettings {
 			BatchDelay = TimeSpan.Zero,
@@ -125,11 +135,12 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 		SqsBatchAdapter adapter,
 		Func<CancellationToken, IJob, Task> handler)
 	{
-		var retryInterval = (_config.RetryInterval ?? DefaultRetryInterval).NotLessThan(MinimumRetryInterval);
-		var retryCount = (_config.RetryCount ?? DefaultRetryCount).NotLessThan(0);
-		var sqsConcurrency = (_config.SqsConcurrency ?? DefaultSqsConcurrency).NotLessThan(1);
-		var jobConcurrency = (_config.JobConcurrency ?? DefaultJobConcurrency).NotLessThan(1);
-		
+		var retryInterval = _settings.RetryInterval;
+		var retryCount = _settings.RetryCount;
+		var pullConcurrency = _settings.PullConcurrency;
+		var jobConcurrency = _settings.JobConcurrency;
+		var batchConcurrency = (pullConcurrency * 4).NotLessThan(MinimumBatchConcurrency);
+
 		var touchInterval = CalculateTouchInterval(_visibility, retryInterval, retryCount);
 		var touchDelay = CalculateTouchDelay(_visibility, touchInterval, retryInterval, retryCount);
 		var subscriber = new BatchSubscriber<Message, string>(
@@ -138,8 +149,10 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 			new BatchSubscriberSettings {
 				AlternateBatches = true,
 				AsynchronousDeletes = true,
-				BatchConcurrency = sqsConcurrency,
+				PollerCount = pullConcurrency,
+				InternalQueueSize = 1,
 				HandlerCount = jobConcurrency,
+				BatchConcurrency = batchConcurrency,
 				RetryInterval = retryInterval,
 				RetryLimit = retryCount,
 				TouchInterval = touchInterval,
@@ -264,7 +277,6 @@ public class SqsJobQueueAdapter: IJobQueueAdapter
 		}
 	}
 
-	#warning double dispose is killing it (most likely BatchBuilder)
 	public void Dispose()
 	{
 		_ready.Await(); // it is safe to finish async initialization

@@ -15,6 +15,7 @@
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" VersionOverride="2.11.6"/>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
+    <PackageReference Include="PolySharp"/>
   </ItemGroup>
 
   <ItemGroup>

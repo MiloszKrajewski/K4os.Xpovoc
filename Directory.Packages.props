@@ -4,7 +4,7 @@
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />  
   -->
   <ItemGroup>
-    <PackageVersion Include="K4os.Async.Toys" Version="0.0.16" />
+    <PackageVersion Include="K4os.Async.Toys" Version="0.0.18" />
     <PackageVersion Include="Paramore.Brighter" Version="8.0.71" />
     <PackageVersion Include="PolySharp" Version="1.13.2" PrivateAssets="All" />
     <PackageVersion Include="System.Reactive" Version="4.4.1" />

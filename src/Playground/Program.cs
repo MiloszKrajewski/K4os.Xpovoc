@@ -11,7 +11,7 @@ Log.Logger = new LoggerConfiguration()
 var loggerFactory = new SerilogLoggerFactory();
 var sqsClient = new AmazonSQSClient();
 
-// await InfiniteScheduling.Run(loggerFactory);
+await InfiniteScheduling.Run(loggerFactory);
 
-var test = new TrueDeferredJobs(sqsClient, loggerFactory, TimeSpan.FromHours(1));
-await test.RunAsync();
+// var test = new TrueDeferredJobs(sqsClient, loggerFactory, TimeSpan.FromHours(1));
+// await test.RunAsync();

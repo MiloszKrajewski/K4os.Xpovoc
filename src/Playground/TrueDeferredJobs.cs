@@ -38,7 +38,7 @@ public class TrueDeferredJobs: IJobHandler
 				new JsonSerializerSettings {
 					TypeNameHandling = TypeNameHandling.All,
 				}),
-			new SqsJobQueueAdapterConfig {
+			new SqsJobQueueAdapterSettings {
 				QueueName = "xpovoc-TrueDeferredJobs",
 				JobConcurrency = 16,
 			});

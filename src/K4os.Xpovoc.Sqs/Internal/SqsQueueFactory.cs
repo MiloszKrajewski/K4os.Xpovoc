@@ -47,27 +47,22 @@ public class SqsQueueFactory: ISqsQueueFactory
 
 		queueSettings.AddIfNotNull(
 			QueueAttributeName.MessageRetentionPeriod,
-			ToQueueAttribute(
-				settings.RetentionPeriod ?? SqsConstants.MaximumRetentionPeriod));
+			ToQueueAttribute(settings.RetentionPeriod));
 
 		queueSettings.AddIfNotNull(
 			QueueAttributeName.VisibilityTimeout,
-			ToQueueAttribute(
-				settings.VisibilityTimeout ?? SqsConstants.DefaultVisibilityTimeout));
+			ToQueueAttribute(settings.VisibilityTimeout));
 
 		queueSettings.AddIfNotNull(
 			QueueAttributeName.ReceiveMessageWaitTimeSeconds,
-			ToQueueAttribute(
-				settings.ReceiveMessageWait ?? SqsConstants.DefaultReceiveMessageWait));
+			ToQueueAttribute(settings.ReceiveMessageWait));
 
 		if (deadLetterUrl is not null)
 		{
 			var deadLetterArn = await GetQueueArn(deadLetterUrl);
 			queueSettings.Add(
 				QueueAttributeName.RedrivePolicy,
-				ToRedrivePolicy(
-					deadLetterArn,
-					settings.ReceiveCount));
+				ToRedrivePolicy(deadLetterArn, settings.ReceiveCount));
 		}
 
 		try

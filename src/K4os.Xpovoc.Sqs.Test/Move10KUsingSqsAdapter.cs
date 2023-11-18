@@ -34,9 +34,10 @@ public class Move10KUsingSqsAdapter
 			loggerFactory,
 			queueFactory,
 			new DefaultJobSerializer(),
-			new SqsJobQueueAdapterConfig {
+			new SqsJobQueueAdapterSettings {
 				QueueName = "mk-test-move10k-adapter",
-				SqsConcurrency = sqsConcurrency,
+				PushConcurrency = sqsConcurrency,
+				PullConcurrency = sqsConcurrency,
 				JobConcurrency = jobConcurrency,
 			});
 

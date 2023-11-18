@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 // ReSharper disable UnusedMember.Global
@@ -13,7 +14,8 @@ namespace System;
 internal static class Extensions
 {
 	public static T Required<T>(
-		this T? subject, string? name = null) where T: class =>
+		this T? subject, [CallerArgumentExpression("subject")] string? name = null) 
+		where T: class =>
 		subject ?? throw new ArgumentNullException(name ?? "<unknown>");
 
 	public static void TryDispose(this object subject)

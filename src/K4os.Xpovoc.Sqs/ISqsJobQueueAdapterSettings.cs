@@ -3,24 +3,24 @@ using K4os.Xpovoc.Sqs.Internal;
 
 namespace K4os.Xpovoc.Sqs;
 
-public interface ISqsJobQueueAdapterConfig
+public interface ISqsJobQueueAdapterSettings
 {
 	public string QueueName { get; }
-	int? PushConcurrency { get; set; }
-	int? PullConcurrency { get; set; }
-	int? ExecConcurrency { get; set; }
-	TimeSpan? RetryInterval { get; set; }
-	int? RetryCount { get; set; }
+	int PushConcurrency { get; set; }
+	int PullConcurrency { get; set; }
+	int JobConcurrency { get; set; }
+	TimeSpan RetryInterval { get; set; }
+	int RetryCount { get; set; }
 	ISqsQueueSettings? QueueSettings { get; set; }
 }
 
-public class SqsJobQueueAdapterConfig: ISqsJobQueueAdapterConfig
+public class SqsJobQueueAdapterSettings: ISqsJobQueueAdapterSettings
 {
-	public string QueueName { get; set; } = null!;
-	public int? PushConcurrency { get; set; }
-	public int? PullConcurrency { get; set; }
-	public int? ExecConcurrency { get; set; }
-	public TimeSpan? RetryInterval { get; set; } 
-	public int? RetryCount { get; set; }
-	public ISqsQueueSettings? QueueSettings { get; set; }
+	public string QueueName { get; set; } = "xpovoc-scheduler";
+	public int PushConcurrency { get; set; } = 4;
+	public int PullConcurrency { get; set; } = 1;
+	public int JobConcurrency { get; set; } = 4;
+	public TimeSpan RetryInterval { get; set; } = TimeSpan.FromSeconds(1);
+	public int RetryCount { get; set; } = 0;
+	public ISqsQueueSettings? QueueSettings { get; set; } = new SqsQueueSettings();
 }

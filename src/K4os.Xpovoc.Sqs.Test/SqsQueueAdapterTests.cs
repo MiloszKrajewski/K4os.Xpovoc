@@ -20,12 +20,12 @@ public class SqsJobQueueAdapterTests
 	private static readonly JsonJobSerializer JsonJobSerializer = new(
 		new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
 
-	private static readonly SqsJobQueueAdapterConfig DefaultAdapterConfig = new() {
+	private static readonly SqsJobQueueAdapterSettings DefaultAdapterSettings = new() {
 		QueueName = "mk-SqsJobQueueAdapter-tests",
 		JobConcurrency = 1,
 	};
 
-	private static readonly TestConfig FastRoundtripConfig = new() {
+	private static readonly SqsJobQueueAdapterSettings FastRoundtripSettings = new() {
 		QueueName = "mk-SqsJobQueueAdapter-5s-tests",
 		JobConcurrency = 1,
 		QueueSettings = new SqsQueueSettings {
@@ -33,7 +33,7 @@ public class SqsJobQueueAdapterTests
 		},
 	};
 
-	private static readonly TestConfig BatchingConfig = new() {
+	private static readonly SqsJobQueueAdapterSettings BatchingSettings = new() {
 		QueueName = "mk-SqsJobQueueAdapter-10s-tests",
 		JobConcurrency = 16,
 		QueueSettings = new SqsQueueSettings {
@@ -54,7 +54,7 @@ public class SqsJobQueueAdapterTests
 			_loggerFactory,
 			AmazonSqsClient,
 			JsonJobSerializer,
-			DefaultAdapterConfig);
+			DefaultAdapterSettings);
 		adapter.Dispose();
 	}
 
@@ -65,7 +65,7 @@ public class SqsJobQueueAdapterTests
 			_loggerFactory,
 			AmazonSqsClient,
 			JsonJobSerializer,
-			DefaultAdapterConfig);
+			DefaultAdapterSettings);
 
 		await adapter.Publish(
 			TimeSpan.Zero,
@@ -82,7 +82,7 @@ public class SqsJobQueueAdapterTests
 			_loggerFactory,
 			AmazonSqsClient,
 			JsonJobSerializer,
-			DefaultAdapterConfig);
+			DefaultAdapterSettings);
 
 		var guid = Guid.NewGuid().ToString();
 		_output.WriteLine("Expecting: {0}", guid);
@@ -112,7 +112,7 @@ public class SqsJobQueueAdapterTests
 			_loggerFactory,
 			AmazonSqsClient,
 			JsonJobSerializer,
-			DefaultAdapterConfig);
+			DefaultAdapterSettings);
 
 		var guid = Guid.NewGuid().ToString();
 		_output.WriteLine("Expecting: {0}", guid);
@@ -150,7 +150,7 @@ public class SqsJobQueueAdapterTests
 			_loggerFactory,
 			AmazonSqsClient,
 			JsonJobSerializer,
-			FastRoundtripConfig);
+			FastRoundtripSettings);
 
 		// make some artificial crowd
 		for (var i = 0; i < 10; i++)
@@ -210,7 +210,7 @@ public class SqsJobQueueAdapterTests
 			_loggerFactory,
 			AmazonSqsClient,
 			JsonJobSerializer,
-			BatchingConfig);
+			BatchingSettings);
 
 		var expected = Enumerable
 			.Range(0, 100)

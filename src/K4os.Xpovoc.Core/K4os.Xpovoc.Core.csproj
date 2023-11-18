@@ -19,6 +19,7 @@
     <PackageReference Include="System.Reactive"/>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
+    <PackageReference Include="PolySharp"/>
   </ItemGroup>
 
 </Project>

@@ -37,7 +37,7 @@ public class VeryLongRun: IJobHandler
 			loggerFactory,
 			queueFactory,
 			new DefaultJobSerializer(),
-			new SqsJobQueueAdapterConfig { QueueName = queueName, JobConcurrency = 1 },
+			new SqsJobQueueAdapterSettings { QueueName = queueName, JobConcurrency = 1 },
 			testTimeSource);
 		_jobScheduler = new QueueJobScheduler(
 			loggerFactory, adapter, this, testTimeSource);

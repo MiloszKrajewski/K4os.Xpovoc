@@ -20,7 +20,7 @@ internal class TestSqsQueue: ISqsQueue
 		IScheduler scheduler)
 	{
 		_scheduler = scheduler;
-		_visibility = settings.VisibilityTimeout ?? SqsConstants.DefaultVisibilityTimeout;
+		_visibility = settings.VisibilityTimeout;
 	}
 
 	public int InQueue

@@ -175,13 +175,16 @@ internal static class InfiniteScheduling
 	private static void ConfigureSqs(ServiceCollection serviceCollection, XDocument secrets)
 	{
 		serviceCollection.AddSingleton<IAmazonSQS>(
-			p => new AmazonSQSClient(
-				new AmazonSQSConfig { ServiceURL = "http://localhost:9324", }));
-		serviceCollection.AddSingleton<ISqsJobQueueAdapterConfig>(
-			p => new SqsJobQueueAdapterConfig {
+			p => new AmazonSQSClient(new AmazonSQSConfig()));
+//		serviceCollection.AddSingleton<IAmazonSQS>(
+//			p => new AmazonSQSClient(
+//				new AmazonSQSConfig { ServiceURL = "http://localhost:9324", }));
+		serviceCollection.AddSingleton<ISqsJobQueueAdapterSettings>(
+			p => new SqsJobQueueAdapterSettings {
 				QueueName = "xpovoc-playground",
 				JobConcurrency = 16,
-				SqsConcurrency = 16,
+				PullConcurrency = 16,
+				PushConcurrency = 16,
 			});
 		serviceCollection.AddSingleton<IJobQueueAdapter>(
 			p => new SqsJobQueueAdapter(
@@ -189,7 +192,7 @@ internal static class InfiniteScheduling
 				// p.GetRequiredService<ILoggerFactory>(),
 				p.GetRequiredService<IAmazonSQS>(),
 				p.GetRequiredService<IJobSerializer>(),
-				p.GetRequiredService<ISqsJobQueueAdapterConfig>()));
+				p.GetRequiredService<ISqsJobQueueAdapterSettings>()));
 		serviceCollection.AddSingleton<QueueJobScheduler>(
 			p => new QueueJobScheduler(
 				NullLoggerFactory.Instance, 

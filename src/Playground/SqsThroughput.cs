@@ -33,9 +33,10 @@ public static class SqsThroughput
 			loggerFactory,
 			client,
 			new DefaultJobSerializer(),
-			new SqsJobQueueAdapterConfig {
+			new SqsJobQueueAdapterSettings {
 				QueueName = QueueName,
-				SqsConcurrency = 16,
+				PushConcurrency = 16,
+				PullConcurrency = 4,
 				JobConcurrency = 16,
 			});
 
