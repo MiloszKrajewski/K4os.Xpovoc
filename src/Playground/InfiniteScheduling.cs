@@ -33,7 +33,7 @@ namespace Playground;
 internal static class InfiniteScheduling
 {
 	private static readonly int ProduceDelay = 0;
-	private static readonly int ConsumeDelay = 0;
+	private static readonly int ConsumeDelay = 0; // 10*1000;
 	private static readonly int ConsumeThreads = 4;
 	private static readonly bool EnablePruning = true;
 
@@ -183,8 +183,8 @@ internal static class InfiniteScheduling
 			p => new SqsJobQueueAdapterSettings {
 				QueueName = "xpovoc-playground",
 				JobConcurrency = 16,
-				PullConcurrency = 16,
-				PushConcurrency = 64,
+				PullConcurrency = 1,
+				PushConcurrency = 16,
 			});
 		serviceCollection.AddSingleton<IJobQueueAdapter>(
 			p => new SqsJobQueueAdapter(

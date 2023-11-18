@@ -1,3 +1,6 @@
+## 0.3.4 (2023/11/18)
+* ADDED: SQS as scheduler
+
 ## 0.3.3 (2023/01/10)
 * ADDED: Redis storage
 * YAK-SHAVED: build scripts
