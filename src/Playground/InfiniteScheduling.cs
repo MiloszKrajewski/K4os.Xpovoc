@@ -174,17 +174,17 @@ internal static class InfiniteScheduling
 
 	private static void ConfigureSqs(ServiceCollection serviceCollection, XDocument secrets)
 	{
-		serviceCollection.AddSingleton<IAmazonSQS>(
-			p => new AmazonSQSClient(new AmazonSQSConfig()));
 //		serviceCollection.AddSingleton<IAmazonSQS>(
-//			p => new AmazonSQSClient(
-//				new AmazonSQSConfig { ServiceURL = "http://localhost:9324", }));
+//			p => new AmazonSQSClient(new AmazonSQSConfig()));
+		serviceCollection.AddSingleton<IAmazonSQS>(
+			p => new AmazonSQSClient(
+				new AmazonSQSConfig { ServiceURL = "http://localhost:9324", }));
 		serviceCollection.AddSingleton<ISqsJobQueueAdapterSettings>(
 			p => new SqsJobQueueAdapterSettings {
 				QueueName = "xpovoc-playground",
 				JobConcurrency = 16,
 				PullConcurrency = 16,
-				PushConcurrency = 16,
+				PushConcurrency = 64,
 			});
 		serviceCollection.AddSingleton<IJobQueueAdapter>(
 			p => new SqsJobQueueAdapter(
@@ -215,11 +215,12 @@ internal static class InfiniteScheduling
 		// var producer = Task.CompletedTask;
 		// var producerSpeed = Task.CompletedTask;
 		var producer = Task.WhenAll(
-			Task.Run(() => Producer(token, scheduler), token),
-			Task.Run(() => Producer(token, scheduler), token),
-			Task.Run(() => Producer(token, scheduler), token),
-			Task.Run(() => Producer(token, scheduler), token)
-		);
+			Enumerable
+				.Range(0, 4)
+				.Select(_ => Task.Run(() => Producer(token, scheduler), token))
+				.ToArray()
+			);
+
 		var producerSpeed = Task.Run(
 			() => Measure(
 				token,

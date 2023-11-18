@@ -24,13 +24,8 @@ using SqsBatchSubscriber = BatchSubscriber<Message, string>;
 
 public class SqsJobQueueAdapter: IJobQueueAdapter
 {
-	private const int DefaultSqsConcurrency = 1;
-	private const int DefaultJobConcurrency = 4;
 	private const int MinimumBatchConcurrency = 16;
-
-	private static readonly TimeSpan DefaultRetryInterval = TimeSpan.FromSeconds(1);
 	private static readonly TimeSpan MinimumRetryInterval = TimeSpan.Zero;
-	private const int DefaultRetryCount = 0;
 
 	protected ILogger Log { get; }
 
